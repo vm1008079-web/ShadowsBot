@@ -85,7 +85,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
           video: { url: json.result.video },
           mimetype: 'video/mp4',
           fileName: json.result.filename || `${json.result.title}.mp4`,
-          caption: `🔥 *${json.result.title || 'Video'}*`
+          caption: `*「⭐」* ${json.result.title || 'Video'}`
         }, { quoted: m })
 
       } catch (e) {
