@@ -19,7 +19,7 @@ const defaultMenu = {
 > *⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
 
 > ∘₊✧ *Hola, soy %botname*
-> (*%tipo*)
+> ( %tipo )
 
 > ꒷︶꒷‧₊˚ ¿Qué tal *%name*? ˚₊‧꒷︶꒷
 > 𓆩 Actividad = *%uptime*
