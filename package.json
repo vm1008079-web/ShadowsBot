@@ -1,7 +1,7 @@
 {
-  "name": "YuruYuri-MD",
+  "name": "Michi-WaBot-MD",
   "version": "1.0.0",
-  "description": "Yuru Yuri Multi Device",
+  "description": "Michi Multi Device",
   "main": "index.js",
   "type": "module",
   "directories": {
