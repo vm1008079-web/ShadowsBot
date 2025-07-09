@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-let HS = async (m, { conn, text }) => {
+let HS = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) return conn.reply(m.chat, `✎ Ingresa un texto para buscar en pinterest`, m)
 
   try {
@@ -14,12 +14,21 @@ let HS = async (m, { conn, text }) => {
     let { id, created, hd, title } = data
     let HS = `*「✦」 ${title || 'Sin título'}*
 
-> *✦ Creador: » ${created}*
-> *🜸 Link: » https://pinterest.com/pin/${id}*`
+> *✦ creador: » ${created}*
+> *🜸 link: » https://pinterest.com/pin/${id}*`
 
     await conn.sendMessage(m.chat, {
       image: { url: hd },
-      caption: HS
+      caption: HS,
+      footer: '',
+      buttons: [
+        {
+          buttonId: `${usedPrefix}${command} ${text}`,
+          buttonText: { displayText: '✦ Siguiente' },
+          type: 1
+        }
+      ],
+      viewOnce: true
     }, { quoted: m })
 
   } catch (error) {
