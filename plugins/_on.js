@@ -4,7 +4,6 @@ let linkRegex = /chat\.whatsapp\.com\/[0-9A-Za-z]{20,24}/i
 let linkRegex1 = /whatsapp\.com\/channel\/[0-9A-Za-z]{20,24}/i
 const defaultImage = 'https://files.catbox.moe/ubftco.jpg'
 
-
 async function isAdminOrOwner(m, conn) {
   try {
     const groupMetadata = await conn.groupMetadata(m.chat)
@@ -14,7 +13,6 @@ async function isAdminOrOwner(m, conn) {
     return false
   }
 }
-
 
 const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
   if (!m.isGroup) return m.reply('🔒 Solo funciona en grupos.')
@@ -51,20 +49,18 @@ handler.group = true
 handler.tags = ['group']
 handler.help = ['on welcome', 'off welcome', 'on antilink', 'off antilink']
 
-
 handler.before = async (m, { conn }) => {
   if (!m.isGroup) return
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
   const chat = global.db.data.chats[m.chat]
 
-  
+  // ANTIARABE
   if (chat.antiarabe && m.messageStubType === 27) {
     const newJid = m.messageStubParameters?.[0]
     if (!newJid) return
 
     const number = newJid.split('@')[0].replace(/\D/g, '')
     const arabicPrefixes = ['212', '20', '971', '965', '966', '974', '973', '962']
-
     const isArab = arabicPrefixes.some(prefix => number.startsWith(prefix))
 
     if (isArab) {
@@ -74,12 +70,12 @@ handler.before = async (m, { conn }) => {
     }
   }
 
-  
+  // ANTILINK
   if (chat.antilink) {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const isUserAdmin = groupMetadata.participants.find(p => p.id === m.sender)?.admin
-
     const text = m?.text || ''
+
     if (!isUserAdmin && (linkRegex.test(text) || linkRegex1.test(text))) {
       const userTag = `@${m.sender.split('@')[0]}`
       const delet = m.key.participant
@@ -88,7 +84,7 @@ handler.before = async (m, { conn }) => {
       try {
         const ownGroupLink = `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
         if (text.includes(ownGroupLink)) return
-      } catch {}
+      } catch { }
 
       try {
         await conn.sendMessage(m.chat, {
@@ -116,7 +112,7 @@ handler.before = async (m, { conn }) => {
     }
   }
 
-  // Welcome y Bye
+  // WELCOME / BYE
   if (chat.welcome && [27, 28, 32].includes(m.messageStubType)) {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const groupSize = groupMetadata.participants.length
@@ -131,13 +127,12 @@ handler.before = async (m, { conn }) => {
     }
 
     if (m.messageStubType === 27) {
-      const txtWelcome = '↷✦; w e l c o m e ❞
-'
+      const txtWelcome = '↷✦; w e l c o m e ❞'
       const bienvenida = `
 ✿ *Bienvenid@* a *${groupMetadata.subject}*   
 ✰ ${userMention}, qué gusto :D 
 ✦ Ahora somos *${groupSize}*    
->  ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
+> ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
 `.trim()
 
       await conn.sendMessage(m.chat, {
@@ -153,7 +148,7 @@ handler.before = async (m, { conn }) => {
 ✿ *Adiós* de *${groupMetadata.subject}*   
 ✰ ${userMention}, vuelve pronto :>  
 ✦ Somos *${groupSize}* aún.  
->  ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
+> ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
 `.trim()
 
       await conn.sendMessage(m.chat, {
