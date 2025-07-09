@@ -68,11 +68,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
           audio: { url: json.result.audio },
           mimetype: 'audio/mpeg',
           fileName: json.result.filename || `${json.result.title}.mp3`,
-          ptt: true
+          ptt: false
         }, { quoted: m })
 
       } catch (e) {
-        return conn.reply(m.chat, '📍 No se pudo enviar el audio. Tal vez es muy pesado.', m)
+        return conn.reply(m.chat, '> No se pudo enviar el audio. Tal vez es muy pesado.', m)
       }
 
     } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
