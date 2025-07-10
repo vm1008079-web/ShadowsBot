@@ -1,4 +1,16 @@
 let handler = async (m, { conn, command }) => {
+  const rcanal = {
+    contextInfo: {
+      isForwarded: true,
+      forwardingScore: 200,
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: global.idcanal, // asegúrate que esté definido globalmente
+        serverMessageId: 100,
+        newsletterName: global.namecanal
+      }
+    }
+  }
+
   let info = `
 🌿 SYA Survivals - Servidores disponibles
 
@@ -35,7 +47,7 @@ Animate y venite a vivir la experiencia SYA 🐾
 #SYASurvivals #MultiCraft #MinecraftJava
 `.trim()
 
-  await conn.sendMessage(m.chat, { text: info }, { quoted: rcanal }) // usando tu variable global
+  await conn.sendMessage(m.chat, { text: info }, rcanal)
 }
 
 handler.command = ['servers']
