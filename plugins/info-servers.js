@@ -1,4 +1,4 @@
-import fetch from 'node-fetch' // Asegúrate de tener esto arriba
+import fetch from 'node-fetch' // ← Asegúrate de tenerlo instalado
 
 let handler = async (m, { conn, command }) => {
   let info = `
@@ -37,31 +37,23 @@ Animate y venite a vivir la experiencia SYA 🐾
 #SYASurvivals #MultiCraft #MinecraftJava
 `.trim()
 
-  let img = 'https://files.catbox.moe/0ocrpt.png'
-  let thumb = await (await fetch(img)).buffer()
+  let thumb = await (await fetch('https://files.catbox.moe/0ocrpt.png')).buffer()
 
   await conn.sendMessage(m.chat, {
     text: info,
-    mentions: [m.sender],
-  }, {
-    quoted: {
-      key: {
-        fromMe: false,
-        participant: "0@s.whatsapp.net",
-        remoteJid: "status@broadcast"
-      },
-      message: {
-        extendedTextMessage: {
-          text: info,
-          matchedText: info,
-          canonicalUrl: 'https://syateam.com',
-          title: 'SYA TEAM SURVIVALS',
-          description: 'Únete a la comunidad Survival',
-          jpegThumbnail: thumb
-        }
+    contextInfo: {
+      externalAdReply: {
+        title: '🧱 SYA TEAM SURVIVALS',
+        body: '',
+        mediaType: 1,
+        previewType: 0,
+        mediaUrl: 'https://play.google.com/store/apps/details?id=com.multicraft.game',
+        sourceUrl: 'https://syateam.com',
+        thumbnail: thumb,
+        renderLargerThumbnail: true,
       }
     }
-  })
+  }, { quoted: m })
 }
 
 handler.command = ['servers']
