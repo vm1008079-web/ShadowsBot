@@ -13,7 +13,7 @@ let handler = async (m, { conn, command }) => {
 
   let info = `
 「🌿」✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧
-\`𝚆𝙴𝙻𝙲𝙾𝙼𝙴 𝚃𝙾 *SYA SURVIVALS*\`
+\`𝚆𝙴𝙻𝙲𝙾𝙼𝙴 𝚃𝙾 SYA SURVIVALS\`
 
 > ✦↷ \`ᴊᴜɢᴀʀ ʏ ᴄᴏɴsᴛʀᴜɪʀ ᴀʟ ᴍᴀxɪᴍᴏ\`
 
@@ -26,6 +26,8 @@ let handler = async (m, { conn, command }) => {
 \`Modo: Survival\`
 > Código: *Z8TY2ANB*
 \`Estado: 🟢 24/7 ON\`
+
+
 
 \`Servidor 2 (Para PC)\`
 > Versión: *1.8.8*
