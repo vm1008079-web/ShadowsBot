@@ -10,7 +10,7 @@ let handler = async (m, { conn, command }) => {
 *📱 Servidor 1 - MultiCraft (Android)*  
 > 🟢 Plataforma: *MultiCraft Build & Mine*  
 > 📥 Descarga desde la Play Store:  
-> https://play.google.com/store/apps/details?id=com.multicraft.game  
+https://play.google.com/store/apps/details?id=com.multicraft.game  
 > 🎮 Modo: *Survival personalizado*  
 > 🧩 Código de invitación: *Z8TY2ANB*  
 > ⏰ Estado: *Disponible 24/7*  
@@ -36,5 +36,5 @@ let handler = async (m, { conn, command }) => {
   await conn.reply(m.chat, info, m)
 }
 
-handler.command = /^servers$/i
+handler.command = ['servers']
 export default handler
