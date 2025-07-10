@@ -1,38 +1,33 @@
-import fetch from 'node-fetch'
+import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`📢 Usa el comando así:\n\n${usedPrefix + command} Hola.`)
-
-  // Reacción de espera 🌀
-  await conn.sendMessage(m.chat, {
-    react: {
-      text: '🎙️',
-      key: m.key
-    }
-  })
-
-  let voice = 'Jorge'
-  let api = `https://apis-starlights-team.koyeb.app/starlight/loquendo?text=${encodeURIComponent(text)}&voice=${voice}`
+const handler = async (m, { conn, text, command, usedPrefix }) => {
+  if (!text) return m.reply(`❌ Escribe un texto\n*Ejemplo:* ${usedPrefix + command} Hola que pex soy un loquendo xd`);
 
   try {
-    const res = await fetch(api)
-    const json = await res.json()
+    m.react('🎙️');
+    m.reply('🎧 *Generando tu voz Loquendo...*\nEspera un momento 👀');
 
-    if (!json.audio) return m.reply('❌ No se pudo generar el audio.')
+    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/loquendo?text=${encodeURIComponent(text)}&voice=miguel`);
+    const json = await res.json();
+
+    if (!json.audio) throw `❌ Error: No se recibió audio`;
+
+    const audioBuffer = Buffer.from(json.audio, 'base64');
 
     await conn.sendMessage(m.chat, {
-      audio: Buffer.from(json.audio, 'base64'),
+      audio: audioBuffer,
       mimetype: 'audio/mpeg',
-      ptt: true
-    }, { quoted: m })
+      ptt: true // si lo querés como nota de voz
+    }, { quoted: m });
 
   } catch (e) {
-    console.error(e)
-    m.reply('⚠️ Error generando el audio.')
+    console.error(e);
+    m.reply('❌ Ocurrió un error generando el TTS Loquendo');
   }
-}
+};
 
-handler.command = ['tts']
-handler.help = ['tts <texto>']
-handler.tags = ['tools']
-export default handler
+handler.help = ['tts <texto>'];
+handler.tags = ['voz'];
+handler.command = /^tts$/i;
+
+export default handler;
