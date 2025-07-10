@@ -7,7 +7,7 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
     m.react('🎙️');
     m.reply('🎧 *Generando tu voz Loquendo...*\nEspera un momento 👀');
 
-    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/loquendo?text=${encodeURIComponent(text)}&voice=miguel`);
+    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/loquendo?text=${encodeURIComponent(text)}&voice=juan`);
     const json = await res.json();
 
     if (!json.audio) throw `❌ Error: No se recibió audio`;
