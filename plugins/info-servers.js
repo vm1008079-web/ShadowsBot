@@ -1,5 +1,3 @@
-import fetch from 'node-fetch' // ← Asegúrate de tenerlo instalado
-
 let handler = async (m, { conn, command }) => {
   let info = `
 🌿 SYA Survivals - Servidores disponibles
@@ -37,23 +35,7 @@ Animate y venite a vivir la experiencia SYA 🐾
 #SYASurvivals #MultiCraft #MinecraftJava
 `.trim()
 
-  let thumb = await (await fetch('https://files.catbox.moe/0ocrpt.png')).buffer()
-
-  await conn.sendMessage(m.chat, {
-    text: info,
-    contextInfo: {
-      externalAdReply: {
-        title: '🧱 SYA TEAM SURVIVALS',
-        body: '',
-        mediaType: 1,
-        previewType: 0,
-        mediaUrl: 'https://play.google.com/store/apps/details?id=com.multicraft.game',
-        sourceUrl: 'https://syateam.com',
-        thumbnail: thumb,
-        renderLargerThumbnail: true,
-      }
-    }
-  }, { quoted: m })
+  await conn.sendMessage(m.chat, { text: info }, { quoted: rcanal }) // usando tu variable global
 }
 
 handler.command = ['servers']
