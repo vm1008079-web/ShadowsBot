@@ -50,14 +50,14 @@ const handler = async (m, { conn, text }) => {
     "「★」✧─────── · · ·",
     "乂  M U S I C  -  Y O U T U B E",
     "",
-    `› *${title}*`,
-    `> ● 𝖢𝖺𝗇𝖺𝗅 › *${author.name}*`,
-    `> ● 𝖣𝗎𝗋𝖺𝖼𝗂𝗈𝗇 › *${timestamp}*`,
-    `> ● 𝖵𝗂𝗌𝗍𝖺𝗌 › *${formatViews(views)}*`,
-    `> ● 𝖯𝗎𝖻𝗅𝗂𝖼𝖺𝖽𝗈 › *${ago || "desconocido"}*`,
-    `> ● 𝖤𝗇𝗅𝖺𝖼𝖾 › *${url}*`,
+    `⟩ *${title}*`,
+    `> ● Canal › *${author.name}*`,
+    `> ● Duración › *${timestamp}*`,
+    `> ● Vistas › *${formatViews(views)}*`,
+    `> ● Publicado › *${ago || "desconocido"}*`,
+    `> ● Link › *${url}*`,
     "",
-    "❐ 𝖱𝖾𝗌𝗉𝗈𝗇𝖽𝖾 𝖼𝗈𝗇 *Audio* 𝗈 *Video* 𝗉𝖺𝗋𝖺 𝖽𝖾𝗌𝖼𝖺𝗋𝗀𝖺𝗋 ✧"
+    "❐ Responde con *Audio* o *Video* para descargar ✧"
   ].join("\n");
 
   await conn.sendMessage(m.chat, {
