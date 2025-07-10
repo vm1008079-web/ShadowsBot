@@ -14,7 +14,9 @@ let handler = async (m, { conn, command }) => {
   let info = `
 「🌿」✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧
 \`𝚆𝙴𝙻𝙲𝙾𝙼𝙴 𝚃𝙾 *SYA SURVIVALS*\`
+
 > ✦↷ \`ᴊᴜɢᴀʀ ʏ ᴄᴏɴsᴛʀᴜɪʀ ᴀʟ ᴍᴀxɪᴍᴏ\`
+
 ✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧
 
 \`Servidor 1 (Para Android)\`
@@ -27,6 +29,7 @@ let handler = async (m, { conn, command }) => {
 
 \`Servidor 2 (Para PC)\`
 > Versión: *1.8.8*
+> Plataforma: Minecraft Java
 > IP: *207.180.254.11:12005*
 \`Modo: Survival\`
 \`Estado: 🟢 Siempre ONLINE\`
