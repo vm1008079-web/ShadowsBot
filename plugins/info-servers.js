@@ -36,7 +36,7 @@ Animate y venite a vivir la experiencia SYA 🐾
 `.trim()
 
   // URL de imagen de Minecraft para usar de thumbnail
-  let imgUrl = 'https://i.imgur.com/qR1lhKh.jpeg' // imagen de Minecraft estilo clásico, la puedes cambiar si quieres
+  let imgUrl = 'https://files.catbox.moe/0ocrpt.png' // imagen de Minecraft estilo clásico, la puedes cambiar si quieres
 
   await conn.sendMessage(m.chat, {
     text: info,
