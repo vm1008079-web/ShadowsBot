@@ -12,16 +12,16 @@
   "scripts": {
     "start": "node index.js"
   },
-  "homepage": "https://github.com/Im-Ado/Yuru-Yuri",
+  "homepage": "https://github.com/Ado-rgb/Michi-Wa",
   "author": {
-    "name": "Im-Ado"
+    "name": "Ado-rgb"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Im-Ado/Yuru-Yuri.git"
+    "url": "git+https://github.com/Ado-rgb/Michi-Wa.git"
   },
   "bugs": {
-    "url": "https://github.com/Im-Ado/Yuru-Yuri/issues"
+    "url": "https://github.com/Ado-rgb/Michi-Wa/issues"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
