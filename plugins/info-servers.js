@@ -14,7 +14,7 @@ let handler = async (m, { conn, command }) => {
   let info = `
 「🌿」✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧
 \`𝚆𝙴𝙻𝙲𝙾𝙼𝙴 𝚃𝙾 *SYA SURVIVALS*\`
-> ✦↷ \`ᴊᴜᴇɢᴀ ʏ ᴄᴏɴsᴛʀᴜɪʀ ᴀʟ ᴍᴀxɪᴍᴏ\`
+> ✦↷ \`ᴊᴜɢᴀʀ ʏ ᴄᴏɴsᴛʀᴜɪʀ ᴀʟ ᴍᴀxɪᴍᴏ\`
 ✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧
 
 \`Servidor 1 (Para Android)\`
