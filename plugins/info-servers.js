@@ -11,7 +11,7 @@ let handler = async (m, { conn, command }) => {
 > 🟢 Plataforma: *MultiCraft Build & Mine*  
 > 📥 Descarga desde la Play Store:  
 https://play.google.com/store/apps/details?id=com.multicraft.game  
-> 🎮 Modo: *Survival personalizado*  
+> 🎮 Modo: *Survival*  
 > 🧩 Código de invitación: *Z8TY2ANB*  
 > ⏰ Estado: *Disponible 24/7*  
 > 🤝 Ideal pa jugar desde el cel con tus compas y construir en paz 🏡  
@@ -21,7 +21,7 @@ https://play.google.com/store/apps/details?id=com.multicraft.game
 *💻 Servidor 2 - Minecraft Java (PC)*  
 > 🔸 Versión recomendada: *1.8.8*  
 > 🌐 IP del servidor: *207.180.254.11:12005*  
-> 🎮 Modo: *Survival clásico*  
+> 🎮 Modo: *Survival*  
 > ⏰ Estado: *En línea siempre*  
 > 🧱 Perfecto pa los que juegan en compu y les gusta el survival puro 🗺️  
 
