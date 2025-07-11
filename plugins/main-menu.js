@@ -151,6 +151,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 }
 
 handler.command = ['menu', 'help', 'menú']
+handler.register = true
 export default handler
 
 // Utilidades
