@@ -1,48 +1,35 @@
-import fs from 'fs'
-const dbPath = './database.json'
-
-const loadDatabase = () => {
-  if (!fs.existsSync(dbPath)) return { users: {} }
-  const raw = fs.readFileSync(dbPath, 'utf-8')
-  if (!raw) return { users: {} }
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return { users: {} }
-  }
-}
-
-const saveDatabase = (db) => {
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
-}
+import Database from '../lib/database.js' // ajusta según tu ruta
+const db = new Database('./database.json')
 
 const handler = async (m, { conn, args }) => {
-  // Cargo la base actualizada
-  let database = loadDatabase()
-
   const userId = m.sender
 
-  if (database.users[userId]) {
-    const user = database.users[userId]
+  // Si ya está registrado
+  if (db.data.users?.[userId]) {
+    const user = db.data.users[userId]
     const fecha = new Date(user.registeredAt)
-    const text =
+    const msg =
 `☁︎ ✐ Ya estás registrado ✐ ☁︎
 
 ✦ Nombre: *${user.name}*
 ✦ Edad: *${user.age}*
 ✦ ID: *${userId.split('@')[0]}*
-✦ Fecha de registro: *${fecha.toLocaleDateString()}*`
+✦ Fecha: *${fecha.toLocaleDateString()}*
+✦ Hora: *${fecha.toLocaleTimeString()}*
 
-    let pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+☄︎ Gracias por usar el bot ☄︎`
 
-    return await conn.sendMessage(m.chat, {
+    const pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+    return conn.sendMessage(m.chat, {
       image: { url: pfp || 'https://files.catbox.moe/akyfv4.jpg' },
-      caption: text
+      caption: msg
     }, { quoted: m })
   }
 
+  // Validación del formato
   if (args.length < 2) {
-    return m.reply(`☁︎ ✐ Formato incorrecto ✐ ☁︎
+    return m.reply(
+`☁︎ ✐ Formato incorrecto ✐ ☁︎
 
 Usa: *.reg Nombre Edad*
 Ejemplo: *.reg Adonay 17*
@@ -52,19 +39,23 @@ Ejemplo: *.reg Adonay 17*
 
   const name = args[0]
   const age = parseInt(args[1])
-
   if (isNaN(age) || age < 1) return m.reply('☁︎ ✐ Edad inválida ✐ ☁︎')
 
   const fechaRegistro = new Date().toISOString()
 
-  // Guardar al user en la base y salvar
-  database.users[userId] = {
+  // Crear usuario en DB
+  if (!db.data.users) db.data.users = {}
+
+  db.data.users[userId] = {
     name,
     age,
-    registeredAt: fechaRegistro
+    registeredAt: fechaRegistro,
+    money: 0,
+    bank: 0,
+    level: 1
   }
 
-  saveDatabase(database)
+  db.save() // guardar cambios
 
   const fecha = new Date(fechaRegistro)
   const replyText =
@@ -73,15 +64,20 @@ Ejemplo: *.reg Adonay 17*
 ✦ Nombre: *${name}*
 ✦ Edad: *${age}*
 ✦ ID: *${userId.split('@')[0]}*
-✦ Fecha de registro: *${fecha.toLocaleDateString()}*`
+✦ Fecha: *${fecha.toLocaleDateString()}*
+✦ Hora: *${fecha.toLocaleTimeString()}*
 
-  let profilePic = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+☄︎ Bienvenido ☄︎`
 
-  return await conn.sendMessage(m.chat, {
-    image: { url: profilePic || 'https://files.catbox.moe/akyfv4.jpg' },
+  const pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+
+  return conn.sendMessage(m.chat, {
+    image: { url: pfp || 'https://files.catbox.moe/akyfv4.jpg' },
     caption: replyText
   }, { quoted: m })
 }
 
+handler.help = ['reg']
+handler.tags = ['eco']
 handler.command = ['reg', 'register']
 export default handler
