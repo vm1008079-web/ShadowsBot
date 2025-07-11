@@ -5,7 +5,7 @@ let handler = async (m, { conn, args }) => {
 
   try {
     await m.react('⏳')
-    conn.reply(m.chat, `🧠 Procesando su solicitud...`, m)
+    conn.reply(m.chat, `> Procesando su solicitud...`, m)
 
     let url = `https://image.thum.io/get/fullpage/${args[0]}`
     let res = await fetch(url, {
@@ -35,5 +35,5 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['ss <página web>']
 handler.tags = ['tools']
 handler.command = ['ssweb', 'ss']
-
+handler.register = true
 export default handler
