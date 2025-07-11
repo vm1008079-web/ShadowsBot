@@ -69,5 +69,5 @@ const handler = async (m, { conn, text }) => {
 handler.command = ["play"];
 handler.help = handler.command;
 handler.tags = ["downloader"];
-handler.register = true
+handler.register = true;
 export default handler;
