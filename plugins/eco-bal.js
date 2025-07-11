@@ -33,4 +33,5 @@ const handler = async (m) => {
 handler.help = ['bal']
 handler.tags = ['eco']
 handler.command = ['bal', 'wallet', 'dinero']
+handler.register = true 
 export default handler
