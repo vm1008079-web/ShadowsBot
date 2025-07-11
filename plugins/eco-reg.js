@@ -13,8 +13,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   if (user.registered === true) {
     return m.reply(
-`✩*⢄⢁✧ --------- ✧⡈⡠*✩
-❐ Ya estás registrado
+`❐ *Ya estás registrado* ❐
 
 ¿Quieres volver a registrarte?
 ➩ Usa: *${usedPrefix}unreg*`)
@@ -22,8 +21,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   if (!Reg.test(text)) {
     return m.reply(
-`✩*⢄⢁✧ --------- ✧⡈⡠*✩
-❐ Formato incorrecto
+`❐ *Formato incorrecto* ❐
 
 ➩ Usa: *${usedPrefix + command} nombre.edad*
 ➩ Ejemplo: *${usedPrefix + command} ${name2}.18*`)
@@ -31,14 +29,14 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   let [_, name, splitter, age] = text.match(Reg)
 
-  if (!name) return m.reply('➩✧ El nombre no puede estar vacío ❐')
-  if (!age) return m.reply('➩✧ La edad no puede estar vacía ❐')
-  if (name.length >= 100) return m.reply('➩✧ El nombre es demasiado largo ❐')
+  if (!name) return m.reply('> ✐ El nombre no puede estar vacío ❐')
+  if (!age) return m.reply('> ✐ La edad no puede estar vacía ❐')
+  if (name.length >= 100) return m.reply('> ✐ El nombre es demasiado largo ❐')
 
   age = parseInt(age)
-  if (isNaN(age)) return m.reply('➩✧ Edad inválida ❐')
-  if (age > 1000) return m.reply('➩✧ Wow, el abuelo quiere usar el bot 💀')
-  if (age < 5) return m.reply('➩✧ Hay un bebé queriendo jugar jsjs 👶')
+  if (isNaN(age)) return m.reply('> ✐ Edad inválida ❐')
+  if (age > 1000) return m.reply('> ✐ Wow, el abuelo quiere usar el bot 💀')
+  if (age < 5) return m.reply('> ✐ Hay un bebé queriendo jugar jsjs 👶')
 
   // Guardar datos
   user.name = name + '✓'
@@ -54,18 +52,33 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   const regbot = 
 `✩*⢄⢁✧ --------- ✧⡈⡠*✩
-   ✧ Registro exitoso ✧
-➥ Nombre: *${name}*
-➥ Edad: *${age}*
-➥ ID: *${userId.split('@')[0]}*
-➥ Fecha: *${fecha.toLocaleDateString()}*`
+❐ *Registro exitoso* ❐
+
+> ✐ Nombre: *${name}*
+> ✐ Edad: *${age}*
+> ✐ ID: *${userId.split('@')[0]}*
+> ✐ Fecha: *${fecha.toLocaleDateString()}*`
 
   await m.react('📩')
 
+  // Enviar al usuario con su foto
   await conn.sendMessage(m.chat, {
     image: { url: pp },
     caption: regbot
   }, { quoted: m })
+
+  // Enviar notificación al canal con la misma imagen
+  await conn.sendMessage('120363402895449162@newsletter', {
+    image: { url: pp },
+    caption: 
+`❐ *Nuevo Registro* ❐
+
+> ✐ Nombre: *${name}*
+> ✐ Edad: *${age}*
+> ✐ ID: *${userId.split('@')[0]}*
+> ✐ Fecha: *${fecha.toLocaleDateString()}*
+> ✐ Hora: *${fecha.toLocaleTimeString()}*`
+  })
 }
 
 handler.help = ['reg']
