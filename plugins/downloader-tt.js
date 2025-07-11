@@ -7,7 +7,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     );
 
   try {
-    await m.react('🎴');
+    await m.react('🕒');
 
     const api = `https://theadonix-api.vercel.app/api/tiktok?url=${encodeURIComponent(text)}`;
     const res = await fetch(api);
@@ -39,5 +39,5 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = ['tiktok <enlace>'];
 handler.tags = ['downloader'];
 handler.command = ['ttdl', 'tt', 'tiktok'];
-
+handler.register = true;
 export default handler;
