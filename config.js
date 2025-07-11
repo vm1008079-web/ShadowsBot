@@ -24,6 +24,7 @@ global.packname = '✦ Michi-Wa ✦'
 global.namebot = '✧ Michi-Wa ✧'
 global.author = '© Made with ☁︎ Wirk ✧'
 global.moneda = '✦ Mangos ✦'
+global.canalreg = '120363402895449162@newsletter'
 
 global.namecanal = '✧ Michi Wa Channel • Ado ☎︎'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
