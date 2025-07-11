@@ -488,7 +488,7 @@ break
 //const channels = _.values(conn.chats).filter(c => c.id && c.id.endsWith("@newsletter"))
 
 }}
-handler.tags = ['tools']
+handler.tags = ['channel']
 handler.command = handler.help = ['nuevafotochannel', 'nosilenciarcanal', 'silenciarcanal', 'noseguircanal', 'seguircanal', 'avisoschannel', 'resiviravisos', 'inspect', 'inspeccionar', 'eliminarfotochannel', 'reactioneschannel', 'reaccioneschannel', 'nuevonombrecanal', 'nuevadescchannel']
 handler.register = false
 export default handler 
