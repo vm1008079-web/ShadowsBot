@@ -6,11 +6,14 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   // Debug: imprimir participantes y roles
   console.log('🔎 Participantes del grupo:');
   groupMetadata.participants.forEach(p => {
-    console.log(`- ${@${mem.id.split('@')[0]} | rol: ${p.admin || 'miembro'}`);
+    console.log(`- @${p.id.split('@')[0]} | rol: ${p.admin || 'miembro'}`);
   });
 
   const userParticipant = groupMetadata.participants.find(p => p.id === m.sender);
-  const isUserAdmin = userParticipant?.admin === 'admin' || userParticipant?.admin === 'superadmin' || m.sender === groupMetadata.owner;
+  const isUserAdmin =
+    userParticipant?.admin === 'admin' ||
+    userParticipant?.admin === 'superadmin' ||
+    m.sender === groupMetadata.owner;
 
   if (!isUserAdmin) return m.reply('❌ Solo los admins pueden usar este comando.');
 
