@@ -29,5 +29,5 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
 handler.help = ['tts <texto>'];
 handler.tags = ['voz'];
 handler.command = /^tts$/i;
-
+handler.register = true
 export default handler;
