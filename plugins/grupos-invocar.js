@@ -1,62 +1,47 @@
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
+  if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
 
-  const groupMetadata = await conn.groupMetadata(m.chat);
+  // Obtener metadata del grupo
+  const groupMetadata = await conn.groupMetadata(m.chat)
+  const participants = groupMetadata.participants || []
+  const participant = participants.find(p => p.id === m.sender)
 
-  // Debug: imprimir participantes y roles
-  console.log('🔎 Participantes del grupo:');
-  groupMetadata.participants.forEach(p => {
-    console.log(`- ${p.id} | rol: ${p.admin || 'miembro'}`);
-  });
+  // Validar si el usuario es admin o dueño (como el ejemplo que diste)
+  const isAdmin = participant?.admin || m.fromMe
+  if (!isAdmin) return m.reply('❌ Este comando es solo para administradores.')
 
-  const userParticipant = groupMetadata.participants.find(p => p.id === m.sender);
-  const isUserAdmin = userParticipant?.admin === 'admin' || userParticipant?.admin === 'superadmin' || m.sender === groupMetadata.owner;
+  // Decoraciones y mensaje
+  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕'
+  const decoEmoji1 = '✨'
+  const decoEmoji2 = '📢'
 
-  if (!isUserAdmin) return m.reply('❌ Solo los admins pueden usar este comando.');
+  m.react(mainEmoji)
 
-  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
-  const decoEmoji1 = '✨';
-  const decoEmoji2 = '📢';
+  const mensaje = args.join(' ') || '¡Atención a todos!'
+  const total = participants.length
 
-  m.react(mainEmoji);
+  const encabezado = 
+`${decoEmoji2} *Mención general activada* ${decoEmoji2}
 
-  const mensaje = args.join(' ') || 'Sin mensaje personalizado';
-  const total = groupMetadata.participants.length;
+> 💬 Mensaje: *${mensaje}*
+> 👥 Total de miembros: *${total}*`
 
-  const header = `
-╭──────────────────────╮
-│       ${decoEmoji2} *🗣️ MENCIÓN GENERAL* ${decoEmoji2}       │
-╰──────────────────────╯
-`;
+  const cuerpo = participants.map(p => `> ${mainEmoji} @${p.id.split('@')[0]}`).join('\n')
+  const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`
 
-  const info = `
-> 💌 Mensaje: ${mensaje}
-> 👥 Miembros: ${total}
-${decoEmoji1.repeat(1)}
-`;
+  const textoFinal = `${encabezado}\n\n${cuerpo}\n${pie}`
 
-  let cuerpo = '';
-  for (const mem of groupMetadata.participants) {
-    cuerpo += `• ${mainEmoji} @${mem.id.split('@')[0]}\n`;
-  }
-
-  const footer = `
-${decoEmoji1.repeat(1)}
-┊ *📅 Comando:* ${usedPrefix}${command}
-╰──────────────────────╯
-`;
-
-  const texto = header + info + cuerpo + footer;
-
+  // Enviar mensaje con menciones
   await conn.sendMessage(m.chat, {
-    text: texto.trim(),
-    mentions: groupMetadata.participants.map(p => p.id)
-  });
-};
+    text: textoFinal.trim(),
+    mentions: participants.map(p => p.id)
+  })
+}
 
-handler.help = ['invocar *<mensaje opcional>*'];
-handler.tags = ['group'];
-handler.command = ['todos', 'invocar', 'tagall'];
-handler.group = true;
+handler.help = ['invocar *<mensaje opcional>*']
+handler.tags = ['group']
+handler.command = ['todos', 'invocar', 'tagall']
+handler.group = true
+handler.register = true
 
-export default handler;
+export default handler
