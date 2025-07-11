@@ -50,7 +50,5 @@ const handler = async (m, { conn }) => {
 
 handler.customPrefix = /^(audio|Audio)$/i;
 handler.command = new RegExp;
-handler.help = ["audio"];
-handler.tags = ["downloader"];
 
 export default handler;
