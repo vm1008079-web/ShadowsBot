@@ -10,7 +10,7 @@ const handler = async (m, { conn, args, usedPrefix, text, command }) => {
 
   let vid = json.data[0]
 
-  let caption = `「💜」*${vid.title}*\n\n` +
+  let caption = `💜 \`${vid.title}\`\n\n` +
                 `> ✦ *Autor:* » ${vid.author}\n` +
                 `> ✰ *Vistas:* » ${vid.views.toLocaleString()}\n` +
                 `> 🜸 *Link:* » ${vid.url}`
@@ -24,5 +24,5 @@ const handler = async (m, { conn, args, usedPrefix, text, command }) => {
 handler.help = ['tiktokvid']
 handler.tags = ['downloader']
 handler.command = ['tiktokvid', 'playtiktok']
-
+handler.register = true
 export default handler
