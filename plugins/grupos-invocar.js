@@ -7,6 +7,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const participants = groupMetadata.participants;
   const owner = groupMetadata.owner;
 
+  // Mostrar todos los participantes y roles (solo para debug)
   console.log('=== Lista de participantes y su rol ===');
   participants.forEach(p => {
     const rol = (cleanId(p.id) === cleanId(owner)) ? 'owner' : (p.admin ? p.admin : 'miembro normal');
@@ -14,17 +15,23 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   });
   console.log('====================================');
 
-  // Buscar participante comparando solo la parte limpia del ID
+  // Buscar participante con id limpio
   const userParticipant = participants.find(p => cleanId(p.id) === cleanId(m.sender));
 
+  console.log('=== Info completa del participante que envió el mensaje ===');
+  console.log(JSON.stringify(userParticipant, null, 2)); // Imprime todo el objeto en consola
+  console.log('===========================================================');
+
+  // Ahora chequeamos admin basado en lo que encontremos
   const isUserAdmin = (() => {
     if (!userParticipant) return false;
     if (cleanId(m.sender) === cleanId(owner)) return true;
-    const adminStatus = userParticipant.admin;
+    // Por si acaso admin viene con mayúsculas o distinto
+    const adminStatus = (userParticipant.admin || '').toLowerCase();
     return adminStatus === 'admin' || adminStatus === 'superadmin' || adminStatus === 'owner';
   })();
 
-  console.log(`¿El usuario que mando el comando (${m.sender}) es admin? ${isUserAdmin}`);
+  console.log(`¿El usuario que mandó el comando (${m.sender}) es admin? ${isUserAdmin}`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
 
