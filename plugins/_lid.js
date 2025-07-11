@@ -8,4 +8,5 @@ const handler = async (m, { conn }) => {
 handler.command = ["lid", "getid"];
 handler.tags = ["tools"];
 handler.help = ["lid"];
+handler.register = true;
 export default handler;
