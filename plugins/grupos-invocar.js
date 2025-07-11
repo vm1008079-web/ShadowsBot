@@ -1,27 +1,25 @@
 const cleanId = (id = '') => id.replace(/\D/g, '');
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
+  if (!m.isGroup) return m.reply('🔒 Este comando solo en grupos.');
 
   const groupMetadata = await conn.groupMetadata(m.chat);
   const participants = groupMetadata.participants || [];
-  const ownerNumber = cleanId(groupMetadata.owner || '');
+  const ownerId = groupMetadata.owner || '';
 
+  const admins = getGroupAdmins(participants);
   const senderNumber = cleanId(m.sender);
+  const ownerNumber = cleanId(ownerId);
 
-  // Obtener admins reales con la función de Baileys
-  const admins = await conn.groupAdmins(m.chat); // Array de JIDs admin
-
-  // Validar si el que mandó el comando está en admins
-  const isUserAdmin = admins.some(adminJid => cleanId(adminJid) === senderNumber) || senderNumber === ownerNumber;
+  // Validar si el que envió el comando es admin o dueño
+  const isUserAdmin = admins.some(adminId => cleanId(adminId) === senderNumber) || senderNumber === ownerNumber;
 
   console.log(`Tu número: ${senderNumber}`);
-  console.log('Admins del grupo:', admins);
+  console.log('Admins:', admins);
   console.log(`¿Sos admin?: ${isUserAdmin}`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
 
-  // Continuamos si es admin
   const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
   const decoEmoji1 = '✨';
   const decoEmoji2 = '📢';
