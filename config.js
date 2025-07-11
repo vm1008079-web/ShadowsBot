@@ -25,7 +25,7 @@ global.namebot = '✧ Michi-Wa ✧'
 global.author = '© Made with ☁︎ Wirk ✧'
 global.moneda = '✦ Mangos ✦'
 
-global.namecanal = '✧ Ado Channel ☎︎'
+global.namecanal = '✧ Michi Wa Channels • Ado ☎︎'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.idcanal = '120363403739366547@newsletter'
 
