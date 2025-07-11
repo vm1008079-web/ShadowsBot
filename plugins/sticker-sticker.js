@@ -40,7 +40,7 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['sticker']
 handler.tags = ['sticker']
 handler.command = ['s', 'sticker', 'stiker']
-
+handler.register = true
 export default handler
 
 async function toWebp(buffer, opts = {}) {
