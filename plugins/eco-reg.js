@@ -31,15 +31,12 @@ const handler = async (m, { conn, args }) => {
 ✦ Nombre: *${user.name}*
 ✦ Edad: *${user.age}*
 ✦ ID: *${userId.split('@')[0]}*
-✦ Fecha de registro: *${fecha.toLocaleDateString()}*
-✦ Hora de registro: *${fecha.toLocaleTimeString()}*
-
-☄︎ Gracias por usar el bot ☄︎`
+✦ Fecha de registro: *${fecha.toLocaleDateString()}*`
 
     let pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
 
     return await conn.sendMessage(m.chat, {
-      image: { url: pfp || 'https://i.imgur.com/4V6VqZB.png' },
+      image: { url: pfp || 'https://files.catbox.moe/akyfv4.jpg' },
       caption: text
     }, { quoted: m })
   }
