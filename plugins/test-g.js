@@ -79,7 +79,7 @@ const handler = async (msg, { conn, args }) => {
   await conn.sendMessage(chatId, messageOptions, { quoted: msg })
 }
 
-handler.command = ['g']
+handler.command = ['t']
 handler.group = true
 handler.private = false
 
