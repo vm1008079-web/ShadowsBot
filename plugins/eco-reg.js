@@ -16,10 +16,10 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const moneda = global.moneda || '💰'
   const reinoEspiritual = global.idcanal || null
 
-  // Asegurar que los campos existen
-  user.coin ??= 0
-  user.exp ??= 0
-  user.joincount ??= 0
+  // Asignar valores por defecto si no existen
+  if (user.coin === undefined) user.coin = 0
+  if (user.exp === undefined) user.exp = 0
+  if (user.joincount === undefined) user.joincount = 0
 
   if (user.registered) {
     return m.reply(
@@ -78,16 +78,16 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   if (reinoEspiritual) {
     const mensajeNotificacion = `
-✦ 〘 *Nuevo Registro* 〙✦
+☄︎✦❀ 〘 *Nuevo Registro* 〙❀✦☄︎
 
-✦ Nombre: *${name}*
-✦ Edad: *${age}*
+☄︎ Nombre: *${name}*
+☁︎ Edad: *${age}*
 ✦ ID: *${sn}*
 ✦ Fecha: *${moment().format('YYYY-MM-DD HH:mm:ss')}*
 
-❀ Recompensas ❀
-★︎ ${moneda}: *+46*
-⚡ Experiencia: *+310*
+❀ Recompensas del pacto ❀
+✦ ${moneda}: *+46*
+⚡ EXP: *+310*
 🎟️ Bonos: *+25*
 `.trim()
 
