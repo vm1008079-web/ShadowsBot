@@ -41,7 +41,7 @@ const defaultMenu = {
 
 %readmore`.trimStart(),
 
-  header: '\n> *꒷︶꒷꒥꒷‧₊˚ %category*',
+  header: '\n*꒷︶꒷꒥꒷‧₊˚ %category*',
   body: '> ⤿ %cmd %islimit %isPremium',
   footer: '> *꒷꒦꒷꒦꒷꒷꒦꒷꒦꒷꒦꒷꒦꒷꒷*',
   after: '\n✦ 𓆩 *Made By 𝗪𝗶𝗿𝗸* ☁︎',
