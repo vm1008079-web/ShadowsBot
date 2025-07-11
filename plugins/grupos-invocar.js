@@ -26,7 +26,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   const isUserAdmin = userParticipant.admin === 'admin' || userParticipant.admin === 'superadmin' || cleanId(groupMetadata.owner) === senderNumber;
 
-  console.log(`📨 Sender: ${m.sender} → ${senderNumber}`);
+  console.log(`📨 Sender: ${p.id} → ${senderNumber}`);
   console.log(`🔎 ¿Es admin?: ${isUserAdmin}\n`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
