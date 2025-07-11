@@ -16,7 +16,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, {
       image: { url: json.result.image },
-      caption: `📍 *Prompt:* ${prompt}\n> 👤 Usando Adonix API`
+      caption: `☔ *Prompt:* ${prompt}\n> Usando Adonix API`
     }, { quoted: m })
 
   } catch (e) {
@@ -29,5 +29,5 @@ handler.command = ['dalle']
 handler.help = ['dalle <texto>']
 handler.tags = ['ia']
 handler.register = false
-
+handler.register = true
 export default handler
