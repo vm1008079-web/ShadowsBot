@@ -1,5 +1,4 @@
-// 📁 plugins/grupo-tagall.js
-const handler = async (msg, { sock, isOwner }) => {
+const handler = async (msg, { conn, isOwner }) => {
   try {
     const chatId = msg.key.remoteJid
     const sender = (msg.key.participant || msg.key.remoteJid).replace(/[^0-9]/g, '')
@@ -7,21 +6,21 @@ const handler = async (msg, { sock, isOwner }) => {
     const isBotMessage = msg.key.fromMe
 
     // Reacción inicial
-    await sock.sendMessage(chatId, { react: { text: '🔊', key: msg.key } })
+    await conn.sendMessage(chatId, { react: { text: '🔊', key: msg.key } })
 
     if (!isGroup) {
-      await sock.sendMessage(chatId, {
+      await conn.sendMessage(chatId, {
         text: '⚠️ *Este comando solo se puede usar en grupos.*'
       }, { quoted: msg })
       return
     }
 
-    const metadata = await sock.groupMetadata(chatId)
+    const metadata = await conn.groupMetadata(chatId)
     const participant = metadata.participants.find(p => p.id.includes(sender))
     const isAdmin = participant?.admin === 'admin' || participant?.admin === 'superadmin'
 
     if (!isAdmin && !isOwner(sender) && !isBotMessage) {
-      await sock.sendMessage(chatId, {
+      await conn.sendMessage(chatId, {
         text: '❌ *Este comando solo puede usarlo un administrador o el dueño del bot.*'
       }, { quoted: msg })
       return
@@ -44,14 +43,14 @@ const handler = async (msg, { sock, isOwner }) => {
 
     const mentionIds = participants.map(p => p.id)
 
-    await sock.sendMessage(chatId, {
+    await conn.sendMessage(chatId, {
       text: finalMsg,
       mentions: mentionIds
     }, { quoted: msg })
 
   } catch (error) {
     console.error('❌ Error en el comando tagall:', error)
-    await sock.sendMessage(msg.key.remoteJid, {
+    await conn.sendMessage(msg.key.remoteJid, {
       text: '❌ Ocurrió un error al ejecutar el comando tagall.'
     }, { quoted: msg })
   }
