@@ -102,6 +102,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.command = handler.help = ['play2', 'ytv', 'ytmp4', 'playaudio', 'mp4']
 handler.tags = ['downloader']
+handler.register = true
 export default handler
 
 function formatViews(views) {
