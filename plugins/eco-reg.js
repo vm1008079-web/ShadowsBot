@@ -76,8 +76,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 > ✐ Nombre: *${name}*
 > ✐ Edad: *${age}*
 > ✐ ID: *${userId.split('@')[0]}*
-> ✐ Fecha: *${fecha.toLocaleDateString()}*
-> ✐ Hora: *${fecha.toLocaleTimeString()}*`
+> ✐ Fecha: *${fecha.toLocaleDateString()}*`
   })
 }
 
