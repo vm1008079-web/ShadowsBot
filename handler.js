@@ -326,7 +326,7 @@ global.dfail = (type, m, conn, usedPrefix) => {
         private: '🔒 Solo en Chat *Privado* puedes usar este comando.',
         admin: '⚔️ Solo los *Admins* del Grupo pueden usar este comando.',
         botAdmin: '🤖 La Bot debe ser *Admin* para ejecutar esto.',
-        unreg: '> 📝 Debes estar *Registrado* para usar este comando.\n*Usa .reg Nombre Edad*',
+        unreg: '> ☄︎ Debes estar *Registrado* para usar este comando.\n *Ejemplo :* .reg Ado.55',
         restrict: '⛔ Esta función está *deshabilitada*.'
     }
 
