@@ -56,7 +56,7 @@ let handler = async (m, { conn, args }) => {
 
         let message = `*✿ Personajes reclamados ✿*\n`
         message += `> ⌦ User » @${userId.split('@')[0]}\n`
-        message += `> ☄︎ Personajes »*(${totalCharacters}):*\n\n`
+        message += `> ☄︎ Personajes » *(${totalCharacters}):*\n\n`
 
         for (let i = startIndex; i < endIndex; i++) {
             const character = userCharacters[i]
