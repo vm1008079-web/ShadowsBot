@@ -20,7 +20,7 @@ let handler = async (m, { conn, args }) => {
       const res = await fetch(args[0])
       buffer = await res.buffer()
     } else {
-      return conn.reply(m.chat, '✧ Responde con una *Imagen, Sticker, Video, Webm o Tgs* para convertirlo en sticker. ✿', m, rcanal)
+      return conn.reply(m.chat, '☄︎ Por favor, envía una *imagen* o *video* para hacer un sticker.', m, rcanal)
     }
 
     await m.react('🕓')
