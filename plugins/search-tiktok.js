@@ -65,5 +65,5 @@ ${usedPrefix + command} baile divertido
 handler.tags = ['search']
 handler.help = ['tiktoksearch']
 handler.command = ['tiktoksearch', 'tiktoks', 'tts']
-
+handler.register = true
 export default handler
