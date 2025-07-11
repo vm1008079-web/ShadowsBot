@@ -7,29 +7,16 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const participants = groupMetadata.participants;
   const owner = groupMetadata.owner;
 
-  // Mostrar todos los participantes y roles (solo para debug)
-  console.log('=== Lista de participantes y su rol ===');
-  participants.forEach(p => {
-    const rol = (cleanId(p.id) === cleanId(owner)) ? 'owner' : (p.admin ? p.admin : 'miembro normal');
-    console.log(`Usuario: ${p.id} - Rol: ${rol}`);
-  });
-  console.log('====================================');
+  const groupAdmins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin').map(p => p.id);
+  if (owner) groupAdmins.push(owner); // Aseguramos que el owner esté en la lista de admins
 
-  // Buscar participante con id limpio
-  const userParticipant = participants.find(p => cleanId(p.id) === cleanId(m.sender));
+  // DEBUG: Mostrar todos los admins
+  console.log('=== Lista de administradores ===');
+  groupAdmins.forEach(id => console.log('Admin:', id));
+  console.log('===============================');
 
-  console.log('=== Info completa del participante que envió el mensaje ===');
-  console.log(JSON.stringify(userParticipant, null, 2)); // Imprime todo el objeto en consola
-  console.log('===========================================================');
-
-  // Ahora chequeamos admin basado en lo que encontremos
-  const isUserAdmin = (() => {
-    if (!userParticipant) return false;
-    if (cleanId(m.sender) === cleanId(owner)) return true;
-    // Por si acaso admin viene con mayúsculas o distinto
-    const adminStatus = (userParticipant.admin || '').toLowerCase();
-    return adminStatus === 'admin' || adminStatus === 'superadmin' || adminStatus === 'owner';
-  })();
+  // Ver si el que mandó el comando es admin
+  const isUserAdmin = groupAdmins.includes(m.sender);
 
   console.log(`¿El usuario que mandó el comando (${m.sender}) es admin? ${isUserAdmin}`);
 
