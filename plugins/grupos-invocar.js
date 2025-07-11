@@ -1,35 +1,33 @@
-// 🔧 Función que limpia el ID (solo deja el número)
-const cleanId = (id = '') => id.replace(/\D/g, ''); // quita todo excepto números
+const cleanId = (id = '') => id.replace(/\D/g, ''); // solo deja el número
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
 
   const groupMetadata = await conn.groupMetadata(m.chat);
   const participants = groupMetadata.participants || [];
-  const owner = groupMetadata.owner || '';
 
   const senderNumber = cleanId(m.sender);
-  const ownerNumber = cleanId(owner);
 
-  // Lista de admins limpios
-  const groupAdmins = participants
+  // Creamos lista de admins como números planos
+  const adminNumbers = participants
     .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
     .map(p => cleanId(p.id));
 
-  if (ownerNumber && !groupAdmins.includes(ownerNumber)) groupAdmins.push(ownerNumber);
-
-  // DEBUG
-  console.log('\n=== Participantes ===');
-  for (let p of participants) {
-    const num = cleanId(p.id);
-    const role = p.admin ? `🛡️ ${p.admin}` : (num === ownerNumber ? '👑 Owner' : '👤 Normal');
-    console.log(`→ ${p.id} → ${num} → ${role}`);
+  // Agregamos también al owner si existe
+  if (groupMetadata.owner) {
+    const ownerNumber = cleanId(groupMetadata.owner);
+    if (!adminNumbers.includes(ownerNumber)) adminNumbers.push(ownerNumber);
   }
 
-  console.log('\n📌 Sender:', m.sender, '→', senderNumber);
-  console.log('🛡️ Admins:', groupAdmins);
+  // DEBUG
+  console.log('\n👥 Participantes del grupo:');
+  for (const p of participants) {
+    console.log(`• ${p.id} → rol: ${p.admin || 'normal'} → número: ${cleanId(p.id)}`);
+  }
 
-  const isUserAdmin = groupAdmins.includes(senderNumber);
+  console.log('\n📨 Sender:', m.sender, '→', senderNumber);
+  console.log('🛡️ Números admins:', adminNumbers);
+  const isUserAdmin = adminNumbers.includes(senderNumber);
   console.log(`✅ ¿Es admin el que mandó el comando? ${isUserAdmin}\n`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
