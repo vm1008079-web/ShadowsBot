@@ -1,16 +1,20 @@
-import Database from '../lib/database.js' // ruta relativa correcta
-const db = new Database('./database.json') // usa tu archivo
+import Database from '../lib/database.js'
+const db = new Database('./database.json')
 
 const handler = async (m) => {
   const userId = m.sender
 
-  // asegúrate de que los datos existen
+  // forzar última versión de base
+  db.load()
+  await new Promise(res => setTimeout(res, 100)) // tiempo para que se cargue
+
   if (!db.data.users || !db.data.users[userId]) {
     return m.reply(`☁︎ ✐ No estás registrado ✐ ☁︎\n\nUsa *.reg Nombre Edad* para registrarte.`)
   }
 
-  delete db.data.users[userId] // borrar user
-  db.save() // guardar cambios en archivo
+  delete db.data.users[userId]
+  db.save()
+  await new Promise(res => setTimeout(res, 100)) // tiempo para que termine de guardar
 
   return m.reply(
 `☁︎ ✐ Registro eliminado correctamente ✐ ☁︎
