@@ -8,6 +8,7 @@ const tags = {
   tools: 'ᥫ᭡ Herramientas',
   owner: '✧ Owner',
   info: '❀ Info',
+  gacha: '☀︎ Gacha Anime', 
   group: '꒷ Grupos',
   search: '✧ Buscadores',
   sticker: '✐ Stickers',
