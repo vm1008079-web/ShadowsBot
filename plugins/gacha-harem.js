@@ -71,7 +71,7 @@ let handler = async (m, { conn, args }) => {
     }
 }
 
-handler.help = ['harem < @usuario >']
+handler.help = ['harem']
 handler.tags = ['gacha']
 handler.command = ['harem', 'claims', 'waifus']
 handler.group = true
