@@ -12,6 +12,7 @@ const tags = {
   search: '✧ Buscadores',
   sticker: '✐ Stickers',
   ia: 'ᰔ IA',
+  channel: '✿ Channels', 
 }
 
 const defaultMenu = {
