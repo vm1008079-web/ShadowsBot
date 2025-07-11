@@ -11,7 +11,15 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const who = m.mentionedJid?.[0] || (m.fromMe ? conn.user.jid : m.sender)
   const pp = await conn.profilePictureUrl(who, 'image').catch(() => 'https://files.catbox.moe/xr2m6u.jpg')
   const user = global.db.data.users[m.sender]
-  const name2 = conn.getName(m.sender)
+  const name2 = await conn.getName(m.sender)
+  const fecha = moment().tz('America/Tegucigalpa').toDate()
+  const moneda = global.moneda || '💰'
+  const reinoEspiritual = global.idcanal || null
+
+  // Asegurar que los campos existen
+  user.coin ??= 0
+  user.exp ??= 0
+  user.joincount ??= 0
 
   if (user.registered) {
     return m.reply(
@@ -55,10 +63,11 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ✩*⢄⢁✧ --------- ✧⡈⡠*✩
 ❐ *Registro exitoso* ❐
 
-> ✐ Nombre: *${name}*
-> ✐ Edad: *${age}*
-> ✐ ID: *${sn}*
-> ✐ Fecha: *${fecha.toLocaleDateString()}*`.trim()
+✐ Nombre: *${name}*
+✐ Edad: *${age}*
+✐ ID único: *${sn}*
+✐ Fecha: *${fecha.toLocaleDateString()}*
+`.trim()
 
   await m.react('✅')
 
@@ -67,28 +76,29 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
     caption: certificadoPacto
   }, { quoted: m })
 
-  const reinoEspiritual = global.idcanal
-  const mensajeNotificacion = `
+  if (reinoEspiritual) {
+    const mensajeNotificacion = `
 ✦ 〘 *Nuevo Registro* 〙✦
 
-︎✦ Nombre: *${name}*
+✦ Nombre: *${name}*
 ✦ Edad: *${age}*
 ✦ ID: *${sn}*
 ✦ Fecha: *${moment().format('YYYY-MM-DD HH:mm:ss')}*
 
 ❀ Recompensas ❀
-★︎ ${global.moneda}: *+46*
+★︎ ${moneda}: *+46*
 `.trim()
 
-  try {
-    if (global.conn?.sendMessage) {
-      await global.conn.sendMessage(reinoEspiritual, {
-        image: { url: pp },
-        caption: mensajeNotificacion
-      })
+    try {
+      if (global.conn?.sendMessage) {
+        await global.conn.sendMessage(reinoEspiritual, {
+          image: { url: pp },
+          caption: mensajeNotificacion
+        })
+      }
+    } catch (e) {
+      console.error('❌ Error enviando notificación de registro:', e)
     }
-  } catch (e) {
-    console.error('❌ Error enviando notificación de registro:', e)
   }
 }
 
