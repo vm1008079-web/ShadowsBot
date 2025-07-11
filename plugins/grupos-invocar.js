@@ -1,5 +1,11 @@
 const cleanId = (id = '') => id.replace(/\D/g, '');
 
+function getGroupAdmins(participants = []) {
+  return participants
+    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
+    .map(p => p.id);
+}
+
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo en grupos.');
 
