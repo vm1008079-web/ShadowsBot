@@ -27,9 +27,7 @@ Usa: *${usedPrefix}unreg*`)
 
 Uso correcto:
 *${usedPrefix + command} nombre.edad*
-Ejemplo: *${usedPrefix + command} ${name2}.18*
-
-☄︎ Inténtalo de nuevo ☄︎`)
+Ejemplo: *${usedPrefix + command} ${name2}.18*`)
   }
 
   let [_, name, splitter, age] = text.match(Reg)
