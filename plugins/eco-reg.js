@@ -11,7 +11,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const name2 = await conn.getName(m.sender)
   const userId = m.sender
 
-  // Ya registrado
+  
   if (user.registered === true) {
     return m.reply(
 `☁︎ ✐ Ya estás registrado ✐ ☁︎
@@ -20,7 +20,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 Usa: *${usedPrefix}unreg*`)
   }
 
-  // Validación de texto
+  
   if (!Reg.test(text)) {
     return m.reply(
 `☁︎ ✐ Formato incorrecto ✐ ☁︎
