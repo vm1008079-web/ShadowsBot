@@ -57,7 +57,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
 > ✐ Nombre: *${name}*
 > ✐ Edad: *${age}*
-> ✐ ID: *${userId.split('@')[0]}*
+> ✐ ID: *${sn}*
 > ✐ Fecha: *${fecha.toLocaleDateString()}*`.trim()
 
   await m.react('✅')
