@@ -1,53 +1,47 @@
-const cleanId = (id = '') => id.replace(/\D/g, '');
-
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
+  if (!m.isGroup) return m.reply('🔒 Solo en grupos.');
 
   const groupMetadata = await conn.groupMetadata(m.chat);
   const participants = groupMetadata.participants || [];
-  const ownerNumber = cleanId(groupMetadata.owner || '');
+  const ownerId = groupMetadata.owner || '';
 
-  const senderNumber = cleanId(m.sender);
+  // Queremos encontrar participante que coincida EXACTO con m.sender, o el owner exacto
   let senderRole = 'normal';
 
-  for (const p of participants) {
-    if (cleanId(p.id) === senderNumber) {
-      if (p.admin === 'admin') senderRole = 'admin';
-      else if (p.admin === 'superadmin') senderRole = 'superadmin';
-      break;
-    }
+  // Primero buscamos el participante con id EXACTO = m.sender
+  const userParticipant = participants.find(p => p.id === m.sender);
+
+  // Si no existe exacto, revisamos si sos owner (igual con m.sender)
+  if (userParticipant) {
+    if (userParticipant.admin === 'admin') senderRole = 'admin';
+    else if (userParticipant.admin === 'superadmin') senderRole = 'superadmin';
+  } else if (m.sender === ownerId) {
+    senderRole = 'owner';
   }
 
-  // Chequeo extra por si sos dueño (owner)
-  if (senderNumber === ownerNumber) senderRole = 'owner';
-
-  console.log(`📨 Número que envió el comando: ${senderNumber}`);
-  console.log(`🔎 Rol detectado: ${senderRole}`);
+  console.log(`m.sender: ${m.sender}`);
+  console.log(`ownerId: ${ownerId}`);
+  console.log(`Rol detectado: ${senderRole}`);
 
   const isUserAdmin = senderRole === 'admin' || senderRole === 'superadmin' || senderRole === 'owner';
 
-  if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
+  if (!isUserAdmin) return m.reply('❌ Solo admins.');
 
-  // Sigue el resto igual...
+  // El resto sigue igual, ejemplo:
 
   const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
-  const decoEmoji1 = '✨';
-  const decoEmoji2 = '📢';
-
   m.react(mainEmoji);
 
   const mensaje = args.join(' ') || '¡Atención a todos!';
   const total = participants.length;
 
-  const encabezado = 
-`${decoEmoji2} *Mención general activada* ${decoEmoji2}
+  const encabezado = `📢 *Mención general activada* 📢
 
 > 💬 Mensaje: *${mensaje}*
-> 👥 Total de miembros: *${total}*
-`;
+> 👥 Total de miembros: *${total}*`;
 
-  const cuerpo = participants.map(p => `> ${mainEmoji} @${cleanId(p.id)}`).join('\n');
-  const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`;
+  const cuerpo = participants.map(p => `> ${mainEmoji} @${p.id.split('@')[0]}`).join('\n');
+  const pie = `\n✨ Comando ejecutado: *${usedPrefix + command}*`;
 
   const textoFinal = `${encabezado}\n${cuerpo}\n${pie}`;
 
@@ -57,7 +51,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   });
 };
 
-handler.help = ['invocar *<mensaje opcional>*'];
+handler.help = ['invocar'];
 handler.tags = ['group'];
 handler.command = ['todos', 'invocar', 'tagall'];
 handler.group = true;
