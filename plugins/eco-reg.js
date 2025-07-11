@@ -67,10 +67,14 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
     caption: regbot
   }, { quoted: m })
 
-  // ⛔ Solo el bot principal manda al canal
-  const BOT_PRINCIPAL = '573147172161@s.whatsapp.net' // número con @s.whatsapp.net
-  if (conn.user?.id === BOT_PRINCIPAL) {
-    await conn.sendMessage('120363402895449162@newsletter', {
+  // 🔒 Solo el BOT PRINCIPAL envía al canal
+  const BOT_PRINCIPAL_NUM = '573147172161' // sin @ ni nada
+  const CHAT_CANAL = '120363402895449162@newsletter'
+
+  let botNumber = conn.user?.id?.split('@')[0]?.split(':')[0] // limpia el ID para asegurar comparación
+
+  if (botNumber === BOT_PRINCIPAL_NUM) {
+    await conn.sendMessage(CHAT_CANAL, {
       image: { url: pp },
       caption: 
 `❐ *Nuevo Registro* ❐
