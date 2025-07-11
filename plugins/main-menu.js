@@ -29,12 +29,12 @@ const defaultMenu = {
 > ⤿ *.setname* ← Cambiar nombre
 > ⤿ *.setbanner* ← Cambiar banner
 
-> ∘₊✧ *Adonix API Oficial:*
+∘₊✧ *Adonix API Oficial:*
 > ❀ https://theadonix-api.vercel.app
 
 *⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
 
-> ⌬ ꒰ *Menú de Comandos* ꒱ ⌬
+\`⌬ ꒰ Menú de Comandos ꒱ ⌬\`
 
 %readmore`.trimStart(),
 
