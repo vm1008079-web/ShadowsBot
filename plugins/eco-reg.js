@@ -85,11 +85,8 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ✦ ID: *${sn}*
 ✦ Fecha: *${moment().format('YYYY-MM-DD HH:mm:ss')}*
 
-❀ Recompensas del pacto ❀
-✦ ${moneda}: *+46*
-⚡ EXP: *+310*
-🎟️ Bonos: *+25*
-`.trim()
+❀ Recompensas ❀
+${moneda}: *+46*`.trim()
 
     try {
       if (global.conn?.sendMessage) {
