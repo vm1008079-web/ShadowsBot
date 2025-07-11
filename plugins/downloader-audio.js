@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const ytIdRegex = /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+const ytIdRegex = /(?:youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu.be\/)([a-zA-Z0-9_-]{11})/;
 
 const toSansSerifPlain = (text = "") =>
   text.split("").map((char) => {
@@ -20,25 +20,23 @@ const handler = async (m, { conn }) => {
   if (!m.quoted || !m.quoted.text || !m.quoted.text.includes("乂  M U S I C  -  Y O U T U B E"))
     return m.reply(toSansSerifPlain("✦ Debes responder a un mensaje que contenga '乂  M U S I C  -  Y O U T U B E'."));
 
-  
-  const linkMatch = m.quoted.text.match(/https?:\/\/(www\.)?youtu(\.be|be\.com)\/[^\s]+/);
+  const linkMatch = m.quoted.text.match(/https?:\/\/(?:www\.)?youtu(?:\.be|be\.com)\/[^\s]+/);
   if (!linkMatch) return m.reply(toSansSerifPlain("✦ No se encontró un enlace de YouTube en el mensaje citado."));
 
   const videoUrl = linkMatch[0];
-
   conn.sendMessage(m.chat, { react: { text: "🕓", key: m.key } });
 
   try {
-   
-    const json = await fetch(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`).then(r => r.json());
-    if (!json.result?.download?.url) throw "audio no disponible";
+    const res = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(videoUrl)}`);
+    const json = await res.json();
 
+    if (!json.result?.audio) throw "Audio no disponible.";
 
-    const audioBuffer = await fetch(json.result.download.url).then(res => res.buffer());
+    const audioBuffer = await fetch(json.result.audio).then(res => res.buffer());
 
     await conn.sendMessage(m.chat, {
       audio: audioBuffer,
-      fileName: `audio.mp3`,
+      fileName: json.result.filename || `audio.mp3`,
       mimetype: 'audio/mpeg',
       ptt: true
     }, { quoted: m });
@@ -56,4 +54,3 @@ handler.help = ["audio"];
 handler.tags = ["downloader"];
 
 export default handler;
-    
