@@ -56,4 +56,5 @@ let handler = async (m, { conn, args, command }) => {
 }
 
 handler.command = /^ttsx$/i
+handler.register = true
 export default handler
