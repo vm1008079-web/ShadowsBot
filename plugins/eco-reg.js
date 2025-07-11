@@ -87,6 +87,8 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
 ❀ Recompensas ❀
 ★︎ ${moneda}: *+46*
+⚡ Experiencia: *+310*
+🎟️ Bonos: *+25*
 `.trim()
 
     try {
