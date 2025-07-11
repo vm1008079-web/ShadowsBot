@@ -15,7 +15,7 @@ global.libreria = 'Baileys'
 global.baileys = 'V 6.7.16' 
 global.vs = '2.2.0'
 global.nameqr = 'MichiWaMD'
-global.namebot = '✿◟ʏᴜʀᴜ ʏᴜʀɪ ᴍᴅ◞✿'
+global.namebot = '✿◟michi ᴍᴅ◞✿'
 global.sessions = 'Sessions'
 global.jadi = 'JadiBots' 
 global.yukiJadibts = true
@@ -25,7 +25,7 @@ global.namebot = '✧ Michi-Wa ✧'
 global.author = '© Made with ☁︎ Wirk ✧'
 global.moneda = '✦ Mangos ✦'
 
-global.namecanal = '✧ Michi Wa Channels • Ado ☎︎'
+global.namecanal = '✧ Michi Wa Channel • Ado ☎︎'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.idcanal = '120363403739366547@newsletter'
 
