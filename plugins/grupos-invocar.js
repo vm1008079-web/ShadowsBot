@@ -1,3 +1,5 @@
+const cleanId = (id) => id.split('@')[0];
+
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
 
@@ -5,20 +7,19 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const participants = groupMetadata.participants;
   const owner = groupMetadata.owner;
 
-  // Mostrar todos los participantes y si son admin o no
   console.log('=== Lista de participantes y su rol ===');
   participants.forEach(p => {
-    const rol = (p.id === owner) ? 'owner' : (p.admin ? p.admin : 'miembro normal');
+    const rol = (cleanId(p.id) === cleanId(owner)) ? 'owner' : (p.admin ? p.admin : 'miembro normal');
     console.log(`Usuario: ${p.id} - Rol: ${rol}`);
   });
   console.log('====================================');
 
-  // Verificar si quien mando el mensaje es admin o dueño
-  const userParticipant = participants.find(p => p.id === m.sender);
+  // Buscar participante comparando solo la parte limpia del ID
+  const userParticipant = participants.find(p => cleanId(p.id) === cleanId(m.sender));
 
   const isUserAdmin = (() => {
     if (!userParticipant) return false;
-    if (m.sender === owner) return true;
+    if (cleanId(m.sender) === cleanId(owner)) return true;
     const adminStatus = userParticipant.admin;
     return adminStatus === 'admin' || adminStatus === 'superadmin' || adminStatus === 'owner';
   })();
@@ -43,7 +44,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 > 👥 Total de miembros: *${total}*
 `;
 
-  let cuerpo = participants.map(p => `> ${mainEmoji} @${p.id.split('@')[0]}`).join('\n');
+  let cuerpo = participants.map(p => `> ${mainEmoji} @${cleanId(p.id)}`).join('\n');
 
   const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`;
 
