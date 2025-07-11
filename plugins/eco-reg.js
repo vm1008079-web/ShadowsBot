@@ -1,10 +1,12 @@
-import Database from '../lib/database.js' // ajusta según tu ruta
+import Database from '../lib/database.js'
 const db = new Database('./database.json')
 
 const handler = async (m, { conn, args }) => {
   const userId = m.sender
 
-  // Si ya está registrado
+  db.load()
+  await new Promise(res => setTimeout(res, 100)) // espera para cargar bien
+
   if (db.data.users?.[userId]) {
     const user = db.data.users[userId]
     const fecha = new Date(user.registeredAt)
@@ -26,7 +28,6 @@ const handler = async (m, { conn, args }) => {
     }, { quoted: m })
   }
 
-  // Validación del formato
   if (args.length < 2) {
     return m.reply(
 `☁︎ ✐ Formato incorrecto ✐ ☁︎
@@ -43,7 +44,6 @@ Ejemplo: *.reg Adonay 17*
 
   const fechaRegistro = new Date().toISOString()
 
-  // Crear usuario en DB
   if (!db.data.users) db.data.users = {}
 
   db.data.users[userId] = {
@@ -55,7 +55,8 @@ Ejemplo: *.reg Adonay 17*
     level: 1
   }
 
-  db.save() // guardar cambios
+  db.save()
+  await new Promise(res => setTimeout(res, 100))
 
   const fecha = new Date(fechaRegistro)
   const replyText =
