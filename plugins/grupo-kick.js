@@ -38,15 +38,15 @@ var handler = async (m, { conn, args }) => {
     const ownerGroup = groupMetadata.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
     const ownerBot = global.owner[0][0] + '@s.whatsapp.net';
 
-    if (user === conn.user.jid) return m.reply(`😹 No me puedo sacar a mí mismo`);
-    if (user === ownerGroup) return m.reply(`👑 Ese es el dueño del grupo`);
-    if (user === ownerBot) return m.reply(`💥 Ese es el dueño del bot`);
+    if (user === conn.user.jid) return m.reply(`😂 Calma no me puedo sacar yo mismo`);
+    if (user === ownerGroup) return m.reply(`Ese es el dueño del no lo eliminaré grupo`);
+    if (user === ownerBot) return m.reply(`Que piensas? ¿qué sacaré a el dueño del bot?`);
 
     try {
         await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-        await m.reply(`✅ Usuario eliminado con éxito.`);
+        await m.reply(`✅ Usuario eliminado con por pendejo.`);
     } catch (e) {
-        await m.reply(`❌ No pude expulsar al usuario. Puede que no sea admin o que no tenga permisos.`);
+        await m.reply(`No pude expulsar al usuario. Puede que no sea admin o que no tenga permisos nmms da admin.`);
     }
 };
 
