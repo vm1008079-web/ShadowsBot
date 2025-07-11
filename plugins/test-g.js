@@ -80,7 +80,7 @@ const handler = async (msg, { conn, args }) => {
 }
 
 handler.command = ['g']
-handler.group = false
-handler.private = true
+handler.group = true
+handler.private = false
 
 export default handler
