@@ -16,9 +16,9 @@ let handler = async (m, { conn }) => {
     let link = await catbox(media);
 
     let txt = `*乂 U P L O A D E R 乂*\n\n`;
-    txt += `*» Enlace* : ${link}\n`;
-    txt += `*» Tamaño* : ${formatBytes(media.length)}\n`;
-    txt += `*» Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
+    txt += `*⟩ Enlace* : ${link}\n`;
+    txt += `*⟩ Tamaño* : ${formatBytes(media.length)}\n`;
+    txt += `*⟩ Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
     txt += `> *${namebot}*`;
 
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m, rcanal);
@@ -32,6 +32,7 @@ let handler = async (m, { conn }) => {
 handler.help = ['tourl'];
 handler.tags = ['tools'];
 handler.command = ['catbox', 'tourl'];
+handler.register = true
 export default handler;
 
 function formatBytes(bytes) {
