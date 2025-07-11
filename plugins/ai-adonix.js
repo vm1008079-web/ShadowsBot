@@ -50,5 +50,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = ['adonix <pregunta>'];
 handler.tags = ['ia'];
 handler.command = ['adonix', 'ai', 'adonixia'];
-
+handler.register = true
 export default handler;
