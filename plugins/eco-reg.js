@@ -67,17 +67,20 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
     caption: regbot
   }, { quoted: m })
 
-  // Enviar notificación al canal con la misma imagen
-  await conn.sendMessage('120363402895449162@newsletter', {
-    image: { url: pp },
-    caption: 
+  // ⛔ Solo el bot principal manda al canal
+  const BOT_PRINCIPAL = '573147172161@s.whatsapp.net' // número con @s.whatsapp.net
+  if (conn.user?.id === BOT_PRINCIPAL) {
+    await conn.sendMessage('120363402895449162@newsletter', {
+      image: { url: pp },
+      caption: 
 `❐ *Nuevo Registro* ❐
 
 > ✐ Nombre: *${name}*
 > ✐ Edad: *${age}*
 > ✐ ID: *${userId.split('@')[0]}*
 > ✐ Fecha: *${fecha.toLocaleDateString()}*`
-  })
+    })
+  }
 }
 
 handler.help = ['reg']
