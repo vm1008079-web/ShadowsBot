@@ -3,17 +3,24 @@ import fs from 'fs'
 const dbPath = './database.json'
 let database = { users: {} }
 
-// Cargar base
-if (fs.existsSync(dbPath)) {
-  database = JSON.parse(fs.readFileSync(dbPath))
-} else {
+// Verificar si la base está vacía o mala
+try {
+  if (fs.existsSync(dbPath)) {
+    const content = fs.readFileSync(dbPath)
+    database = JSON.parse(content.length ? content : '{}')
+    if (!database.users) database.users = {}
+  } else {
+    fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+  }
+} catch (e) {
+  console.error('❌ Error en base de datos:', e)
+  database = { users: {} }
   fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
 }
 
-const handler = async (m, { text, args }) => {
+const handler = async (m, { args, command }) => {
   const userId = m.sender
 
-  // Ya está registrado
   if (database.users[userId]) {
     const user = database.users[userId]
     return m.reply(
@@ -38,11 +45,9 @@ Ejemplo: *.reg Adonay 17*
   const name = args[0]
   const age = parseInt(args[1])
 
-  if (isNaN(age) || age < 1) {
-    return m.reply('☁︎ ✐ La edad no es válida, bro ✐ ☁︎')
-  }
+  if (isNaN(age) || age < 1) return m.reply('☁︎ ✐ Edad inválida ✐ ☁︎')
 
-  // Guardar
+  // Guardar al usuario
   database.users[userId] = {
     name,
     age,
@@ -56,7 +61,9 @@ Ejemplo: *.reg Adonay 17*
 
 ✦ Nombre: *${name}*
 ✦ Edad: *${age}*
-✦ ID: *${userId.split('@')[0]}*`)
+✦ ID: *${userId.split('@')[0]}*
+
+☄︎ Bienvenido a Chihuahua Bot ☄︎`)
 }
 
 handler.command = ['reg', 'register']
