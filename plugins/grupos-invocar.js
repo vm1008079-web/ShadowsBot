@@ -1,11 +1,3 @@
-const cleanId = (id = '') => id.replace(/\D/g, '');
-
-function getGroupAdmins(participants = []) {
-  return participants
-    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
-    .map(p => p.id);
-}
-
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Solo en grupos.');
 
@@ -13,50 +5,41 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const participants = groupMetadata.participants || [];
   const ownerId = groupMetadata.owner || '';
 
-  const admins = getGroupAdmins(participants);
+  console.log('=== PARTICIPANTES ===');
+  for (const p of participants) {
+    console.log(`ID: ${p.id} | Admin: ${p.admin || 'normal'}`);
+  }
+
+  console.log(`Owner ID: ${ownerId}`);
+  console.log(`m.sender: ${m.sender}`);
+
+  // Luego intento detectar admin con la comparación normal y con número limpio
+  const cleanId = (id = '') => id.replace(/\D/g, '');
 
   const senderNumber = cleanId(m.sender);
   const ownerNumber = cleanId(ownerId);
 
-  const isUserAdmin = admins.some(adminId => cleanId(adminId) === senderNumber) || senderNumber === ownerNumber;
+  const isAdminByCleanId = participants.some(p => (p.admin === 'admin' || p.admin === 'superadmin') && cleanId(p.id) === senderNumber);
+  const isOwnerByCleanId = senderNumber === ownerNumber;
 
-  console.log(`Tu número: ${senderNumber}`);
-  console.log('Admins:', admins);
-  console.log(`¿Sos admin?: ${isUserAdmin}`);
+  const isAdminByExactId = participants.some(p => (p.admin === 'admin' || p.admin === 'superadmin') && p.id === m.sender);
+  const isOwnerByExactId = ownerId === m.sender;
 
-  if (!isUserAdmin) return m.reply('❌ Solo admins.');
+  console.log('¿Admin detectado por número limpio?', isAdminByCleanId);
+  console.log('¿Owner detectado por número limpio?', isOwnerByCleanId);
+  console.log('¿Admin detectado por ID exacto?', isAdminByExactId);
+  console.log('¿Owner detectado por ID exacto?', isOwnerByExactId);
 
-  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
-  const decoEmoji1 = '✨';
-  const decoEmoji2 = '📢';
+  if (!(isAdminByCleanId || isOwnerByCleanId || isAdminByExactId || isOwnerByExactId)) {
+    return m.reply('❌ Solo admins');
+  }
 
-  m.react(mainEmoji);
+  // Aquí sigue el código para enviar la mención si es admin o owner...
 
-  const mensaje = args.join(' ') || '¡Atención a todos!';
-  const total = participants.length;
-
-  const encabezado = 
-`${decoEmoji2} *Mención general activada* ${decoEmoji2}
-
-> 💬 Mensaje: *${mensaje}*
-> 👥 Total de miembros: *${total}*
-`;
-
-  const cuerpo = participants.map(p => `> ${mainEmoji} @${cleanId(p.id)}`).join('\n');
-  const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`;
-
-  const textoFinal = `${encabezado}\n${cuerpo}\n${pie}`;
-
-  await conn.sendMessage(m.chat, {
-    text: textoFinal.trim(),
-    mentions: participants.map(p => p.id)
-  });
+  m.reply('✅ Sos admin o dueño, comando aceptado.');
 };
 
-handler.help = ['invocar *<mensaje opcional>*'];
-handler.tags = ['group'];
-handler.command = ['todos', 'invocar', 'tagall'];
+handler.command = ['invocar'];
 handler.group = true;
-handler.register = true;
 
 export default handler;
