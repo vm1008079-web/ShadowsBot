@@ -39,10 +39,10 @@ const defaultMenu = {
 
 %readmore`.trimStart(),
 
-  header: '\n> ꒷︶꒷꒥꒷‧₊˚ *%category*',
+  header: '\n> *꒷︶꒷꒥꒷‧₊˚ %category*',
   body: '> ⤿ %cmd %islimit %isPremium',
-  footer: '> ꒷꒦꒷꒦꒷꒷꒦꒷꒦꒷꒦꒷꒦꒷꒷',
-  after: '\n> ✦ 𓆩 *Made with love by 𝗪𝗶𝗿𝗸* ✐ ☁︎',
+  footer: '> *꒷꒦꒷꒦꒷꒷꒦꒷꒦꒷꒦꒷꒦꒷꒷*',
+  after: '\n✦ 𓆩 *Made By 𝗪𝗶𝗿𝗸* ☁︎',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
