@@ -10,21 +10,25 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const senderNumber = cleanId(m.sender);
   let senderRole = 'normal';
 
-  // Buscamos al participante que envió el comando
-  const userParticipant = participants.find(p => cleanId(p.id) === senderNumber);
-
-  if (userParticipant) {
-    if (userParticipant.admin === 'admin') senderRole = 'admin';
-    else if (userParticipant.admin === 'superadmin') senderRole = 'superadmin';
-    else if (senderNumber === ownerNumber) senderRole = 'owner';
+  for (const p of participants) {
+    if (cleanId(p.id) === senderNumber) {
+      if (p.admin === 'admin') senderRole = 'admin';
+      else if (p.admin === 'superadmin') senderRole = 'superadmin';
+      break;
+    }
   }
 
-  console.log(`📨 Número del que envió el comando: ${senderNumber}`);
+  // Chequeo extra por si sos dueño (owner)
+  if (senderNumber === ownerNumber) senderRole = 'owner';
+
+  console.log(`📨 Número que envió el comando: ${senderNumber}`);
   console.log(`🔎 Rol detectado: ${senderRole}`);
 
   const isUserAdmin = senderRole === 'admin' || senderRole === 'superadmin' || senderRole === 'owner';
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
+
+  // Sigue el resto igual...
 
   const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
   const decoEmoji1 = '✨';
