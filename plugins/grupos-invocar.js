@@ -3,23 +3,27 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   const groupMetadata = await conn.groupMetadata(m.chat);
   const participants = groupMetadata.participants;
-  const owner = groupMetadata.owner; // el dueño del grupo
+  const owner = groupMetadata.owner;
 
-  // Buscar participante que hizo el mensaje
+  // Mostrar todos los participantes y si son admin o no
+  console.log('=== Lista de participantes y su rol ===');
+  participants.forEach(p => {
+    const rol = (p.id === owner) ? 'owner' : (p.admin ? p.admin : 'miembro normal');
+    console.log(`Usuario: ${p.id} - Rol: ${rol}`);
+  });
+  console.log('====================================');
+
+  // Verificar si quien mando el mensaje es admin o dueño
   const userParticipant = participants.find(p => p.id === m.sender);
 
-  // Definir función para checar si es admin o dueño
-  const esAdmin = () => {
-    if (!userParticipant) return false; // si no está en la lista, no es admin
-    if (m.sender === owner) return true; // es dueño, seguro admin
-    // admin puede venir como 'admin' o 'superadmin' o 'owner' según la librería
+  const isUserAdmin = (() => {
+    if (!userParticipant) return false;
+    if (m.sender === owner) return true;
     const adminStatus = userParticipant.admin;
     return adminStatus === 'admin' || adminStatus === 'superadmin' || adminStatus === 'owner';
-  };
+  })();
 
-  const isUserAdmin = esAdmin();
-
-  console.log(`El usuario ${m.sender} es admin? ${isUserAdmin}`);
+  console.log(`¿El usuario que mando el comando (${m.sender}) es admin? ${isUserAdmin}`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
 
