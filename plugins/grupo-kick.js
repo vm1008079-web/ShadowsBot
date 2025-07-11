@@ -66,6 +66,8 @@ const handler = async (msg, { conn, isOwner }) => {
   }
 }
 
+handler.help = ['kick']
+handler.tags = ['grupo']
 handler.command = ['kick']
 handler.group = true
 
