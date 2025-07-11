@@ -16,14 +16,14 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> *⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
+*⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
 
-> ∘₊✧ *Hola, soy %botname*
-> ( %tipo )
+∘₊✧ *Hola, soy %botname*
+( %tipo )
 
-> ꒷︶꒷‧₊˚ ¿Qué tal *%name*? ˚₊‧꒷︶꒷
-> 𓆩 Actividad = *%uptime*
-> 𓆩 Fecha = *%date*
+꒷︶꒷‧₊˚ ¿Qué tal *%name*? ˚₊‧꒷︶꒷
+𓆩 Actividad » *%uptime*
+𓆩 Fecha » *%date*
 
 > ✐ Puedes personalizar tu socket:
 > ⤿ *.setname* ← Cambiar nombre
@@ -32,7 +32,7 @@ const defaultMenu = {
 > ∘₊✧ *Adonix API Oficial:*
 > ❀ https://theadonix-api.vercel.app
 
-> *⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
+*⌬ .・。.・゜✭・.・✫・゜・。. ⌬*
 
 > ⌬ ꒰ *Menú de Comandos* ꒱ ⌬
 
