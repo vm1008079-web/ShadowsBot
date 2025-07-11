@@ -32,7 +32,7 @@ const handler = async (msg, { conn, isOwner }) => {
     const extraMsg = args.join(' ')
 
     let finalMsg = '━〔 *📢 INVOCACIÓN 📢* 〕━➫\n'
-    finalMsg += '٩(͡๏̯͡๏)۶ ٩(͡๏̯͡๏)۶\n'
+    finalMsg += '\n'
     if (extraMsg.trim().length > 0) {
       finalMsg += `\n❑ Mensaje: ${extraMsg}\n\n`
     } else {
