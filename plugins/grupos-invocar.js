@@ -1,4 +1,4 @@
-const cleanId = (id = '') => id.replace(/\D/g, ''); // solo deja el número
+const cleanId = (id = '') => id.replace(/\D/g, '');
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
@@ -8,30 +8,30 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   const senderNumber = cleanId(m.sender);
 
-  // Creamos lista de admins como números planos
-  const adminNumbers = participants
-    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
-    .map(p => cleanId(p.id));
+  // Encontrar el participante exacto que mandó el mensaje
+  const userParticipant = participants.find(p => cleanId(p.id) === senderNumber);
 
-  // Agregamos también al owner si existe
-  if (groupMetadata.owner) {
-    const ownerNumber = cleanId(groupMetadata.owner);
-    if (!adminNumbers.includes(ownerNumber)) adminNumbers.push(ownerNumber);
-  }
-
-  // DEBUG
-  console.log('\n👥 Participantes del grupo:');
+  // Mostrar todos los participantes para debug
+  console.log('\n📋 Lista de Participantes:');
   for (const p of participants) {
-    console.log(`• ${p.id} → rol: ${p.admin || 'normal'} → número: ${cleanId(p.id)}`);
+    const numero = cleanId(p.id);
+    const rol = p.admin || (groupMetadata.owner && cleanId(groupMetadata.owner) === numero ? 'owner' : 'normal');
+    console.log(`• ${p.id} → ${numero} → rol: ${rol}`);
   }
 
-  console.log('\n📨 Sender:', m.sender, '→', senderNumber);
-  console.log('🛡️ Números admins:', adminNumbers);
-  const isUserAdmin = adminNumbers.includes(senderNumber);
-  console.log(`✅ ¿Es admin el que mandó el comando? ${isUserAdmin}\n`);
+  if (!userParticipant) {
+    console.log(`⚠️ No se encontró a ${m.sender} entre los participantes.`);
+    return m.reply('❌ No se pudo verificar tu rol en este grupo.');
+  }
+
+  const isUserAdmin = userParticipant.admin === 'admin' || userParticipant.admin === 'superadmin' || cleanId(groupMetadata.owner) === senderNumber;
+
+  console.log(`📨 Sender: ${m.sender} → ${senderNumber}`);
+  console.log(`🔎 ¿Es admin?: ${isUserAdmin}\n`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
 
+  // 👑 Procedemos si es admin
   const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
   const decoEmoji1 = '✨';
   const decoEmoji2 = '📢';
