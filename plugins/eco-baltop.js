@@ -13,7 +13,7 @@ let handler = async (m, { conn, args, participants }) => {
     let name = conn.getName(jid) || 'Desconocido'
     let tag = participants.some(p => p.jid === jid) ? `@${jid.split('@')[0]}` : `wa.me/${jid.split('@')[0]}`
     return `${i + 1}. ${tag} → *¥${total} ${moneda}*`
-  }).join('\n')
+  }).join('\n\n')
 
   await conn.reply(m.chat, text.trim(), m, {
     mentions: conn.parseMention(text)
