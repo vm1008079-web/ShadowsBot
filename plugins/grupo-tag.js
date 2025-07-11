@@ -5,7 +5,6 @@ const handler = async (msg, { conn, isOwner }) => {
     const isGroup = chatId.endsWith('@g.us')
     const isBotMessage = msg.key.fromMe
 
-    // Reacción inicial
     await conn.sendMessage(chatId, { react: { text: '🔊', key: msg.key } })
 
     if (!isGroup) {
@@ -19,7 +18,7 @@ const handler = async (msg, { conn, isOwner }) => {
     const participant = metadata.participants.find(p => p.id.includes(sender))
     const isAdmin = participant?.admin === 'admin' || participant?.admin === 'superadmin'
 
-    if (!isAdmin && !isOwner(sender) && !isBotMessage) {
+    if (!isAdmin && !isOwner && !isBotMessage) {
       await conn.sendMessage(chatId, {
         text: '❌ *Este comando solo puede usarlo un administrador o el dueño del bot.*'
       }, { quoted: msg })
@@ -33,7 +32,7 @@ const handler = async (msg, { conn, isOwner }) => {
     const extraMsg = args.join(' ')
 
     let finalMsg = '━〔 *📢 INVOCACIÓN 📢* 〕━➫\n'
-    finalMsg += '٩(͡๏̯͡๏)۶\n'
+    finalMsg += '٩(͡๏̯͡๏)۶ Por Azura Ultra ٩(͡๏̯͡๏)۶\n'
     if (extraMsg.trim().length > 0) {
       finalMsg += `\n❑ Mensaje: ${extraMsg}\n\n`
     } else {
