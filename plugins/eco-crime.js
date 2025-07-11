@@ -79,7 +79,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
   global.db.write()
 }
 
-handler.tags = ['economy']
+handler.tags = ['eco']
 handler.help = ['crimen']
 handler.command = ['crimen', 'crime']
 handler.register = true
