@@ -3,7 +3,11 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   const groupMetadata = await conn.groupMetadata(m.chat);
   const userParticipant = groupMetadata.participants.find(p => p.id === m.sender);
+
   const isUserAdmin = userParticipant?.admin === 'admin' || userParticipant?.admin === 'superadmin' || m.sender === groupMetadata.owner;
+
+  // Mostrar en consola si el que manda el mensaje es admin o no
+  console.log(`El usuario ${m.sender} es admin? ${isUserAdmin}`);
 
   if (!isUserAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.');
 
