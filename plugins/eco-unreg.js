@@ -1,37 +1,40 @@
 import fs from 'fs'
-
 const dbPath = './database.json'
-let database = { users: {} }
 
-// Cargar base de datos seguro
-try {
-  if (fs.existsSync(dbPath)) {
-    const content = fs.readFileSync(dbPath, 'utf-8')
-    database = content ? JSON.parse(content) : { users: {} }
-    if (!database.users) database.users = {}
-  } else {
-    fs.writeFileSync(dbPath, JSON.stringify({ users: {} }, null, 2))
+// Cargar base actual
+const loadDatabase = () => {
+  if (!fs.existsSync(dbPath)) return { users: {} }
+  const raw = fs.readFileSync(dbPath, 'utf-8')
+  if (!raw) return { users: {} }
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return { users: {} }
   }
-} catch (e) {
-  console.error('Error leyendo database.json:', e)
-  database = { users: {} }
-  fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+}
+
+// Guardar base actual
+const saveDatabase = (db) => {
+  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
 }
 
 const handler = async (m) => {
   const userId = m.sender
+  let database = loadDatabase() // <-- Esto es lo que arregla el bug 🔥
 
   if (!database.users[userId]) {
-    return m.reply('☁︎ ✐ No estás registrado. Usa *.reg Nombre Edad* para registrarte primero.')
+    return m.reply(`☁︎ ✐ No estás registrado ✐ ☁︎\n\nUsa *.reg Nombre Edad* para registrarte.`)
   }
 
-  // Eliminar usuario
   delete database.users[userId]
+  saveDatabase(database)
 
-  // Guardar archivo actualizado
-  fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+  return m.reply(
+`☁︎ ✐ Registro eliminado correctamente ✐ ☁︎
 
-  return m.reply('☁︎ ✐ Registro eliminado correctamente. Ya puedes volver a registrarte usando *.reg Nombre Edad* ☁︎')
+Ya no estás registrado.
+
+☄︎ Puedes volver a registrarte cuando quieras usando *.reg Nombre Edad* ☄︎`)
 }
 
 handler.command = ['unreg', 'delete', 'remove']
