@@ -4,8 +4,6 @@ import path from 'path'
 
 let handler = async (m, { conn, usedPrefix, text, command }) => {
   if (!text) return conn.reply(m.chat, `
-❀ *Michi-Wa* ✦
-
 > ✦ Escribe el nombre de un video.
 > ❀ *Ejemplo:*
 > *${usedPrefix + command} lofi anime*
@@ -83,5 +81,5 @@ let handler = async (m, { conn, usedPrefix, text, command }) => {
 handler.tags = ['search']
 handler.help = ['yts']
 handler.command = ['youtubesearch', 'youtubes', 'yts']
-
+handler.register = true
 export default handler
