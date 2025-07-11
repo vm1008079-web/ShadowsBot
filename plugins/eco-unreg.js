@@ -1,33 +1,16 @@
-import fs from 'fs'
-const dbPath = './database.json'
-
-// Cargar base actual
-const loadDatabase = () => {
-  if (!fs.existsSync(dbPath)) return { users: {} }
-  const raw = fs.readFileSync(dbPath, 'utf-8')
-  if (!raw) return { users: {} }
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return { users: {} }
-  }
-}
-
-// Guardar base actual
-const saveDatabase = (db) => {
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
-}
+import Database from '../lib/database.js' // ruta relativa correcta
+const db = new Database('./database.json') // usa tu archivo
 
 const handler = async (m) => {
   const userId = m.sender
-  let database = loadDatabase() // <-- Esto es lo que arregla el bug 🔥
 
-  if (!database.users[userId]) {
+  // asegúrate de que los datos existen
+  if (!db.data.users || !db.data.users[userId]) {
     return m.reply(`☁︎ ✐ No estás registrado ✐ ☁︎\n\nUsa *.reg Nombre Edad* para registrarte.`)
   }
 
-  delete database.users[userId]
-  saveDatabase(database)
+  delete db.data.users[userId] // borrar user
+  db.save() // guardar cambios en archivo
 
   return m.reply(
 `☁︎ ✐ Registro eliminado correctamente ✐ ☁︎
@@ -37,5 +20,7 @@ Ya no estás registrado.
 ☄︎ Puedes volver a registrarte cuando quieras usando *.reg Nombre Edad* ☄︎`)
 }
 
+handler.help = ['unreg']
+handler.tags = ['eco']
 handler.command = ['unreg', 'delete', 'remove']
 export default handler
