@@ -5,6 +5,60 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const participants = groupMetadata.participants || [];
   const ownerId = groupMetadata.owner || '';
 
+  // Función para encontrar participante por número ignorando sufijo
+  const findParticipantByNumber = (participants, number) =>
+    participants.find(p => p.id.startsWith(number));
+
+  const senderNum = m.sender.split('@')[0];
+  const userParticipant = findParticipantByNumber(participants, senderNum);
+
+  if (!userParticipant) return m.reply('❌ No estás en la lista de participantes, no puedo validar admin.');
+
+  const senderRole = userParticipant.admin || (m.sender === ownerId ? 'owner' : 'normal');
+  const isUserAdmin = senderRole === 'admin' || senderRole === 'superadmin' || senderRole === 'owner';
+
+  if (!isUserAdmin) return m.reply('❌ Solo administradores pueden usar este comando.');
+
+  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
+  const decoEmoji1 = '✨';
+  const decoEmoji2 = '📢';
+
+  m.react(mainEmoji);
+
+  const mensaje = args.join(' ') || '¡Atención a todos!';
+  const total = participants.length;
+
+  const encabezado = 
+`${decoEmoji2} *Mención general activada* ${decoEmoji2}
+
+> 💬 Mensaje: *${mensaje}*
+> 👥 Total de miembros: *${total}*
+`;
+
+  const cuerpo = participants.map(p => `> ${mainEmoji} @${p.id.split('@')[0]}`).join('\n');
+  const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`;
+
+  const textoFinal = `${encabezado}\n${cuerpo}\n${pie}`;
+
+  await conn.sendMessage(m.chat, {
+    text: textoFinal.trim(),
+    mentions: participants.map(p => p.id)
+  });
+};
+
+handler.help = ['invocar *<mensaje opcional>*'];
+handler.tags = ['group'];
+handler.command = ['todos', 'invocar', 'tagall'];
+handler.group = true;
+handler.register = true;
+
+export default handler;onst handler = async (m, { conn, args, command, usedPrefix }) => {
+  if (!m.isGroup) return m.reply('🔒 Solo en grupos.');
+
+  const groupMetadata = await conn.groupMetadata(m.chat);
+  const participants = groupMetadata.participants || [];
+  const ownerId = groupMetadata.owner || '';
+
   console.log('=== PARTICIPANTES ===');
   for (const p of participants) {
     console.log(`ID: ${p.id} | Admin: ${p.admin || 'normal'}`);
