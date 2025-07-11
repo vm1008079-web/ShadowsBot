@@ -38,7 +38,7 @@ const handler = async (m, { conn }) => {
       audio: audioBuffer,
       fileName: json.result.filename || `audio.mp3`,
       mimetype: 'audio/mpeg',
-      ptt: true
+      ptt: false
     }, { quoted: m });
 
     conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
