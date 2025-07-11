@@ -14,7 +14,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const name2 = await conn.getName(m.sender)
   const fecha = moment().tz('America/Tegucigalpa').toDate()
   const moneda = global.moneda || '💰'
-  const reinoEspiritual = global.idcanal || null
+  const reinoEspiritual = global.canalreg || null
 
   // Asignar valores por defecto si no existen
   if (user.coin === undefined) user.coin = 0
