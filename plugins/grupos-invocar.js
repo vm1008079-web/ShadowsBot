@@ -1,29 +1,62 @@
-const handler = async (m, { isOwner, isAdmin, conn, text, participants, args, command, usedPrefix }) => {
-  if (usedPrefix == 'a' || usedPrefix == 'A') return;
+const handler = async (m, { conn, args, command, usedPrefix }) => {
+  if (!m.isGroup) return m.reply('🔒 Este comando solo se usa en grupos.');
 
-  const customEmoji = global.db.data.chats[m.chat]?.customEmoji || '🍫';
-  m.react(customEmoji);
+  const groupMetadata = await conn.groupMetadata(m.chat);
 
-  if (!(isAdmin || isOwner)) {
-    global.dfail('admin', m, conn);
-    throw false;
+  // Debug: imprimir participantes y roles
+  console.log('🔎 Participantes del grupo:');
+  groupMetadata.participants.forEach(p => {
+    console.log(`- ${p.id} | rol: ${p.admin || 'miembro'}`);
+  });
+
+  const userParticipant = groupMetadata.participants.find(p => p.id === m.sender);
+  const isUserAdmin = userParticipant?.admin === 'admin' || userParticipant?.admin === 'superadmin' || m.sender === groupMetadata.owner;
+
+  if (!isUserAdmin) return m.reply('❌ Solo los admins pueden usar este comando.');
+
+  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕';
+  const decoEmoji1 = '✨';
+  const decoEmoji2 = '📢';
+
+  m.react(mainEmoji);
+
+  const mensaje = args.join(' ') || 'Sin mensaje personalizado';
+  const total = groupMetadata.participants.length;
+
+  const header = `
+╭──────────────────────╮
+│       ${decoEmoji2} *🗣️ MENCIÓN GENERAL* ${decoEmoji2}       │
+╰──────────────────────╯
+`;
+
+  const info = `
+> 💌 Mensaje: ${mensaje}
+> 👥 Miembros: ${total}
+${decoEmoji1.repeat(1)}
+`;
+
+  let cuerpo = '';
+  for (const mem of groupMetadata.participants) {
+    cuerpo += `• ${mainEmoji} @${mem.id.split('@')[0]}\n`;
   }
 
-  const pesan = args.join` `;
-  const oi = `*» INFO :* ${pesan}`;
-  let teks = `*!  MENCION GENERAL  !*\n  *PARA ${participants.length} MIEMBROS* 🗣️\n\n ${oi}\n\n╭  ┄ 𝅄 ۪꒰ \`⡞᪲=͟͟͞${botname} ≼᳞ׄ\` ꒱ ۟ 𝅄 ┄\n`;
-  for (const mem of participants) {
-    teks += `┊${customEmoji} @${mem.id.split('@')[0]}\n`;
-  }
-  teks += `╰⸼ ┄ ┄ ┄ ─  ꒰  ׅ୭ *${vs}* ୧ ׅ ꒱  ┄  ─ ┄ ⸼`;
+  const footer = `
+${decoEmoji1.repeat(1)}
+┊ *📅 Comando:* ${usedPrefix}${command}
+╰──────────────────────╯
+`;
 
-  conn.sendMessage(m.chat, { text: teks, mentions: participants.map((a) => a.id) });
+  const texto = header + info + cuerpo + footer;
+
+  await conn.sendMessage(m.chat, {
+    text: texto.trim(),
+    mentions: groupMetadata.participants.map(p => p.id)
+  });
 };
 
-handler.help = ['todos *<mensaje opcional>*'];
+handler.help = ['invocar *<mensaje opcional>*'];
 handler.tags = ['group'];
-handler.command = ['todos', 'invocar', 'tagall']
-handler.admin = true;
+handler.command = ['todos', 'invocar', 'tagall'];
 handler.group = true;
 
 export default handler;
