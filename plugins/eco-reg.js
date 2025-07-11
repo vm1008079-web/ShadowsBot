@@ -3,7 +3,6 @@ import fs from 'fs'
 const dbPath = './database.json'
 let database = { users: {} }
 
-// Verificar si la base está vacía o mala
 try {
   if (fs.existsSync(dbPath)) {
     const content = fs.readFileSync(dbPath)
@@ -18,19 +17,27 @@ try {
   fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
 }
 
-const handler = async (m, { args, command }) => {
+const handler = async (m, { conn, args }) => {
   const userId = m.sender
 
   if (database.users[userId]) {
     const user = database.users[userId]
-    return m.reply(
+    const fecha = new Date(user.registeredAt)
+    const text =
 `☁︎ ✐ Ya estás registrado ✐ ☁︎
 
 ✦ Nombre: *${user.name}*
 ✦ Edad: *${user.age}*
-✦ Registro: *${new Date(user.registeredAt).toLocaleString()}*
+✦ ID: *${userId.split('@')[0]}*
+✦ Fecha de registro: *${fecha.toLocaleDateString()}*
+✦ Hora de registro: *${fecha.toLocaleTimeString()}*`
 
-☄︎ Gracias por usar el bot ☄︎`)
+    let pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+
+    return await conn.sendMessage(m.chat, {
+      image: { url: pfp || 'https://i.imgur.com/4V6VqZB.png' },
+      caption: text
+    }, { quoted: m })
   }
 
   if (args.length < 2) {
@@ -47,23 +54,32 @@ Ejemplo: *.reg Adonay 17*
 
   if (isNaN(age) || age < 1) return m.reply('☁︎ ✐ Edad inválida ✐ ☁︎')
 
-  // Guardar al usuario
+  const fechaRegistro = new Date().toISOString()
+
   database.users[userId] = {
     name,
     age,
-    registeredAt: new Date().toISOString()
+    registeredAt: fechaRegistro
   }
 
   fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
 
-  return m.reply(
+  const fecha = new Date(fechaRegistro)
+  const replyText =
 `☁︎ ✐ Registro exitoso ✐ ☁︎
 
 ✦ Nombre: *${name}*
 ✦ Edad: *${age}*
 ✦ ID: *${userId.split('@')[0]}*
+✦ Fecha de registro: *${fecha.toLocaleDateString()}*
+✦ Hora de registro: *${fecha.toLocaleTimeString()}*`
 
-☄︎ Bienvenido a Chihuahua Bot ☄︎`)
+  let profilePic = await conn.profilePictureUrl(userId, 'image').catch(() => null)
+
+  return await conn.sendMessage(m.chat, {
+    image: { url: profilePic || 'https://i.imgur.com/4V6VqZB.png' },
+    caption: replyText
+  }, { quoted: m })
 }
 
 handler.command = ['reg', 'register']
