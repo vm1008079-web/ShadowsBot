@@ -82,7 +82,7 @@ let handler = async (m, { conn }) => {
     }
 }
 
-handler.help = ['ver', 'rw', 'rollwaifu']
+handler.help = ['rw']
 handler.tags = ['gacha']
 handler.command = ['ver', 'rw', 'rollwaifu']
 handler.group = false
