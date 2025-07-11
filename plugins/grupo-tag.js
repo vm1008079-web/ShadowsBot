@@ -55,6 +55,8 @@ const handler = async (msg, { conn, isOwner }) => {
   }
 }
 
+handler.tags = ['group']
+handler.help = ['invocar < mensaje opcional >']
 handler.command = ['tagall', 'invocar', 'todos']
 handler.group = true
 
