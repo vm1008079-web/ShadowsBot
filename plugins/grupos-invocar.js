@@ -99,6 +99,8 @@ const handler = async (m, { conn, args }) => {
 }
 
 handler.command = ['tag']
+handler.help = ['tag']
+handler.tags = ['group']
 handler.group = true
 
 export default handler
