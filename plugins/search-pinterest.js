@@ -28,5 +28,8 @@ let HS = async (m, { conn, text }) => {
   }
 }
 
+HS.help = ['pinterest']
+HS.tags = ['search']
 HS.command = ['pinterest', 'pinterestsearch']
+HS.register = true
 export default HS
