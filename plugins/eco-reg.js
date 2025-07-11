@@ -76,15 +76,12 @@ Ejemplo: *.reg Adonay 17*
 ✦ Nombre: *${name}*
 ✦ Edad: *${age}*
 ✦ ID: *${userId.split('@')[0]}*
-✦ Fecha de registro: *${fecha.toLocaleDateString()}*
-✦ Hora de registro: *${fecha.toLocaleTimeString()}*
-
-☄︎ Bienvenido al bot ☄︎`
+✦ Fecha de registro: *${fecha.toLocaleDateString()}*`
 
   let profilePic = await conn.profilePictureUrl(userId, 'image').catch(() => null)
 
   return await conn.sendMessage(m.chat, {
-    image: { url: profilePic || 'https://i.imgur.com/4V6VqZB.png' },
+    image: { url: profilePic || 'https://files.catbox.moe/akyfv4.jpg' },
     caption: replyText
   }, { quoted: m })
 }
