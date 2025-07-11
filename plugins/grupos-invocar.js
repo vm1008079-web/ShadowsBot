@@ -1,17 +1,28 @@
+import db from '../lib/database.js'
+
+async function isAdminOrOwner(m, conn) {
+  try {
+    const groupMetadata = await conn.groupMetadata(m.chat)
+    const participant = groupMetadata.participants.find(p => p.id === m.sender)
+    return participant?.admin || m.fromMe
+  } catch {
+    return false
+  }
+}
+
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
 
-  // Obtener metadata del grupo
+  const isAdmin = await isAdminOrOwner(m, conn)
+  if (!isAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.')
+
+  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
+  const chat = global.db.data.chats[m.chat]
+
   const groupMetadata = await conn.groupMetadata(m.chat)
   const participants = groupMetadata.participants || []
-  const participant = participants.find(p => p.id === m.sender)
 
-  // Validar si el usuario es admin o dueño (como el ejemplo que diste)
-  const isAdmin = participant?.admin || m.fromMe
-  if (!isAdmin) return m.reply('❌ Este comando es solo para administradores.')
-
-  // Decoraciones y mensaje
-  const mainEmoji = global.db.data.chats[m.chat]?.customEmoji || '☕'
+  const mainEmoji = chat.customEmoji || '☕'
   const decoEmoji1 = '✨'
   const decoEmoji2 = '📢'
 
@@ -31,14 +42,13 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   const textoFinal = `${encabezado}\n\n${cuerpo}\n${pie}`
 
-  // Enviar mensaje con menciones
   await conn.sendMessage(m.chat, {
     text: textoFinal.trim(),
     mentions: participants.map(p => p.id)
   })
 }
 
-handler.help = ['invocar *<mensaje opcional>*']
+handler.help = ['invocar *<mensaje>*', 'tagall *<mensaje>*']
 handler.tags = ['group']
 handler.command = ['todos', 'invocar', 'tagall']
 handler.group = true
