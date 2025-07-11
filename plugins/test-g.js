@@ -24,7 +24,7 @@ const handler = async (msg, { conn, args }) => {
     return conn.sendMessage(
       chatId,
       {
-        text: '📂 *Información:* Aún no hay archivos almacenados. Usa el comando `.guar` para guardar tu primer archivo.'
+        text: '📂 *Información:* Aún no hay archivos almacenados. Usa el comando `.guardar` para guardar tu primer archivo.'
       },
       { quoted: msg }
     )
