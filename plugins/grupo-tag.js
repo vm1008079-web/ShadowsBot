@@ -26,12 +26,12 @@ const handler = async (msg, { conn, isOwner }) => {
     }
 
     const participants = metadata.participants
-    const mentionList = participants.map(p => `➥ @${p.id.split('@')[0]}`).join('\n')
+    const mentionList = participants.map(p => `➪ @${p.id.split('@')[0]}`).join('\n')
     const messageText = msg.message?.conversation || msg.message?.extendedTextMessage?.text || ''
     const args = messageText.trim().split(' ').slice(1)
     const extraMsg = args.join(' ')
 
-    let finalMsg = '━〔 *📢 ATENCIÓN 📢* 〕━➫\n'
+    let finalMsg = '*📢 ATENCIÓN 📢* \n'
     finalMsg += '\n'
     if (extraMsg.trim().length > 0) {
       finalMsg += `\n❑ *Mensaje :* ${extraMsg}\n\n`
