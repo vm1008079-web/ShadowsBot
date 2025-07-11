@@ -91,7 +91,7 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ['claim'];
+handler.help = ['c'];
 handler.tags = ['gacha'];
 handler.command = ['c', 'claim', 'reclamar'];
 handler.group = true;
