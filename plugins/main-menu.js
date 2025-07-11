@@ -4,6 +4,7 @@ import { xpRange } from '../lib/levelling.js'
 
 const tags = {
   serbot: '✐ Sockets',
+  eco: '✦ Economía', 
   downloader: '☄︎ Downloaders',
   tools: 'ᥫ᭡ Herramientas',
   owner: '✧ Owner',
