@@ -22,9 +22,10 @@ let handler = async (m, { conn, command, text }) => {
 }
 
 handler.help = ['personalidad']
-handler.tags = ['fun']
+handler.tags = ['group']
 handler.command = ['personalidad']
-handler.group = false
+handler.group = true
+handler.register = true
 
 export default handler
 
