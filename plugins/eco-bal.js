@@ -10,7 +10,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   let name = await conn.getName(who)
 
   const texto = 
-`❐ ᥫ᭡ *ECONOMÍA DE USUARIO* ❀
+`❐ ᥫ᭡ *ECONOMÍA DEL USUARIO* ❀
 
 ✎ Usuario: *${name}*
 ☁︎ Dinero en mano: *${user.coin || 0} ${moneda}*
