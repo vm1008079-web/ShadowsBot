@@ -1,57 +1,104 @@
-import db from '../lib/database.js'
+import { downloadContentFromMessage } from '@whiskeysockets/baileys'
 
-async function isAdminOrOwner(m, conn) {
+const handler = async (m, { conn, args }) => {
   try {
-    const groupMetadata = await conn.groupMetadata(m.chat)
-    const participant = groupMetadata.participants.find(p => p.id === m.sender)
-    return participant?.admin || m.fromMe
-  } catch {
-    return false
+    const chatId = m.chat
+    const senderJid = m.key.participant || m.sender
+    const senderNum = senderJid.replace(/[^0-9]/g, "")
+    const botNumber = conn.user?.id.split(":")[0].replace(/[^0-9]/g, "")
+
+    if (!chatId.endsWith('@g.us')) {
+      await conn.sendMessage(chatId, { text: '⚠️ Este comando solo se puede usar en grupos.' }, { quoted: m })
+      return
+    }
+
+    const metadata = await conn.groupMetadata(chatId)
+    const participant = metadata.participants.find(p => p.id.includes(senderNum))
+    const isAdmin = participant?.admin === 'admin' || participant?.admin === 'superadmin'
+    const isBot = botNumber === senderNum
+
+    if (!isAdmin && !isBot) {
+      return await conn.sendMessage(chatId, {
+        text: '❌ Solo los administradores del grupo o el bot pueden usar este comando.'
+      }, { quoted: m })
+    }
+
+    const allMentions = metadata.participants.map(p => p.id)
+    let messageToForward = null
+    let hasMedia = false
+
+    if (m.quoted?.message) {
+      const quoted = m.quoted.message
+
+      if (quoted.conversation) {
+        messageToForward = { text: quoted.conversation }
+      } else if (quoted.extendedTextMessage?.text) {
+        messageToForward = { text: quoted.extendedTextMessage.text }
+      } else if (quoted.imageMessage) {
+        const stream = await downloadContentFromMessage(quoted.imageMessage, 'image')
+        let buffer = Buffer.alloc(0)
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk])
+        const mimetype = quoted.imageMessage.mimetype || 'image/jpeg'
+        const caption = quoted.imageMessage.caption || ''
+        messageToForward = { image: buffer, mimetype, caption }
+        hasMedia = true
+      } else if (quoted.videoMessage) {
+        const stream = await downloadContentFromMessage(quoted.videoMessage, 'video')
+        let buffer = Buffer.alloc(0)
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk])
+        const mimetype = quoted.videoMessage.mimetype || 'video/mp4'
+        const caption = quoted.videoMessage.caption || ''
+        messageToForward = { video: buffer, mimetype, caption }
+        hasMedia = true
+      } else if (quoted.audioMessage) {
+        const stream = await downloadContentFromMessage(quoted.audioMessage, 'audio')
+        let buffer = Buffer.alloc(0)
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk])
+        const mimetype = quoted.audioMessage.mimetype || 'audio/mp3'
+        messageToForward = { audio: buffer, mimetype }
+        hasMedia = true
+      } else if (quoted.stickerMessage) {
+        const stream = await downloadContentFromMessage(quoted.stickerMessage, 'sticker')
+        let buffer = Buffer.alloc(0)
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk])
+        messageToForward = { sticker: buffer }
+        hasMedia = true
+      } else if (quoted.documentMessage) {
+        const stream = await downloadContentFromMessage(quoted.documentMessage, 'document')
+        let buffer = Buffer.alloc(0)
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk])
+        const mimetype = quoted.documentMessage.mimetype || 'application/pdf'
+        const caption = quoted.documentMessage.caption || ''
+        messageToForward = { document: buffer, mimetype, caption }
+        hasMedia = true
+      }
+    }
+
+    if (!hasMedia && args.join(' ').trim().length > 0) {
+      messageToForward = { text: args.join(' ') }
+    }
+
+    if (!messageToForward) {
+      await conn.sendMessage(chatId, {
+        text: '⚠️ Debes responder a un mensaje o escribir un texto para etiquetar.'
+      }, { quoted: m })
+      return
+    }
+
+    await conn.sendMessage(chatId, {
+      ...messageToForward,
+      mentions: allMentions
+    }, { quoted: m })
+
+  } catch (error) {
+    console.error('❌ Error en el comando tag:', error)
+    await conn.sendMessage(m.chat, {
+      text: '❌ Ocurrió un error al ejecutar el comando tag.'
+    }, { quoted: m })
   }
 }
 
-const handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
-
-  const isAdmin = await isAdminOrOwner(m, conn)
-  if (!isAdmin) return m.reply('❌ Solo los administradores pueden usar este comando.')
-
-  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
-  const chat = global.db.data.chats[m.chat]
-
-  const groupMetadata = await conn.groupMetadata(m.chat)
-  const participants = groupMetadata.participants || []
-
-  const mainEmoji = chat.customEmoji || '☕'
-  const decoEmoji1 = '✨'
-  const decoEmoji2 = '📢'
-
-  m.react(mainEmoji)
-
-  const mensaje = args.join(' ') || '¡Atención a todos!'
-  const total = participants.length
-
-  const encabezado = 
-`${decoEmoji2} *Mención general activada* ${decoEmoji2}
-
-> 💬 Mensaje: *${mensaje}*
-> 👥 Total de miembros: *${total}*`
-
-  const cuerpo = participants.map(p => `> ${mainEmoji} @${p.id.split('@')[0]}`).join('\n')
-  const pie = `\n${decoEmoji1} Comando ejecutado: *${usedPrefix + command}*`
-
-  const textoFinal = `${encabezado}\n\n${cuerpo}\n${pie}`
-
-  await conn.sendMessage(m.chat, {
-    text: textoFinal.trim(),
-    mentions: participants.map(p => p.id)
-  })
-}
-
-handler.help = ['invocar *<mensaje>*', 'tagall *<mensaje>*']
-handler.tags = ['group']
-handler.command = ['todos', 'invocar', 'tagall']
+handler.command = ['tag']
 handler.group = true
-handler.register = true
 
 export default handler
