@@ -37,6 +37,7 @@ let handler = async (m, { conn, command }) => {
 handler.help = ['hd']
 handler.tags = ['tools']
 handler.command = /^(hd|remini)$/i
+handler.register = true
 export default handler
 
 async function up(buffer) {
