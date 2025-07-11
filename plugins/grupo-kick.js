@@ -4,7 +4,7 @@ const handler = async (msg, { conn, isOwner }) => {
     const sender = (msg.key.participant || msg.participant || msg.key.remoteJid).replace(/[^0-9]/g, '')
     const isGroup = chatId.endsWith('@g.us')
 
-    await conn.sendMessage(chatId, { react: { text: '🛑', key: msg.key } })
+    await conn.sendMessage(chatId, { react: { text: '💥', key: msg.key } })
 
     if (!isGroup) {
       return await conn.sendMessage(chatId, {
