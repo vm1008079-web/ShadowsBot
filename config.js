@@ -23,7 +23,7 @@ global.yukiJadibts = true
 global.packname = '✦ Michi-Wa ✦'
 global.namebot = '✧ Michi-Wa ✧'
 global.author = '© Made with ☁︎ Wirk ✧'
-
+global.moneda = '✦ Mangos ✦'
 
 global.namecanal = '✧ Ado Channel ☎︎'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
