@@ -15,7 +15,7 @@ let handler = async (m, { conn, args, participants }) => {
     return `${i + 1}. ${tag} → *¥${total} ${moneda}*`
   }).join('\n\n')
 
-  await conn.reply(m.chat, text.trim(), m, {
+  await conn.reply(m.chat, text.trim(), m, rcanal, {
     mentions: conn.parseMention(text)
   })
 }
