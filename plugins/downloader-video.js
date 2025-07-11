@@ -20,8 +20,6 @@ await m.react('✅')
 } catch {
 await m.react('✖️')
 }}
-handler.help = ['Video']
-handler.tags = ['downloader']
 handler.customPrefix = /^(Video|video|vídeo|Vídeo)/
 handler.command = new RegExp
 //handler.limit = 1
