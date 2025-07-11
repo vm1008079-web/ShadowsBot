@@ -1,23 +1,25 @@
 import fs from 'fs'
-
 const dbPath = './database.json'
-let database = { users: {} }
 
-try {
-  if (fs.existsSync(dbPath)) {
-    const content = fs.readFileSync(dbPath)
-    database = JSON.parse(content.length ? content : '{}')
-    if (!database.users) database.users = {}
-  } else {
-    fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+const loadDatabase = () => {
+  if (!fs.existsSync(dbPath)) return { users: {} }
+  const raw = fs.readFileSync(dbPath, 'utf-8')
+  if (!raw) return { users: {} }
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return { users: {} }
   }
-} catch (e) {
-  console.error('❌ Error en base de datos:', e)
-  database = { users: {} }
-  fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+}
+
+const saveDatabase = (db) => {
+  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
 }
 
 const handler = async (m, { conn, args }) => {
+  // Cargo la base actualizada
+  let database = loadDatabase()
+
   const userId = m.sender
 
   if (database.users[userId]) {
@@ -30,7 +32,9 @@ const handler = async (m, { conn, args }) => {
 ✦ Edad: *${user.age}*
 ✦ ID: *${userId.split('@')[0]}*
 ✦ Fecha de registro: *${fecha.toLocaleDateString()}*
-✦ Hora de registro: *${fecha.toLocaleTimeString()}*`
+✦ Hora de registro: *${fecha.toLocaleTimeString()}*
+
+☄︎ Gracias por usar el bot ☄︎`
 
     let pfp = await conn.profilePictureUrl(userId, 'image').catch(() => null)
 
@@ -56,13 +60,14 @@ Ejemplo: *.reg Adonay 17*
 
   const fechaRegistro = new Date().toISOString()
 
+  // Guardar al user en la base y salvar
   database.users[userId] = {
     name,
     age,
     registeredAt: fechaRegistro
   }
 
-  fs.writeFileSync(dbPath, JSON.stringify(database, null, 2))
+  saveDatabase(database)
 
   const fecha = new Date(fechaRegistro)
   const replyText =
@@ -72,7 +77,9 @@ Ejemplo: *.reg Adonay 17*
 ✦ Edad: *${age}*
 ✦ ID: *${userId.split('@')[0]}*
 ✦ Fecha de registro: *${fecha.toLocaleDateString()}*
-✦ Hora de registro: *${fecha.toLocaleTimeString()}*`
+✦ Hora de registro: *${fecha.toLocaleTimeString()}*
+
+☄︎ Bienvenido al bot ☄︎`
 
   let profilePic = await conn.profilePictureUrl(userId, 'image').catch(() => null)
 
