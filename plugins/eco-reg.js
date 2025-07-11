@@ -11,35 +11,34 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const name2 = await conn.getName(m.sender)
   const userId = m.sender
 
-  
   if (user.registered === true) {
     return m.reply(
-`☁︎ ✐ Ya estás registrado ✐ ☁︎
+`✩*⢄⢁✧ --------- ✧⡈⡠*✩
+❐ Ya estás registrado
 
 ¿Quieres volver a registrarte?
-Usa: *${usedPrefix}unreg*`)
+➩ Usa: *${usedPrefix}unreg*`)
   }
 
-  
   if (!Reg.test(text)) {
     return m.reply(
-`☁︎ ✐ Formato incorrecto ✐ ☁︎
+`✩*⢄⢁✧ --------- ✧⡈⡠*✩
+❐ Formato incorrecto
 
-Uso correcto:
-*${usedPrefix + command} nombre.edad*
-Ejemplo: *${usedPrefix + command} ${name2}.18*`)
+➩ Usa: *${usedPrefix + command} nombre.edad*
+➩ Ejemplo: *${usedPrefix + command} ${name2}.18*`)
   }
 
   let [_, name, splitter, age] = text.match(Reg)
 
-  if (!name) return m.reply('☁︎ ✐ El nombre no puede estar vacío ✐ ☁︎')
-  if (!age) return m.reply('☁︎ ✐ La edad no puede estar vacía ✐ ☁︎')
-  if (name.length >= 100) return m.reply('☁︎ ✐ El nombre es demasiado largo ✐ ☁︎')
+  if (!name) return m.reply('➩✧ El nombre no puede estar vacío ❐')
+  if (!age) return m.reply('➩✧ La edad no puede estar vacía ❐')
+  if (name.length >= 100) return m.reply('➩✧ El nombre es demasiado largo ❐')
 
   age = parseInt(age)
-  if (isNaN(age)) return m.reply('☁︎ ✐ Edad inválida ✐ ☁︎')
-  if (age > 1000) return m.reply('☁︎ ✐ Wow, el abuelo quiere usar el bot ✐ ☁︎')
-  if (age < 5) return m.reply('☁︎ ✐ Hay un bebé queriendo jugar jsjs ✐ ☁︎')
+  if (isNaN(age)) return m.reply('➩✧ Edad inválida ❐')
+  if (age > 1000) return m.reply('➩✧ Wow, el abuelo quiere usar el bot 💀')
+  if (age < 5) return m.reply('➩✧ Hay un bebé queriendo jugar jsjs 👶')
 
   // Guardar datos
   user.name = name + '✓'
@@ -51,16 +50,15 @@ Ejemplo: *${usedPrefix + command} ${name2}.18*`)
   user.joincount += 20
 
   const fecha = new Date(user.regTime)
-  const sn = createHash('md5').update(userId).digest('hex').slice(0, 20)
   const pp = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://files.catbox.moe/xr2m6u.jpg')
 
   const regbot = 
-`✐ Registro Exitoso ✐
-
-✦ Nombre: *${name}*
-✦ Edad: *${age}*
-✦ ID: *${userId.split('@')[0]}*
-✦ Fecha: *${fecha.toLocaleDateString()}*`
+`✩*⢄⢁✧ --------- ✧⡈⡠*✩
+   ✧ Registro exitoso ✧
+➥ Nombre: *${name}*
+➥ Edad: *${age}*
+➥ ID: *${userId.split('@')[0]}*
+➥ Fecha: *${fecha.toLocaleDateString()}*`
 
   await m.react('📩')
 
