@@ -1,4 +1,3 @@
-// plugins/whatmusic.js
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
@@ -7,19 +6,26 @@ import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../lib/upload.js' // Asegúrate que existe este archivo
+import quAx from '../libs/upload.js'
 
 const streamPipeline = promisify(pipeline)
 
 const handler = async (m, { conn }) => {
-  const quoted = m.quoted
+  if (!m.quoted) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
 
-  // 💥 Verificación REAL de audio o video
-  const isAudio = quoted?.mimetype?.startsWith('audio') && quoted.audioMessage
-  const isVideo = quoted?.mimetype?.startsWith('video') && quoted.videoMessage
+  const mime = m.quoted?.mimetype || ''
+  const isAudio = mime.startsWith('audio')
+  const isVideo = mime.startsWith('video')
 
   if (!isAudio && !isVideo) {
-    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
+    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* válido.', m)
+  }
+
+  const mediaType = isAudio ? 'audio' : 'video'
+  const mediaMessage = m.quoted.message?.[`${mediaType}Message`] || m.quoted?.[`audioMessage`] || m.quoted?.[`videoMessage`]
+
+  if (!mediaMessage) {
+    return conn.reply(m.chat, '❌ No se pudo acceder al contenido multimedia.', m)
   }
 
   await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } })
@@ -28,12 +34,10 @@ const handler = async (m, { conn }) => {
     const tmpDir = path.join(process.cwd(), 'tmp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
-    const type = isAudio ? 'audio' : 'video'
     const ext = isAudio ? 'mp3' : 'mp4'
     const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
 
-    // ✅ Descarga directa del contenido citado
-    const stream = await downloadContentFromMessage(quoted[type + 'Message'], type)
+    const stream = await downloadContentFromMessage(mediaMessage, mediaType)
     const file = fs.createWriteStream(inputPath)
     for await (const chunk of stream) file.write(chunk)
     file.end()
@@ -106,7 +110,6 @@ const handler = async (m, { conn }) => {
       fileName: `${title}.mp3`
     }, { quoted: m })
 
-    // Borrar temporales
     fs.unlinkSync(inputPath)
     fs.unlinkSync(rawPath)
     fs.unlinkSync(fixedPath)
@@ -121,7 +124,7 @@ const handler = async (m, { conn }) => {
 }
 
 handler.command = /^whatmusic$/i
-handler.register = true
 handler.tags = ['tools']
 handler.help = ['whatmusic']
+handler.register = true
 export default handler
