@@ -81,5 +81,5 @@ const handler = async (msg, { conn, __dirname }) => {
 
 handler.command = ['arr']  // acá mejor que coincida con help
 handler.tags = ['tools']
-handler.help = ['ff2']
+handler.help = ['arr']
 export default handler
