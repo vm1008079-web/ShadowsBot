@@ -49,7 +49,7 @@ const handler = async (m, { conn }) => {
 
     await new Promise((resolve, reject) => {
       ffmpeg(inputPath)
-        .audioFilter("volume=8,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry='entry(60,20);entry(100,15);entry(200,10)'")
+        .audioFilter("volume=6,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry='entry(60,20);entry(100,15);entry(200,10)'")
         .audioCodec("libmp3lame")
         .save(outputPath)
         .on("end", resolve)
