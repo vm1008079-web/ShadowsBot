@@ -33,7 +33,6 @@ const daradmin = async (m, { conn, isOwner }) => {
   }
 }
 
-daradmin.command = /^(daradmin|daradmins)$/i
-daradmin.group = true
-
+daradmin.command = daradmin.help = /^(daradmin|daradmins)$/i
+daradmin.tags ['group']
 export default daradmin
