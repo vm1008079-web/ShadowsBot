@@ -81,8 +81,8 @@ const handler = async (msg, { conn, args }) => {
   await conn.sendMessage(chatId, messageOptions, { quoted: msg })
 }
 
-handler.command = ['ob']
+handler.command = handler.help = ['ob']
 handler.group = true
-handler.private = false
+handler.tags = ['tools']
 
 export default handler
