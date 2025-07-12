@@ -7,13 +7,16 @@ import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../lib/upload.js' // ajustá la ruta si es diferente
+import quAx from '../lib/upload.js' // ajustá si tenés otra ruta
 
 const streamPipeline = promisify(pipeline)
 
 const handler = async (m, { conn }) => {
-  const quoted = m.quoted?.msg || m.quoted
-  if (!quoted || (!quoted.audioMessage && !quoted.videoMessage)) {
+  const quoted = m.quoted?.message || m.quoted
+  const audioMsg = quoted?.audioMessage
+  const videoMsg = quoted?.videoMessage
+
+  if (!audioMsg && !videoMsg) {
     return await conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
   }
 
@@ -23,13 +26,10 @@ const handler = async (m, { conn }) => {
     const tmpDir = path.join(process.cwd(), 'tmp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
-    const fileExtension = quoted.audioMessage ? 'mp3' : 'mp4'
+    const fileExtension = audioMsg ? 'mp3' : 'mp4'
     const inputPath = path.join(tmpDir, `${Date.now()}_input.${fileExtension}`)
 
-    const stream = await downloadContentFromMessage(
-      quoted.audioMessage || quoted.videoMessage,
-      quoted.audioMessage ? 'audio' : 'video'
-    )
+    const stream = await downloadContentFromMessage(audioMsg || videoMsg, audioMsg ? 'audio' : 'video')
     const writable = fs.createWriteStream(inputPath)
     for await (const chunk of stream) writable.write(chunk)
     writable.end()
