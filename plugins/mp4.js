@@ -112,6 +112,6 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
   }
 }
 
-handler.command = ['menu', 'help', 'menú']
+handler.command = ['xd']
 handler.register = true
 export default handler
