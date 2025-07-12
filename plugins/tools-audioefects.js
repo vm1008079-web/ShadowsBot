@@ -21,7 +21,7 @@ const handler = async (msg, { conn, __dirname }) => {
   }
 
   await conn.sendMessage(msg.key.remoteJid, {
-    react: { text: '🔧', key: msg.key }
+    react: { text: '🕒', key: msg.key }
   })
 
   const tmpDir = path.join(__dirname, '../tmp')
