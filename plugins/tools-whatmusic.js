@@ -4,7 +4,7 @@ const daradmin = async (m, { conn, isOwner }) => {
     const chatId = m.chat
     if (!chatId.endsWith('@g.us')) return m.reply('⚠️ Este comando solo se puede usar en grupos.')
 
-    await conn.sendMessage(chatId, { react: { text: '🔑', key: m.key } })
+    await conn.sendMessage(chatId, { react: { text: '🔥', key: m.key } })
 
     const groupMetadata = await conn.groupMetadata(chatId)
     const senderId = m.sender
