@@ -3,7 +3,9 @@ import path from 'path'
 import ffmpeg from 'fluent-ffmpeg'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
 import { promisify } from 'util'
-const streamPipeline = promisify(require('stream').pipeline)
+import { pipeline } from 'stream'
+
+const streamPipeline = promisify(pipeline)
 
 const handler = async (msg, { conn, __dirname }) => {
   const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage
@@ -77,7 +79,7 @@ const handler = async (msg, { conn, __dirname }) => {
   }
 }
 
-handler.command = ['arr']
+handler.command = ['ff2']  // acá mejor que coincida con help
 handler.tags = ['tools']
 handler.help = ['ff2']
 export default handler
