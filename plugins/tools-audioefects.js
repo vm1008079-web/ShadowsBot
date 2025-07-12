@@ -1,6 +1,10 @@
 import { unlinkSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { exec } from 'child_process'
+import util from 'util'
+import { spawn } from 'child_process'
+
+const execPromise = util.promisify(exec)
 
 const handler = async (m, { conn, args, __dirname, usedPrefix, command }) => {
   try {
@@ -31,11 +35,14 @@ const handler = async (m, { conn, args, __dirname, usedPrefix, command }) => {
       unlinkSync(media)
       if (err) throw '❌ Error al convertir el audio.'
 
-      const buff = readFileSync(filename)
-      await conn.sendFile(m.chat, buff, ran, null, m, true, {
+      const isLong = await checkDuration(filename)
+      const buffer = readFileSync(filename)
+
+      await conn.sendFile(m.chat, buffer, ran, null, m, true, {
         type: 'audioMessage',
-        ptt: true
+        ptt: !isLong // solo ptt si es corto
       })
+
       unlinkSync(filename)
     })
 
@@ -51,4 +58,15 @@ export default handler
 
 function getRandom(ext) {
   return `${Math.floor(Math.random() * 10000)}${ext}`
+}
+
+// 🕒 Detecta duración en segundos
+async function checkDuration(filePath) {
+  try {
+    const { stdout } = await execPromise(`ffprobe -i "${filePath}" -show_entries format=duration -v quiet -of csv="p=0"`);
+    const duration = parseFloat(stdout.trim());
+    return duration > 60; // si es más de 1 minuto
+  } catch {
+    return false;
+  }
 }
