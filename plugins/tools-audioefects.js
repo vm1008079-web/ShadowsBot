@@ -8,7 +8,7 @@ const handler = async (m, { conn, args, __dirname, usedPrefix, command }) => {
     const mime = (q.mimetype || '')
     let set = ''
 
-    if (/bass/.test(command)) set = '-af equalizer=f=94:width_type=o:width=2:g=30'
+    if (/bass/.test(command)) set = '-af equalizer=f=54:width_type=o:width=2:g=45'
     if (/blown/.test(command)) set = '-af acrusher=.1:1:64:0:log'
     if (/deep/.test(command)) set = '-af atempo=4/4,asetrate=44500*2/3'
     if (/earrape/.test(command)) set = '-af volume=12'
