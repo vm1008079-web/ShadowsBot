@@ -83,7 +83,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         // Procesamos para darle bass con ffmpeg
         await new Promise((resolve, reject) => {
           ffmpeg(tmpPathIn)
-            .audioFilter('equalizer=f=54:width_type=o:width=2:g=20') // bass boost
+            .audioFilter('equalizer=f=40:width_type=o:width=2:g=30')
             .audioCodec('libmp3lame')
             .audioBitrate('128k')
             .format('mp3')
