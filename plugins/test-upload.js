@@ -14,8 +14,11 @@ const handler = async (m, { conn }) => {
     const stream = await m.quoted.download()
     const fileStream = fs.createWriteStream(inputPath)
 
-    for await (const chunk of stream) fileStream.write(chunk)
-    fileStream.end()
+    await new Promise((resolve, reject) => {
+      stream.pipe(fileStream)
+      fileStream.on('finish', resolve)
+      fileStream.on('error', reject)
+    })
 
     const res = await quAx(inputPath)
     await conn.reply(m.chat, `Respuesta upload: ${JSON.stringify(res)}`, m)
