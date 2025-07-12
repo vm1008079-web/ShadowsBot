@@ -65,7 +65,7 @@ const handler = async (m, { conn, text, usedPrefix, command, __dirname }) => {
 
     await conn.reply(m.chat, infoMessage, m, JT)
 
-    if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
+    if (['paudio', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
         const r = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
         const json = await r.json()
