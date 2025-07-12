@@ -64,7 +64,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       },
     }
 
-    await conn.reply(m.chat, infoMessage, m)
+    await conn.reply(m.chat, infoMessage, JT, m)
 
     if (['paudio', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
