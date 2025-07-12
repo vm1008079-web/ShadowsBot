@@ -1,92 +1,108 @@
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import("@whiskeysockets/baileys")).default;
-import axios from 'axios';
+// Editado y arreglado por github.com/Ado-rgb
+import axios from 'axios'
+import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
-let handler = async (message, { conn, text }) => {
-    if (!text) {
-        return conn.reply(message.chat, `*⍴᥆r 𝖿ᥲ᥎᥆r, іᥒgrᥱsᥲ ᥣ᥆ 𝗊ᥙᥱ ძᥱsᥱᥲs ᑲᥙsᥴᥲr ..*`, message);
+const handler = async (m, { conn, text, command }) => {
+  if (!text) {
+    return conn.reply(
+      m.chat,
+      '📌 Por favor, indique el término que desea buscar. Ejemplo:\n*.wallpaper naturaleza*',
+      m
+    )
+  }
+
+  await m.react('🕒')
+  await conn.reply(m.chat, '🔍 Buscando imágenes, por favor espere...', m)
+
+  const apiUrl = `https://delirius-apiofc.vercel.app/search/wallpapers?q=${encodeURIComponent(text)}`
+  try {
+    const { data } = await axios.get(apiUrl)
+    const results = data?.data || []
+
+    if (!results.length) {
+      return conn.reply(
+        m.chat,
+        `⚠️ No se encontraron resultados para el término: *${text}*`,
+        m
+      )
     }
 
-    await message.react('⏱️');
-    conn.reply(message.chat, `*ᴇɴᴠɪᴀɴᴅᴏ ɪᴍᴀɢᴇɴᴇs*`, message);
+    const cards = []
+    const namebot = global.namebot || 'Asistente'
 
-    const apiUrl = `https://delirius-apiofc.vercel.app/search/wallpapers?q=${encodeURIComponent(text)}`;
+    for (const [i, item] of results.entries()) {
+      if (i >= 5) break
 
-    try {
-        const response = await axios.get(apiUrl);
-        const images = response.data.data.map(item => item.image);
+      const imageUrl = item.image
+      const link = item.thumbnail?.startsWith('http') ? item.thumbnail : imageUrl
 
-        let cards = [];
+      cards.push({
+        body: proto.Message.InteractiveMessage.Body.fromObject({
+          text: `Resultado ${i + 1}: ${item.title}`
+        }),
+        footer: proto.Message.InteractiveMessage.Footer.fromObject({
+          text: namebot
+        }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({
+          title: item.title,
+          hasMediaAttachment: true,
+          imageMessage: await createImageMsg(imageUrl, conn)
+        }),
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+          buttons: [{
+            name: 'cta_url',
+            buttonParamsJson: JSON.stringify({
+              display_text: '🌐 Ver imagen completa',
+              url: link
+            })
+          }]
+        })
+      })
+    }
 
-        for (const [index, item] of response.data.data.entries()) {
-            if (index >= 5) break;
-
-            const imageUrl = item.image;
-            const buttonUrl = item.thumbnail?.startsWith('http') ? item.thumbnail : imageUrl;
-
-            cards.push({
-                body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `Imagen ${index + 1}: ${item.title}`
-                }),
-                footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                    text: namebot
-                }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: item.title,
-                    hasMediaAttachment: true,
-                    imageMessage: await createImageMessage(imageUrl, conn)
-                }),
-                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [{
-                        name: "cta_url",
-                        buttonParamsJson: JSON.stringify({
-                            display_text: "➮ Ver Más ★",
-                            url: buttonUrl
-                        })
-                    }]
-                })
-            });
+    const carousel = generateWAMessageFromContent(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: proto.Message.InteractiveMessage.Body.fromObject({
+              text: `🖼️ Resultados encontrados para: *${text}*`
+            }),
+            footer: proto.Message.InteractiveMessage.Footer.fromObject({
+              text: 'Resultados proporcionados por Delirius API'
+            }),
+            header: proto.Message.InteractiveMessage.Header.fromObject({
+              hasMediaAttachment: false
+            }),
+            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+              cards
+            })
+          })
         }
+      }
+    }, { quoted: m })
 
-        const carouselMessage = generateWAMessageFromContent(message.chat, {
-            viewOnceMessage: {
-                message: {
-                    interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-                        body: proto.Message.InteractiveMessage.Body.fromObject({
-                            text: `✎ ʀ𝖾𝗌𝗎𝗅𝗍𝖺𝖽𝗈𝗌 ძ𝖾 : ${text}`
-                        }),
-                        footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                            text: '𝗚𝗮𝗹𝗲𝗿𝗶́𝗮 𝗱𝗲 𝗶𝗺𝗮𝗴𝗲𝗻𝗲𝘀',
-                        }),
-                        header: proto.Message.InteractiveMessage.Header.fromObject({
-                            hasMediaAttachment: false
-                        }),
-                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-                            cards: cards
-                        })
-                    })
-                }
-            }
-        }, { quoted: message });
+    await conn.relayMessage(m.chat, carousel.message, { messageId: carousel.key.id })
 
-        await conn.relayMessage(message.chat, carouselMessage.message, { messageId: carouselMessage.key.id });
-
-    } catch (error) {
-        console.error(error);
-        conn.reply(message.chat, `⚠️ Error al buscar imágenes.`, message);
-    }
-};
-
-async function createImageMessage(imageUrl, conn) {
-    const { imageMessage } = await generateWAMessageContent({
-        image: { url: imageUrl }
-    }, { upload: conn.waUploadToServer });
-
-    return imageMessage;
+  } catch (err) {
+    console.error('[Wallpaper Error]:', err)
+    conn.reply(
+      m.chat,
+      '❌ Ha ocurrido un error al procesar la solicitud. Intente nuevamente más tarde.',
+      m
+    )
+  }
 }
 
-handler.tags = ['search'];
-handler.help = ['wallpaper'];
-handler.command = ['wallpaper'];
-handler.register = true;
+async function createImageMsg(url, conn) {
+  const { imageMessage } = await generateWAMessageContent({
+    image: { url }
+  }, { upload: conn.waUploadToServer })
+  return imageMessage
+}
 
-export default handler;
+handler.command = ['wallpaper']
+handler.help = ['wallpaper <término>']
+handler.tags = ['search']
+handler.register = true
+
+export default handler
