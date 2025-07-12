@@ -28,7 +28,7 @@ let handler = async (message, { conn, text }) => {
                     text: `Imagen ${index + 1}: ${item.title}`
                 }),
                 footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                    text: '${global.author}'
+                    text: namebot
                 }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
                     title: item.title,
