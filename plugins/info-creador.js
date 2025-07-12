@@ -11,7 +11,7 @@ VERSION:3.0
 N:${name}
 FN:${name}
 ORG:${org}
-EMAIL;type=INTERNET:${email}
+EMAIL;type=EMAIL:${email}
 TEL;type=CELL;type=VOICE;waid=${number}:${number}
 NOTE:${note}
 END:VCARD
