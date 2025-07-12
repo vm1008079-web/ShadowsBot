@@ -15,12 +15,12 @@ const handler = async (m, { conn }) => {
   const quoted = m.quoted
   if (!quoted) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
 
-  const msg = quoted.msg || quoted
-  const isAudio = !!msg?.seconds && quoted.mimetype?.includes('audio')
-  const isVideo = !!msg?.seconds && quoted.mimetype?.includes('video')
+  const mime = quoted.mimetype || ''
+  const isAudio = mime.startsWith('audio')
+  const isVideo = mime.startsWith('video')
 
   if (!isAudio && !isVideo) {
-    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
+    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* válido.', m)
   }
 
   await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } })
@@ -32,15 +32,14 @@ const handler = async (m, { conn }) => {
     const ext = isAudio ? 'mp3' : 'mp4'
     const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
 
-    const stream = await downloadContentFromMessage(
-      quoted.message.audioMessage || quoted.message.videoMessage,
-      isAudio ? 'audio' : 'video'
-    )
-
+    // Detectar tipo correcto y descargar
+    const mediaType = isAudio ? 'audio' : 'video'
+    const stream = await downloadContentFromMessage(quoted.message[`${mediaType}Message`], mediaType)
     const file = fs.createWriteStream(inputPath)
     for await (const chunk of stream) file.write(chunk)
     file.end()
 
+    // Subir archivo
     const uploadResponse = await quAx(inputPath)
     if (!uploadResponse.status || !uploadResponse.result.url) throw new Error('No se pudo subir el archivo.')
 
@@ -83,6 +82,7 @@ const handler = async (m, { conn }) => {
       caption: banner
     }, { quoted: m })
 
+    // Descargar audio
     const res = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoUrl)}&type=audio&quality=128kbps&apikey=${apiKey}`)
     if (!res.data.status || !res.data.data?.url) throw new Error('No se pudo obtener el audio.')
 
@@ -94,6 +94,7 @@ const handler = async (m, { conn }) => {
     const response = await axios.get(audioUrl, { responseType: 'stream' })
     await streamPipeline(response.data, audioStream)
 
+    // Procesar con ffmpeg
     await new Promise((resolve, reject) => {
       ffmpeg(rawPath)
         .audioCodec('libmp3lame')
@@ -109,6 +110,7 @@ const handler = async (m, { conn }) => {
       fileName: `${title}.mp3`
     }, { quoted: m })
 
+    // Borrar archivos
     fs.unlinkSync(inputPath)
     fs.unlinkSync(rawPath)
     fs.unlinkSync(fixedPath)
