@@ -105,8 +105,8 @@ const handler = async (msg, { conn, args }) => {
   )
 }
 
-handler.command = ['guardar']
+handler.command = handler.help = ['guardar']
 handler.group = true
-handler.private = false
+hanler.tags = ['tools']
 
 export default handler
