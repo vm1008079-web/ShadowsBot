@@ -9,7 +9,6 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
   }
 
   try {
-    // ✅ Reacción estándar en bots con Baileys
     await conn.sendMessage(m.chat, {
       react: {
         text: '🎥',
@@ -33,24 +32,33 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
     const token = $('input[name="_id"]').attr('value')
     const v_id = url.includes('v=') ? url.split('v=')[1] : url.split('/').pop()
 
-    let ftype = null, fquality = null
+    // 📼 Buscar todos los MP4 disponibles
+    const opciones = []
     $('table tbody tr').each((i, el) => {
       const format = $(el).find('td:nth-child(2)').text().trim()
       const quality = $(el).find('td:nth-child(3)').text().trim()
-      if (format === 'mp4' && quality === '480p') {
-        ftype = $(el).find('a').attr('data-ftype')
-        fquality = $(el).find('a').attr('data-fquality')
+      const ftype = $(el).find('a').attr('data-ftype')
+      const fquality = $(el).find('a').attr('data-fquality')
+      if (format === 'mp4' && ftype && fquality) {
+        opciones.push({ quality, ftype, fquality })
       }
     })
 
-    if (!ftype || !fquality) return m.reply('❌ No encontré MP4 480p en ese video.')
+    if (opciones.length === 0) return m.reply('❌ No se encontró ningún MP4 disponible.')
+
+    // 🧠 Buscar 480p primero, si no, el más cercano inferior
+    const preferidas = ['480p', '360p', '240p']
+    let opcion = opciones.find(o => o.quality === '480p')
+    if (!opcion) {
+      opcion = opciones.find(o => preferidas.includes(o.quality)) || opciones[0]
+    }
 
     const conv = await axios.post(`${base}/mates/en68/convert`, qs.stringify({
       type: 'youtube',
       _id: token,
       v_id,
-      ftype,
-      fquality
+      ftype: opcion.ftype,
+      fquality: opcion.fquality
     }), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -63,7 +71,7 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, {
       video: { url: dlLink },
-      caption: `🎬 *Video descargado en 480p*\n📥 Desde: ${url}`
+      caption: `🎬 *Video descargado: ${opcion.quality}*\n📥 Desde: ${url}`
     }, { quoted: m })
 
   } catch (e) {
