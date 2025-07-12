@@ -1,103 +1,124 @@
-import fetch from 'node-fetch'
-import cheerio from 'cheerio'
+import fs from 'fs'
+import path from 'path'
+import { xpRange } from '../lib/levelling.js'
+import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  const url = args[0]
-  if (!url || !url.includes('youtu')) {
-    return m.reply(`✨ Usa el comando así:\n*${usedPrefix}${command} <enlace de YouTube>*`)
-  }
+const tags = {
+  serbot: '✐ Sockets',
+  eco: '✦ Economía',
+  downloader: '☄︎ Downloaders',
+  tools: 'ᥫ᭡ Herramientas',
+  owner: '✧ Owner',
+  info: '❀ Info',
+  gacha: '☀︎ Gacha Anime',
+  group: '꒷ Grupos',
+  search: '✧ Buscadores',
+  sticker: '✐ Stickers',
+  ia: 'ᰔ IA',
+  channel: '✿ Channels',
+}
 
+const handler = async (m, { conn, usedPrefix: _p }) => {
   try {
-    await conn.sendMessage(m.chat, {
-      react: { text: '🎥', key: m.key }
-    })
+    const { exp, limit, level } = global.db.data.users[m.sender]
+    const { min, xp, max } = xpRange(level, global.multiplier)
+    const name = await conn.getName(m.sender)
+    const d = new Date(Date.now() + 3600000)
+    const locale = 'es'
+    const date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
-    const video = await getYTVideo(url)
-    if (!video.link) throw '❌ No se encontró link de descarga'
+    let nombreBot = global.namebot || 'Bot'
+    let bannerFinal = './storage/img/menu.jpg'
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = path.join('./JadiBots', botActual, 'config.json')
 
-    await conn.sendMessage(m.chat, {
-      video: { url: video.link },
-      caption: `🎬 *${video.title}*\n📥 Calidad: ${video.quality}\n📦 Tamaño: ${video.size}`,
-      jpegThumbnail: await (await fetch(video.thumb)).buffer()
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath))
+      if (config.name) nombreBot = config.name
+      if (config.banner) bannerFinal = config.banner
+    }
+
+    const tipo = botActual === '+573147172161'.replace(/\D/g, '') ? 'Principal 🅥' : 'Sub Bot 🅑'
+
+    const help = Object.values(global.plugins)
+      .filter(p => !p.disabled)
+      .map(plugin => ({
+        help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
+        tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
+        prefix: 'customPrefix' in plugin,
+        limit: plugin.limit,
+        premium: plugin.premium,
+      }))
+
+    const cards = []
+
+    for (const tag in tags) {
+      const comandos = help.filter(cmd => cmd.tags.includes(tag)).map(cmd =>
+        cmd.help.map(h =>
+          `🧩 ${cmd.prefix ? h : _p + h}${cmd.premium ? ' 🪪' : ''}${cmd.limit ? ' ⭐' : ''}`
+        ).join('\n')
+      ).join('\n')
+
+      if (!comandos) continue
+
+      const title = tags[tag]
+
+      cards.push({
+        body: proto.Message.InteractiveMessage.Body.fromObject({
+          text: comandos.slice(0, 1024)
+        }),
+        footer: proto.Message.InteractiveMessage.Footer.fromObject({
+          text: `${nombreBot} • ${tipo}`
+        }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({
+          title,
+          hasMediaAttachment: false
+        }),
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+          buttons: [{
+            name: 'quick_reply',
+            buttonParamsJson: JSON.stringify({
+              display_text: '❏ Ver más comandos',
+              id: `${_p}menu`
+            })
+          }]
+        })
+      })
+    }
+
+    if (!cards.length) {
+      return conn.reply(m.chat, '⚠️ No hay comandos cargados en este momento.', m)
+    }
+
+    const carousel = generateWAMessageFromContent(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: proto.Message.InteractiveMessage.Body.fromObject({
+              text: `🌸 Bienvenido ${name}\n📆 Fecha: ${date}\n🧬 Nivel: ${level} | XP: ${exp}/${max}`
+            }),
+            footer: proto.Message.InteractiveMessage.Footer.fromObject({
+              text: '📂 Categorías de comandos'
+            }),
+            header: proto.Message.InteractiveMessage.Header.fromObject({
+              hasMediaAttachment: false
+            }),
+            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+              cards
+            })
+          })
+        }
+      }
     }, { quoted: m })
 
+    await conn.relayMessage(m.chat, carousel.message, { messageId: carousel.key.id })
+
   } catch (e) {
-    console.error(e)
-    m.reply('❌ Error al descargar el video.\nAsegúrate que sea un video válido.')
+    console.error('❌ Error en el menú carrusel:', e)
+    conn.reply(m.chat, '❎ Hubo un error al mostrar el menú. Inténtelo nuevamente más tarde.', m)
   }
 }
 
-handler.command = ['video']
-handler.help = ['video <url>']
-handler.tags = ['descargas']
+handler.command = ['xd']
 handler.register = true
 export default handler
-
-// FUNCIONES INTERNAS
-async function getYTVideo(yutub) {
-  const fetchPost = (url, form) => fetch(url, {
-    method: 'POST',
-    headers: {
-      accept: "*/*",
-      'accept-language': "en-US,en;q=0.9",
-      'content-type': "application/x-www-form-urlencoded; charset=UTF-8"
-    },
-    body: new URLSearchParams(Object.entries(form))
-  })
-
-  const ytIdRegex = /(?:youtube(?:-nocookie)?\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([-_a-zA-Z0-9]{11})/
-  const ytId = ytIdRegex.exec(yutub)?.[1]
-  if (!ytId) throw '❌ ID de YouTube no válido'
-  const url = 'https://youtu.be/' + ytId
-
-  const analyzeRes = await fetchPost('https://www.y2mate.com/mates/en68/analyze/ajax', {
-    url,
-    q_auto: 0,
-    ajax: 1
-  })
-  const analyzeData = await analyzeRes.json()
-  const $ = cheerio.load(analyzeData.result)
-
-  const title = $('b').text().trim()
-  const thumb = $('.thumbnail.cover img').attr('src')
-  const id = /var k__id = "(.*?)"/.exec(analyzeData.result)?.[1]
-  if (!id) throw '❌ No se pudo obtener ID interno de Y2mate'
-
-  // Buscar el video MP4 480p o el más cercano
-  let found = null
-  $('#mp4 table tbody tr').each((i, el) => {
-    const q = $(el).find('td:nth-child(3)').text().trim()
-    const btn = $(el).find('a')
-    const ftype = btn.attr('data-ftype')
-    const fquality = btn.attr('data-fquality')
-    const size = $(el).find('td:nth-child(2)').text().trim()
-
-    if ((q === '480p' || q === '360p' || q === '240p') && ftype === 'mp4' && !found) {
-      found = { ftype, fquality, size }
-    }
-  })
-
-  if (!found) throw '❌ No se encontró formato MP4 disponible'
-
-  const convertRes = await fetchPost('https://www.y2mate.com/mates/en68/convert', {
-    type: 'youtube',
-    _id: id,
-    v_id: ytId,
-    ajax: '1',
-    token: '',
-    ftype: found.ftype,
-    fquality: found.fquality
-  })
-  const convertData = await convertRes.json()
-  const $$ = cheerio.load(convertData.result)
-  const link = $$('a[href^="https://"]').attr('href')
-
-  return {
-    title,
-    thumb,
-    quality: found.fquality,
-    size: found.size,
-    format: found.ftype,
-    link
-  }
-}
