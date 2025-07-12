@@ -1,7 +1,7 @@
 import fs from 'fs'
-import path from 'path'
+import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
-import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
+import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 const tags = {
   serbot: '✐ Sockets',
@@ -18,86 +18,218 @@ const tags = {
   channel: '✿ Channels',
 }
 
-function clockString(ms) {
-  const h = Math.floor(ms / 3600000)
-  const m = Math.floor(ms / 60000) % 60
-  const s = Math.floor(ms / 1000) % 60
-  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
+const defaultMenu = {
+  before: `
+⌬ .・。.・゜✭・.・✫・゜・。. ⌬
+
+∘₊✧ Hola, soy %botname
+( %tipo )
+
+꒷︶꒷‧₊˚ ¿Qué tal %name? ˚₊‧꒷︶꒷
+𓆩 Actividad » %uptime
+𓆩 Fecha » %date
+
+> ✐ Puedes personalizar tu socket:
+⤿ .setname ← Cambiar nombre
+⤿ .setbanner ← Cambiar banner
+
+∘₊✧ Adonix API Oficial:
+> ❀ https://theadonix-api.vercel.app
+
+⌬ .・。.・゜✭・.・✫・゜・。. ⌬
+`.trimStart(),
+
+  header: '*꒷︶꒷꒥꒷‧₊˚ %category*',
+  body: '> ⤿ %cmd %islimit %isPremium',
+  footer: '꒷꒦꒷꒦꒷꒷꒦꒷꒦꒷꒦꒷꒦꒷꒷',
+  after: '✦ 𓆩 Made By 𝗪𝗶𝗿𝗸 ☁︎',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
   try {
-    const user = global.db.data.users[m.sender]
-    const { min, xp, max } = xpRange(user.level, global.multiplier)
+    const { exp, limit, level } = global.db.data.users[m.sender]
+    const { min, xp, max } = xpRange(level, global.multiplier)
+    const name = await conn.getName(m.sender)
+
+    const d = new Date(Date.now() + 3600000)
+    const locale = 'es'
+    const date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
     const help = Object.values(global.plugins)
       .filter(p => !p.disabled)
-      .map(p => ({
-        help: Array.isArray(p.help) ? p.help : [p.help],
-        tags: Array.isArray(p.tags) ? p.tags : [p.tags],
-        prefix: 'customPrefix' in p,
-        limit: p.limit,
-        premium: p.premium
+      .map(plugin => ({
+        help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
+        tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
+        prefix: 'customPrefix' in plugin,
+        limit: plugin.limit,
+        premium: plugin.premium,
       }))
 
-    const cards = []
-    for (const tag in tags) {
-      const cmds = help.filter(c => c.tags.includes(tag)).map(c =>
-        c.help.map(cmd =>
-          `${c.prefix ? cmd : _p + cmd}${c.premium ? ' 🪪' : ''}${c.limit ? ' ⭐' : ''}`
-        ).join('\n')
-      ).join('\n')
-      if (!cmds) continue
-      cards.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({ text: cmds.slice(0, 1024) }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: tags[tag] }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({ title: tags[tag], hasMediaAttachment: false }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-          buttons: [{ name: 'info', buttonParamsJson: JSON.stringify({ display_text: 'Más detalles', id: _p + 'info' }) }]
-        })
-      })
-    }
+    let nombreBot = global.namebot || 'Bot'
+    let bannerFinal = './storage/img/menu.jpg'
 
-    if (cards.length) {
-      const carouselMsg = generateWAMessageFromContent(m.chat, {
-        viewOnceMessage: {
-          message: {
-            interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-              body: proto.Message.InteractiveMessage.Body.fromObject({ text: 'Selecciona una categoría de comandos:' }),
-              footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: 'Desliza para ver más' }),
-              header: proto.Message.InteractiveMessage.Header.fromObject({ hasMediaAttachment: false }),
-              carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
-            })
-          }
-        }
-      }, { quoted: m })
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = join('./JadiBots', botActual, 'config.json')
 
+    if (fs.existsSync(configPath)) {
       try {
-        await conn.relayMessage(m.chat, carouselMsg.message, { messageId: carouselMsg.key.id })
-        return
+        const config = JSON.parse(fs.readFileSync(configPath))
+        if (config.name) nombreBot = config.name
+        if (config.banner) bannerFinal = config.banner
       } catch (err) {
-        console.warn('Carrusel no compatible → fallback a texto')
+        console.log('⚠️ No se pudo leer config del subbot:', err)
       }
     }
 
-    // — Fallback a texto bonito
-    let txt = '📋 *Menú de Comandos*\n\n'
-    for (const tag in tags) {
-      const cmds = help.filter(c => c.tags.includes(tag)).map(c =>
-        c.help.map(cmd =>
-          `➤ ${c.prefix ? cmd : _p + cmd}${c.premium ? ' 🪪' : ''}${c.limit ? ' ⭐' : ''}`
+    const tipo = botActual === '+573147172161'.replace(/\D/g, '')
+      ? 'Principal 🅥'
+      : 'Sub Bot 🅑'
+
+    const menuConfig = conn.menu || defaultMenu
+
+    // Variables de reemplazo
+    const replace = {
+      '%': '%',
+      p: _p,
+      botname: nombreBot,
+      taguser: '@' + m.sender.split('@')[0],
+      exp: exp - min,
+      maxexp: xp,
+      totalexp: exp,
+      xp4levelup: max - exp,
+      level,
+      limit,
+      name,
+      date,
+      uptime: clockString(process.uptime() * 1000),
+      tipo,
+      greeting,
+    }
+
+    // Crear el carrusel
+    const cards = []
+
+    // Tarjeta de portada
+    const coverText = menuConfig.before.replace(
+      new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join('|')})`, 'g'),
+      (_, name) => String(replace[name])
+    )
+
+    cards.push({
+      title: `Menú de ${nombreBot}`,
+      description: coverText,
+      imageUrl: bannerFinal,
+      footerText: 'Desliza para ver los comandos ➡️'
+    })
+
+    // Tarjetas para cada categoría
+    for (const [tag, category] of Object.entries(tags)) {
+      const categoryHelp = help.filter(menu => menu.tags?.includes(tag)).map(menu =>
+        menu.help.map(helpText =>
+          menuConfig.body
+            .replace(/%cmd/g, menu.prefix ? helpText : `${_p}${helpText}`)
+            .replace(/%islimit/g, menu.limit ? '◜⭐◞' : '')
+            .replace(/%isPremium/g, menu.premium ? '◜🪪◞' : '')
+            .trim()
         ).join('\n')
       ).join('\n')
-      if (!cmds) continue
-      txt += `*${tags[tag]}*\n${cmds}\n\n`
+
+      const categoryText = `${menuConfig.header.replace(/%category/g, category)}\n\n${categoryHelp}\n\n${menuConfig.footer}`
+
+      cards.push({
+        title: category,
+        description: categoryText,
+        footerText: menuConfig.after
+      })
     }
-    await conn.reply(m.chat, txt.trim(), m)
+
+    // Generar el mensaje del carrusel
+    const carouselMessage = {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: {
+              text: `Menú de comandos de ${nombreBot}`
+            },
+            footer: {
+              text: 'Usa los botones para navegar'
+            },
+            header: {
+              hasMediaAttachment: false
+            },
+            carouselMessage: {
+              cards: cards.map((card, index) => ({
+                body: {
+                  text: card.description
+                },
+                footer: {
+                  text: card.footerText || (index === 0 ? 'Desliza para ver los comandos ➡️' : menuConfig.after)
+                },
+                header: index === 0 ? {
+                  title: card.title,
+                  hasMediaAttachment: true,
+                  imageMessage: await createImageMsg(card.imageUrl, conn)
+                } : {
+                  title: card.title,
+                  hasMediaAttachment: false
+                },
+                nativeFlowMessage: {
+                  buttons: [{
+                    name: 'cta_url',
+                    buttonParamsJson: JSON.stringify({
+                      display_text: index === 0 ? '👋 ¡Empezar!' : `📌 ${card.title}`,
+                      url: ''
+                    })
+                  }]
+                }
+              }))
+            }
+          })
+        }
+      }
+    }
+
+    await conn.relayMessage(
+      m.chat,
+      generateWAMessageFromContent(m.chat, carouselMessage, {}).message,
+      { messageId: null }
+    )
 
   } catch (e) {
-    console.error('❌ Error menú carrusel/fallback:', e)
-    await conn.reply(m.chat, '❎ Hubo un error al mostrar el menú.', m)
+    console.error('❌ Error en el menú carrusel:', e)
+    conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
   }
 }
+
+async function createImageMsg(url, conn) {
+  const { imageMessage } = await generateWAMessageContent({
+    image: { url }
+  }, { upload: conn.waUploadToServer })
+  return imageMessage
+}
+
+// Utilidades
+function clockString(ms) {
+  let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+  let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+  let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+  return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
+}
+
+const ase = new Date()
+let hour = ase.getHours()
+
+const greetingMap = {
+  0: 'una linda noche 🌙', 1: 'una linda noche 💤', 2: 'una linda noche 🦉',
+  3: 'una linda mañana ✨', 4: 'una linda mañana 💫', 5: 'una linda mañana 🌅',
+  6: 'una linda mañana 🌄', 7: 'una linda mañana 🌅', 8: 'una linda mañana 💫',
+  9: 'una linda mañana ✨', 10: 'un lindo día 🌞', 11: 'un lindo día 🌨',
+  12: 'un lindo día ❄', 13: 'un lindo día 🌤', 14: 'una linda tarde 🌇',
+  15: 'una linda tarde 🥀', 16: 'una linda tarde 🌹', 17: 'una linda tarde 🌆',
+  18: 'una linda noche 🌙', 19: 'una linda noche 🌃', 20: 'una linda noche 🌌',
+  21: 'una linda noche 🌃', 22: 'una linda noche 🌙', 23: 'una linda noche 🌃',
+}
+const greeting = 'espero que tengas ' + (greetingMap[hour] || 'un buen día')
 
 handler.command = ['xd']
 handler.register = true
