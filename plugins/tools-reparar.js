@@ -1,3 +1,5 @@
+// code creado por 
+// github.com/Ado-rgb
 import fs from 'fs'
 import path from 'path'
 import ffmpeg from 'fluent-ffmpeg'
@@ -79,7 +81,7 @@ const handler = async (msg, { conn, __dirname }) => {
   }
 }
 
-handler.command = ['arr']  // acá mejor que coincida con help
+handler.command = ['reparar']  
 handler.tags = ['tools']
-handler.help = ['arr']
+handler.help = ['reparar']
 export default handler
