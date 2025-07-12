@@ -71,7 +71,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       // 🔊 EFECTO SATURADO (tipo volumen fuerte + distorsión leve)
       await new Promise((resolve, reject) => {
         ffmpeg(tmpPathIn)
-          .audioFilter('volume=3,acompressor=threshold=0.5:ratio=9:attack=20:release=250')
+          .audioFilter('volume=5,acompressor=threshold=0.3:ratio=12:attack=15:release=300')
           .audioCodec('libmp3lame')
           .audioBitrate('128k')
           .format('mp3')
