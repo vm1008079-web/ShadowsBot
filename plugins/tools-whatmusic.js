@@ -3,12 +3,32 @@ import path from 'path'
 import axios from 'axios'
 import yts from 'yt-search'
 import ffmpeg from 'fluent-ffmpeg'
-import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../lib/upload.js'
+import crypto from 'crypto'
+import { FormData, Blob } from 'formdata-node'
+import { fileTypeFromBuffer } from 'file-type'
 
-const streamPipeline = promisify(pipeline)
+const streamPipeline = promisify(require('stream').pipeline)
+
+async function catbox(content) {
+  const { ext, mime } = (await fileTypeFromBuffer(content)) || {}
+  const blob = new Blob([content.buffer ? content.buffer : await content.arrayBuffer()], { type: mime })
+  const formData = new FormData()
+  const randomBytes = crypto.randomBytes(5).toString('hex')
+  formData.append('reqtype', 'fileupload')
+  formData.append('fileToUpload', blob, randomBytes + '.' + ext)
+
+  const response = await fetch('https://catbox.moe/user/api.php', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64)'
+    }
+  })
+
+  return await response.text()
+}
 
 const handler = async (m, { conn }) => {
   if (!m.quoted) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
@@ -19,7 +39,6 @@ const handler = async (m, { conn }) => {
 
   if (!isAudio && !isVideo) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* válido.', m)
 
-  // Acá sacamos el mensaje real para descargar
   const mediaMsg = m.quoted.mediaMessage?.audioMessage || m.quoted.mediaMessage?.videoMessage
   if (!mediaMsg) return conn.reply(m.chat, '❌ No se pudo acceder al contenido multimedia.', m)
 
@@ -32,18 +51,27 @@ const handler = async (m, { conn }) => {
     const ext = isAudio ? 'mp3' : 'mp4'
     const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
 
-    // Descargar el contenido
+    // Descargar el contenido multimedia
     const mediaType = isAudio ? 'audio' : 'video'
     const stream = await downloadContentFromMessage(mediaMsg, mediaType)
     const file = fs.createWriteStream(inputPath)
     for await (const chunk of stream) file.write(chunk)
     file.end()
 
-    const uploadResponse = await quAx(inputPath)
-    if (!uploadResponse.status || !uploadResponse.result.url) throw new Error('No se pudo subir el archivo.')
+    await new Promise((resolve, reject) => {
+      file.on('finish', resolve)
+      file.on('error', reject)
+    })
 
+    // Leer archivo para subir a catbox
+    const fileBuffer = fs.readFileSync(inputPath)
+    const uploadUrl = await catbox(fileBuffer)
+
+    if (!uploadUrl || !uploadUrl.startsWith('http')) throw new Error('No se pudo subir el archivo a Catbox.')
+
+    // Aquí sigue la lógica de la API whatmusic con uploadUrl
     const apiKey = 'GataDios'
-    const apiUrl = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(uploadResponse.result.url)}&apikey=${apiKey}`
+    const apiUrl = `https://api.neoxr.eu/api/whatmusic?url=${encodeURIComponent(uploadUrl)}&apikey=${apiKey}`
     const { data } = await axios.get(apiUrl)
 
     if (!data.status || !data.data) throw new Error('No se pudo identificar la canción.')
@@ -81,7 +109,6 @@ const handler = async (m, { conn }) => {
       caption: banner
     }, { quoted: m })
 
-    // Descargar audio final
     const res = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoUrl)}&type=audio&quality=128kbps&apikey=${apiKey}`)
     if (!res.data.status || !res.data.data?.url) throw new Error('No se pudo obtener el audio.')
 
@@ -108,7 +135,7 @@ const handler = async (m, { conn }) => {
       fileName: `${title}.mp3`
     }, { quoted: m })
 
-    // Limpiar temporales
+    // Limpieza
     fs.unlinkSync(inputPath)
     fs.unlinkSync(rawPath)
     fs.unlinkSync(fixedPath)
