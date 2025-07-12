@@ -15,7 +15,11 @@ const handler = async (m, { conn }) => {
     const fileStream = fs.createWriteStream(inputPath)
 
     for await (const chunk of stream) {
-      fileStream.write(chunk)
+      if (Buffer.isBuffer(chunk)) {
+        fileStream.write(chunk)
+      } else {
+        fileStream.write(Buffer.from([chunk]))
+      }
     }
 
     fileStream.end()
