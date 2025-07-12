@@ -44,7 +44,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const JT = {
       contextInfo: {
         externalAdReply: {
-          title: '✧ Music ● Youtube ᰔᩚ',
+          title: '✧ Youtube ᰔᩚ',
           body: '',
           mediaType: 1,
           previewType: 0,
@@ -85,7 +85,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
           video: { url: json.result.video },
           mimetype: 'video/mp4',
           fileName: json.result.filename || `${json.result.title}.mp4`,
-          caption: `*「⭐」* ${json.result.title || 'Video'}`
+          caption: ``
         }, { quoted: m })
 
       } catch (e) {
