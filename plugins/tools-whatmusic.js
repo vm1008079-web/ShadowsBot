@@ -7,20 +7,19 @@ import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../lib/upload.js'
+import quAx from '../lib/upload.js' // Asegúrate que existe este archivo
 
 const streamPipeline = promisify(pipeline)
 
 const handler = async (m, { conn }) => {
   const quoted = m.quoted
-  if (!quoted) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
 
-  const mime = quoted.mimetype || ''
-  const isAudio = mime.startsWith('audio')
-  const isVideo = mime.startsWith('video')
+  // 💥 Verificación REAL de audio o video
+  const isAudio = quoted?.mimetype?.startsWith('audio') && quoted.audioMessage
+  const isVideo = quoted?.mimetype?.startsWith('video') && quoted.videoMessage
 
   if (!isAudio && !isVideo) {
-    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* válido.', m)
+    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
   }
 
   await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } })
@@ -29,17 +28,16 @@ const handler = async (m, { conn }) => {
     const tmpDir = path.join(process.cwd(), 'tmp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
+    const type = isAudio ? 'audio' : 'video'
     const ext = isAudio ? 'mp3' : 'mp4'
     const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
 
-    // Detectar tipo correcto y descargar
-    const mediaType = isAudio ? 'audio' : 'video'
-    const stream = await downloadContentFromMessage(quoted.message[`${mediaType}Message`], mediaType)
+    // ✅ Descarga directa del contenido citado
+    const stream = await downloadContentFromMessage(quoted[type + 'Message'], type)
     const file = fs.createWriteStream(inputPath)
     for await (const chunk of stream) file.write(chunk)
     file.end()
 
-    // Subir archivo
     const uploadResponse = await quAx(inputPath)
     if (!uploadResponse.status || !uploadResponse.result.url) throw new Error('No se pudo subir el archivo.')
 
@@ -82,7 +80,6 @@ const handler = async (m, { conn }) => {
       caption: banner
     }, { quoted: m })
 
-    // Descargar audio
     const res = await axios.get(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoUrl)}&type=audio&quality=128kbps&apikey=${apiKey}`)
     if (!res.data.status || !res.data.data?.url) throw new Error('No se pudo obtener el audio.')
 
@@ -94,7 +91,6 @@ const handler = async (m, { conn }) => {
     const response = await axios.get(audioUrl, { responseType: 'stream' })
     await streamPipeline(response.data, audioStream)
 
-    // Procesar con ffmpeg
     await new Promise((resolve, reject) => {
       ffmpeg(rawPath)
         .audioCodec('libmp3lame')
@@ -110,7 +106,7 @@ const handler = async (m, { conn }) => {
       fileName: `${title}.mp3`
     }, { quoted: m })
 
-    // Borrar archivos
+    // Borrar temporales
     fs.unlinkSync(inputPath)
     fs.unlinkSync(rawPath)
     fs.unlinkSync(fixedPath)
