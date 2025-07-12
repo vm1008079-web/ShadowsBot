@@ -3,14 +3,15 @@ import yts from 'yt-search'
 import fs from 'fs'
 import path from 'path'
 import ffmpeg from 'fluent-ffmpeg'
+import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { tmpdir } from 'os'
 
-const pipeline = promisify(require('stream').pipeline)
+const streamPipeline = promisify(pipeline)
 
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
-const handler = async (m, { conn, text, usedPrefix, command, __dirname }) => {
+const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     if (!text.trim()) {
       return conn.reply(m.chat, `> ☁︎ Por favor, ingresa el nombre o enlace del video.`, m)
@@ -77,7 +78,7 @@ const handler = async (m, { conn, text, usedPrefix, command, __dirname }) => {
         const response = await fetch(json.result.audio)
         if (!response.ok) throw new Error('Error al descargar el audio.')
         const stream = response.body
-        await pipeline(stream, fs.createWriteStream(tmpPathIn))
+        await streamPipeline(stream, fs.createWriteStream(tmpPathIn))
 
         // Procesamos para darle bass con ffmpeg
         await new Promise((resolve, reject) => {
