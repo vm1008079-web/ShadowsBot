@@ -9,11 +9,16 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
   }
 
   try {
-    await conn.react(m.chat, m.key, '🎥')
+    // ✅ Reacción estándar en bots con Baileys
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '🎥',
+        key: m.key
+      }
+    })
 
     const base = 'https://www.y2mate.com'
 
-    // Paso 1: Analizar el video
     const res = await axios.post(`${base}/mates/en68/analyze/ajax`, qs.stringify({
       url,
       q_auto: 0,
@@ -40,7 +45,6 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
 
     if (!ftype || !fquality) return m.reply('❌ No encontré MP4 480p en ese video.')
 
-    // Paso 2: Convertir para sacar el link
     const conv = await axios.post(`${base}/mates/en68/convert`, qs.stringify({
       type: 'youtube',
       _id: token,
