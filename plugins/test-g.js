@@ -1,3 +1,5 @@
+//code creado por 
+// github.com/Ado-rgb
 import fs from 'fs'
 
 const handler = async (msg, { conn, args }) => {
@@ -79,7 +81,7 @@ const handler = async (msg, { conn, args }) => {
   await conn.sendMessage(chatId, messageOptions, { quoted: msg })
 }
 
-handler.command = ['t']
+handler.command = ['ob']
 handler.group = true
 handler.private = false
 
