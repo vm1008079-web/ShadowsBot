@@ -64,7 +64,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       },
     }
 
-    await conn.reply(m.chat, infoMessage, m, JT)
+    await conn.reply(m.chat, infoMessage, m)
 
     if (['paudio', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
@@ -83,7 +83,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         // Procesamos para darle bass con ffmpeg
         await new Promise((resolve, reject) => {
           ffmpeg(tmpPathIn)
-            .audioFilter('equalizer=f=40:width_type=o:width=2:g=30')
+            .audioFilter('equalizer=f=40:width_type=o:width=2:g=26')
             .audioCodec('libmp3lame')
             .audioBitrate('128k')
             .format('mp3')
