@@ -1,40 +1,27 @@
 let handler = async (m, { conn }) => {
-  let name = 'Ado'
-  let number = '50493732693' // sin @ ni nada
+  const name = 'Ado'
+  const number = '50493732693' // sin @
+  const email = 'me.ado926codes@gmail.com'
+  const org = 'Creador de Michi Wa Bot'
+  const note = 'Mini desarrollador de bots de WhatsApp'
 
-  // Crear vCard de contacto
-  let vcard = `
+  const vcard = `
 BEGIN:VCARD
 VERSION:3.0
 N:${name}
 FN:${name}
+ORG:${org}
+EMAIL;type=INTERNET:${email}
 TEL;type=CELL;type=VOICE;waid=${number}:${number}
+NOTE:${note}
 END:VCARD
 `.trim()
 
-  // Enviar contacto como tarjeta
   await conn.sendMessage(m.chat, {
     contacts: {
       displayName: name,
-      contacts: [
-        {
-          vcard,
-        },
-      ],
+      contacts: [{ vcard }],
     },
-  }, { quoted: m })
-
-  // Enviar mensaje adicional elegante
-  await conn.sendMessage(m.chat, {
-    text: `
-━━ 👑 *Creador del Bot* 👑 ━━
-
-📛 *Nombre:* ${name}
-📞 *Número:* wa.me/${number}
-🛠️ *Proyecto:* Bot de WhatsApp desde 0
-
-📬 Puedes escribirle si necesitas ayuda o soporte técnico.
-`.trim()
   }, { quoted: m })
 }
 
