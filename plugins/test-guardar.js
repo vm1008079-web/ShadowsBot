@@ -1,3 +1,5 @@
+// codigo creado por 
+// github.com/Ado-rgb
 import fs from 'fs'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
 
