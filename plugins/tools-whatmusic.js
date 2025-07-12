@@ -1,4 +1,4 @@
-// 📁 plugins/whatmusic.js
+// plugins/whatmusic.js
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
@@ -7,17 +7,20 @@ import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../lib/upload.js' // ajustá si tenés otra ruta
+import quAx from '../lib/upload.js'
 
 const streamPipeline = promisify(pipeline)
 
 const handler = async (m, { conn }) => {
-  const quoted = m.quoted?.message || m.quoted
-  const audioMsg = quoted?.audioMessage
-  const videoMsg = quoted?.videoMessage
+  const quoted = m.quoted
+  if (!quoted) return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
 
-  if (!audioMsg && !videoMsg) {
-    return await conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
+  const msg = quoted.msg || quoted
+  const isAudio = !!msg?.seconds && quoted.mimetype?.includes('audio')
+  const isVideo = !!msg?.seconds && quoted.mimetype?.includes('video')
+
+  if (!isAudio && !isVideo) {
+    return conn.reply(m.chat, '✳️ Responde a un *audio* o *video* para identificar la canción.', m)
   }
 
   await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } })
@@ -26,13 +29,17 @@ const handler = async (m, { conn }) => {
     const tmpDir = path.join(process.cwd(), 'tmp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
-    const fileExtension = audioMsg ? 'mp3' : 'mp4'
-    const inputPath = path.join(tmpDir, `${Date.now()}_input.${fileExtension}`)
+    const ext = isAudio ? 'mp3' : 'mp4'
+    const inputPath = path.join(tmpDir, `${Date.now()}.${ext}`)
 
-    const stream = await downloadContentFromMessage(audioMsg || videoMsg, audioMsg ? 'audio' : 'video')
-    const writable = fs.createWriteStream(inputPath)
-    for await (const chunk of stream) writable.write(chunk)
-    writable.end()
+    const stream = await downloadContentFromMessage(
+      quoted.message.audioMessage || quoted.message.videoMessage,
+      isAudio ? 'audio' : 'video'
+    )
+
+    const file = fs.createWriteStream(inputPath)
+    for await (const chunk of stream) file.write(chunk)
+    file.end()
 
     const uploadResponse = await quAx(inputPath)
     if (!uploadResponse.status || !uploadResponse.result.url) throw new Error('No se pudo subir el archivo.')
@@ -80,31 +87,31 @@ const handler = async (m, { conn }) => {
     if (!res.data.status || !res.data.data?.url) throw new Error('No se pudo obtener el audio.')
 
     const audioUrl = res.data.data.url
-    const downloadPath = path.join(tmpDir, `${Date.now()}_raw.mp3`)
-    const finalPath = path.join(tmpDir, `${Date.now()}_fixed.mp3`)
+    const rawPath = path.join(tmpDir, `${Date.now()}_raw.mp3`)
+    const fixedPath = path.join(tmpDir, `${Date.now()}_fixed.mp3`)
 
-    const audioRes = await axios.get(audioUrl, { responseType: 'stream' })
-    const audioStream = fs.createWriteStream(downloadPath)
-    await streamPipeline(audioRes.data, audioStream)
+    const audioStream = fs.createWriteStream(rawPath)
+    const response = await axios.get(audioUrl, { responseType: 'stream' })
+    await streamPipeline(response.data, audioStream)
 
     await new Promise((resolve, reject) => {
-      ffmpeg(downloadPath)
+      ffmpeg(rawPath)
         .audioCodec('libmp3lame')
         .audioBitrate('128k')
-        .save(finalPath)
+        .save(fixedPath)
         .on('end', resolve)
         .on('error', reject)
     })
 
     await conn.sendMessage(m.chat, {
-      audio: fs.readFileSync(finalPath),
+      audio: fs.readFileSync(fixedPath),
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`
     }, { quoted: m })
 
     fs.unlinkSync(inputPath)
-    fs.unlinkSync(downloadPath)
-    fs.unlinkSync(finalPath)
+    fs.unlinkSync(rawPath)
+    fs.unlinkSync(fixedPath)
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
