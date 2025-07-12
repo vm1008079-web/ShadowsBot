@@ -15,100 +15,87 @@ const tags = {
   search: '✧ Buscadores',
   sticker: '✐ Stickers',
   ia: 'ᰔ IA',
-  channel: '✿ Channels'
+  channel: '✿ Channels',
+}
+
+function clockString(ms) {
+  const h = Math.floor(ms / 3600000)
+  const m = Math.floor(ms / 60000) % 60
+  const s = Math.floor(ms / 1000) % 60
+  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
   try {
-    const { exp, limit, level } = global.db.data.users[m.sender]
-    const { min, xp, max } = xpRange(level, global.multiplier)
-    const name = await conn.getName(m.sender)
-    const d = new Date(Date.now() + 3600000)
-    const locale = 'es'
-    const date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
-    let nombreBot = global.namebot || 'Bot'
-    let tipo = 'Sub Bot 🅑'
+    const user = global.db.data.users[m.sender]
+    const { min, xp, max } = xpRange(user.level, global.multiplier)
 
-    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
-    const configPath = path.join('./JadiBots', botActual, 'config.json')
-    if (fs.existsSync(configPath)) {
-      const config = JSON.parse(fs.readFileSync(configPath))
-      if (config.name) nombreBot = config.name
-      tipo = botActual === '+573147172161'.replace(/\D/g, '') ? 'Principal 🅥' : 'Sub Bot 🅑'
-    }
-
-    const help = Object.values(global.plugins).filter(p => !p.disabled).map(plugin => ({
-      help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
-      tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
-      prefix: 'customPrefix' in plugin,
-      limit: plugin.limit,
-      premium: plugin.premium
-    }))
+    const help = Object.values(global.plugins)
+      .filter(p => !p.disabled)
+      .map(p => ({
+        help: Array.isArray(p.help) ? p.help : [p.help],
+        tags: Array.isArray(p.tags) ? p.tags : [p.tags],
+        prefix: 'customPrefix' in p,
+        limit: p.limit,
+        premium: p.premium
+      }))
 
     const cards = []
-
     for (const tag in tags) {
-      const comandos = help.filter(cmd => cmd.tags.includes(tag)).map(cmd =>
-        cmd.help.map(txt =>
-          `➤ ${cmd.prefix ? txt : _p + txt}${cmd.premium ? ' 🪪' : ''}${cmd.limit ? ' ⭐' : ''}`
+      const cmds = help.filter(c => c.tags.includes(tag)).map(c =>
+        c.help.map(cmd =>
+          `${c.prefix ? cmd : _p + cmd}${c.premium ? ' 🪪' : ''}${c.limit ? ' ⭐' : ''}`
         ).join('\n')
       ).join('\n')
-
-      if (!comandos) continue
-
+      if (!cmds) continue
       cards.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({
-          text: comandos.slice(0, 1024)
-        }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({
-          text: `🔹 ${nombreBot} | ${tipo}`
-        }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
-          title: tags[tag],
-          hasMediaAttachment: false
-        }),
+        body: proto.Message.InteractiveMessage.Body.fromObject({ text: cmds.slice(0, 1024) }),
+        footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: tags[tag] }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({ title: tags[tag], hasMediaAttachment: false }),
         nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-          buttons: [{
-            name: 'quick_reply',
-            buttonParamsJson: JSON.stringify({
-              display_text: '📜 Más información',
-              id: _p + 'info'
-            })
-          }]
+          buttons: [{ name: 'info', buttonParamsJson: JSON.stringify({ display_text: 'Más detalles', id: _p + 'info' }) }]
         })
       })
     }
 
-    if (!cards.length) {
-      return conn.reply(m.chat, '⚠️ No hay comandos disponibles actualmente.', m)
+    if (cards.length) {
+      const carouselMsg = generateWAMessageFromContent(m.chat, {
+        viewOnceMessage: {
+          message: {
+            interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+              body: proto.Message.InteractiveMessage.Body.fromObject({ text: 'Selecciona una categoría de comandos:' }),
+              footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: 'Desliza para ver más' }),
+              header: proto.Message.InteractiveMessage.Header.fromObject({ hasMediaAttachment: false }),
+              carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
+            })
+          }
+        }
+      }, { quoted: m })
+
+      try {
+        await conn.relayMessage(m.chat, carouselMsg.message, { messageId: carouselMsg.key.id })
+        return
+      } catch (err) {
+        console.warn('Carrusel no compatible → fallback a texto')
+      }
     }
 
-    const carousel = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: proto.Message.InteractiveMessage.Body.fromObject({
-              text: `💠 Menú de comandos\n👤 Usuario: ${name}\n📆 Fecha: ${date}\n📈 Nivel: ${level} (${exp}/${max})`
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.fromObject({
-              text: '💾 Desliza para ver categorías'
-            }),
-            header: proto.Message.InteractiveMessage.Header.fromObject({
-              hasMediaAttachment: false
-            }),
-            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-              cards
-            })
-          })
-        }
-      }
-    }, { quoted: m })
-
-    await conn.relayMessage(m.chat, carousel.message, { messageId: carousel.key.id })
+    // — Fallback a texto bonito
+    let txt = '📋 *Menú de Comandos*\n\n'
+    for (const tag in tags) {
+      const cmds = help.filter(c => c.tags.includes(tag)).map(c =>
+        c.help.map(cmd =>
+          `➤ ${c.prefix ? cmd : _p + cmd}${c.premium ? ' 🪪' : ''}${c.limit ? ' ⭐' : ''}`
+        ).join('\n')
+      ).join('\n')
+      if (!cmds) continue
+      txt += `*${tags[tag]}*\n${cmds}\n\n`
+    }
+    await conn.reply(m.chat, txt.trim(), m)
 
   } catch (e) {
-    console.error('❌ Error al generar menú:', e)
-    conn.reply(m.chat, '❎ Ocurrió un error al mostrar el menú interactivo.', m)
+    console.error('❌ Error menú carrusel/fallback:', e)
+    await conn.reply(m.chat, '❎ Hubo un error al mostrar el menú.', m)
   }
 }
 
