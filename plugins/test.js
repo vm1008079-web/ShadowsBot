@@ -98,7 +98,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
           audio: buffer,
           mimetype: 'audio/mpeg',
           fileName: json.result.filename || `${json.result.title}.mp3`,
-          ptt: false,
+          ptt: true,
         }, { quoted: m })
 
         // Limpieza
