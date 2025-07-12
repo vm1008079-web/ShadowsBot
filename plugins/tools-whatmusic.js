@@ -6,7 +6,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { downloadContentFromMessage } from '@whiskeysockets/baileys'
-import quAx from '../libs/upload.js'
+import quAx from '../lib/upload.js'
 
 const streamPipeline = promisify(pipeline)
 
