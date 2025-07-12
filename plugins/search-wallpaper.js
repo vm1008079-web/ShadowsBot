@@ -12,7 +12,7 @@ const handler = async (m, { conn, text, command }) => {
   }
 
   await m.react('🕒')
-  await conn.reply(m.chat, '🔍 Buscando imágenes, por favor espere...', m)
+  await conn.reply(m.chat, '> Buscando imágenes, por favor espere...', m)
 
   const apiUrl = `https://delirius-apiofc.vercel.app/search/wallpapers?q=${encodeURIComponent(text)}`
   try {
@@ -68,7 +68,7 @@ const handler = async (m, { conn, text, command }) => {
               text: `🖼️ Resultados encontrados para: *${text}*`
             }),
             footer: proto.Message.InteractiveMessage.Footer.fromObject({
-              text: 'Resultados proporcionados por Delirius API'
+              text: 'Actuales Resultados'
             }),
             header: proto.Message.InteractiveMessage.Header.fromObject({
               hasMediaAttachment: false
