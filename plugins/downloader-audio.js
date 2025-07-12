@@ -1,4 +1,9 @@
 import fetch from "node-fetch";
+import ffmpeg from "fluent-ffmpeg";
+import { tmpdir } from "os";
+import { join } from "path";
+import { writeFile, unlink } from "fs/promises";
+import fs from "fs";
 
 const ytIdRegex = /(?:youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu.be\/)([a-zA-Z0-9_-]{11})/;
 
@@ -32,14 +37,36 @@ const handler = async (m, { conn }) => {
 
     if (!json.result?.audio) throw "Audio no disponible.";
 
-    const audioBuffer = await fetch(json.result.audio).then(res => res.buffer());
+    const audioResp = await fetch(json.result.audio);
+    const inputPath = join(tmpdir(), `input-${Date.now()}.mp3`);
+    const outputPath = join(tmpdir(), `output-${Date.now()}.mp3`);
+    const fileStream = fs.createWriteStream(inputPath);
+    await new Promise((resolve, reject) => {
+      audioResp.body.pipe(fileStream);
+      audioResp.body.on("error", reject);
+      fileStream.on("finish", resolve);
+    });
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .audioFilter("volume=4,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry='entry(60,20);entry(100,15);entry(200,10)'")
+        .audioCodec("libmp3lame")
+        .save(outputPath)
+        .on("end", resolve)
+        .on("error", reject);
+    });
+
+    const processedBuffer = await fs.promises.readFile(outputPath);
 
     await conn.sendMessage(m.chat, {
-      audio: audioBuffer,
-      fileName: json.result.filename || `audio.mp3`,
-      mimetype: 'audio/mpeg',
-      ptt: false
+      audio: processedBuffer,
+      fileName: json.result.filename || "audio.mp3",
+      mimetype: "audio/mpeg",
+      ptt: true,
     }, { quoted: m });
+
+    await unlink(inputPath).catch(() => {});
+    await unlink(outputPath).catch(() => {});
 
     conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
