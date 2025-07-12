@@ -39,6 +39,5 @@ const handler = async (m, { conn }) => {
 }
 
 handler.command = /^testupload$/i
-handler.tags = ['tools']
 handler.help = ['testupload']
 export default handler
