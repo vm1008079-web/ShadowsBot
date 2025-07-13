@@ -11,7 +11,7 @@ import cfonts from 'cfonts'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
 
-// Banner con estilo block
+
 cfonts.say('✧ Michi Wa ✧', {
   font: 'block',        
   align: 'center',
