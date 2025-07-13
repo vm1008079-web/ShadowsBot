@@ -13,7 +13,7 @@ const require = createRequire(__dirname)
 
 // Banner con estilo block
 cfonts.say('✧ Michi Wa ✧', {
-  font: 'block',        // Puedes cambiar a 'chrome', '3d', 'simple' si querés otro estilo
+  font: 'block',        
   align: 'center',
   gradient: ['cyan', 'magenta'],
   env: 'node'
