@@ -27,16 +27,11 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
     writeFileSync(filePath, buffer)
 
     await conn.sendMessage(m.chat, {
-      video: { url: filePath },
-      caption: `
-🎬 *${vid.titulo || 'Sin título'}*
-👤 Autor: ${vid.autor}
-📎 Usuario: ${vid.usuario}
-🌐 Fuente: ${vid.fuente}
-`.trim(),
-      mimetype: 'video/mp4'
-    }, { quoted: m })
-
+  document: { url: filePath },
+  fileName: `${vid.titulo || 'video'}.mp4`,
+  mimetype: 'video/mp4',
+  caption: `🎬 *${vid.titulo || 'Sin título'}*\n👤 Autor: ${vid.autor}\n📎 Usuario: ${vid.usuario}\n🌐 Fuente: ${vid.fuente}`
+}, { quoted: m })
     // Limpieza
     setTimeout(() => unlinkSync(filePath), 10_000)
 
