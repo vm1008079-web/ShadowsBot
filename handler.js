@@ -15,6 +15,17 @@ export async function handler(chatUpdate) {
   if (!chatUpdate) return
 
   this.msgqueque ||= []
+  
+  // Inicializar opts si no existe
+  this.opts ||= {
+    queque: false,
+    nyimak: false,
+    self: false,
+    swonly: false,
+    autoread: false,
+    noprint: false,
+    restrict: false
+  }
 
   try {
     await this.pushMessage(chatUpdate.messages)
@@ -27,6 +38,9 @@ export async function handler(chatUpdate) {
 
     m.exp = 0
     m.limit = false
+
+    // Asegurarse que m.text esté definido
+    m.text = typeof m.text === 'string' ? m.text : ''
 
     const user = global.db.data.users[m.sender] ||= {}
     const chat = global.db.data.chats[m.chat] ||= {}
@@ -65,12 +79,10 @@ export async function handler(chatUpdate) {
       autoread: settings.autoread ?? false
     })
 
-    if (opts.nyimak || (opts.self && !m.fromMe)) return
-    if (opts.swonly && m.chat !== 'status@broadcast') return
+    if (this.opts.nyimak || (this.opts.self && !m.fromMe)) return
+    if (this.opts.swonly && m.chat !== 'status@broadcast') return
 
-    if (typeof m.text !== 'string') m.text = ''
-
-    const isROwner = [conn.decodeJid(conn.user.id), ...global.owner.map(([n]) => n)]
+    const isROwner = [this.decodeJid(this.user.id), ...global.owner.map(([n]) => n)]
       .map(n => n.replace(/\D/g, '') + '@s.whatsapp.net')
       .includes(m.sender)
 
@@ -79,7 +91,7 @@ export async function handler(chatUpdate) {
     const isPrems = isROwner || global.prems?.map(n => n.replace(/\D/g, '') + '@s.whatsapp.net').includes(m.sender) || user.premium
 
     // Cola si hay queue
-    if (opts.queque && m.text && !(isMods || isPrems)) {
+    if (this.opts.queque && m.text && !(isMods || isPrems)) {
       let queue = this.msgqueque
       let waitTime = 5 * 1000
       const prev = queue[queue.length - 1]
@@ -95,11 +107,11 @@ export async function handler(chatUpdate) {
 
     let usedPrefix
 
-    const groupMetadata = m.isGroup ? (conn.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(() => null)) : {}
+    const groupMetadata = m.isGroup ? (this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(() => null)) : {}
     const participants = m.isGroup ? groupMetadata?.participants || [] : []
-    const sender = conn.decodeJid(m.sender)
-    const userData = m.isGroup ? participants.find(u => conn.decodeJid(u.id) === sender) : {}
-    const botData = m.isGroup ? participants.find(u => conn.decodeJid(u.id) === this.user.jid) : {}
+    const sender = this.decodeJid(m.sender)
+    const userData = m.isGroup ? participants.find(u => this.decodeJid(u.id) === sender) : {}
+    const botData = m.isGroup ? participants.find(u => this.decodeJid(u.id) === this.user.jid) : {}
 
     const isRAdmin = userData?.admin === 'superadmin'
     const isAdmin = isRAdmin || userData?.admin === 'admin'
@@ -117,10 +129,10 @@ export async function handler(chatUpdate) {
         try { await plugin.all.call(this, m, { chatUpdate, __dirname, __filename }) } catch (e) { console.error(e) }
       }
 
-      if (!opts.restrict && plugin.tags?.includes('admin')) continue
+      if (!this.opts.restrict && plugin.tags?.includes('admin')) continue
 
       const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-      const _prefix = plugin.customPrefix || conn.prefix || global.prefix
+      const _prefix = plugin.customPrefix || this.prefix || global.prefix
       const match = (_prefix instanceof RegExp
         ? [[_prefix.exec(m.text), _prefix]]
         : Array.isArray(_prefix)
@@ -181,7 +193,7 @@ export async function handler(chatUpdate) {
         m.exp += xp
 
         if (!isPrems && plugin.limit && user.limit < plugin.limit) {
-          conn.reply(m.chat, 'Se agotaron tus *Chocos*', m)
+          this.reply(m.chat, 'Se agotaron tus *Chocos*', m)
           continue
         }
 
@@ -207,7 +219,7 @@ export async function handler(chatUpdate) {
           if (typeof plugin.after === 'function') {
             try { await plugin.after.call(this, m, extra) } catch (e) { console.error(e) }
           }
-          if (m.limit) conn.reply(m.chat, `Utilizaste *${m.limit}* ✿`, m)
+          if (m.limit) this.reply(m.chat, `Utilizaste *${m.limit}* ✿`, m)
         }
 
         break
@@ -217,7 +229,7 @@ export async function handler(chatUpdate) {
   } catch (e) {
     console.error(e)
   } finally {
-    if (opts.queque && chatUpdate?.messages?.[0]?.text) {
+    if (this.opts.queque && chatUpdate?.messages?.[0]?.text) {
       const id = chatUpdate.messages[0].id || chatUpdate.messages[0].key?.id
       const i = this.msgqueque.indexOf(id)
       if (i >= 0) this.msgqueque.splice(i, 1)
@@ -229,7 +241,7 @@ export async function handler(chatUpdate) {
       user.limit -= chatUpdate?.messages?.[0]?.limit || 0
     }
 
-    if (!opts.noprint) {
+    if (!this.opts.noprint) {
       try {
         const { default: print } = await import('./lib/print.js')
         await print(chatUpdate.messages[0], this)
@@ -239,7 +251,7 @@ export async function handler(chatUpdate) {
     }
 
     const autoreadSetting = global.db.data.settings[this.user.jid]?.autoread
-    if (opts.autoread || autoreadSetting) await this.readMessages([chatUpdate.messages[0].key])
+    if (this.opts.autoread || autoreadSetting) await this.readMessages([chatUpdate.messages[0].key])
   }
 }
 
@@ -259,7 +271,6 @@ global.dfail = (type, m, conn) => {
   const msg = fails[type]
   if (msg) conn.reply(m.chat, msg, m)
 }
-
 
 const file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
