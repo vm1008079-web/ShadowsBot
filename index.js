@@ -1,4 +1,5 @@
-console.log('Michi Wa Bot ...')
+console.clear()
+console.log('🚀 Iniciando Michi Wa Bot...')
 
 import { join, dirname } from 'path'
 import { createRequire } from 'module'
@@ -10,16 +11,20 @@ import cfonts from 'cfonts'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
 
-cfonts.say('The - Michi\nWa', {
-  font: 'block',
+// Banner con estilo block
+cfonts.say('✧ Michi Wa ✧', {
+  font: 'block',        // Puedes cambiar a 'chrome', '3d', 'simple' si querés otro estilo
   align: 'center',
-  gradient: ['whiteBright', 'white']
+  gradient: ['cyan', 'magenta'],
+  env: 'node'
 })
 
-cfonts.say('Bot Multi Device', {
-  font: 'simple',
+
+cfonts.say('Bot Multi Device 😺', {
+  font: 'console',     
   align: 'center',
-  gradient: ['red', 'white']
+  gradient: ['pink', 'white'],
+  env: 'node'
 })
 
 let isWorking = false
@@ -39,12 +44,14 @@ async function launch(scripts) {
     let child = fork()
 
     child.on('exit', (code) => {
+      console.log(`⚠️ Proceso terminado con código ${code}`)
       isWorking = false
       launch(scripts)
 
       if (code === 0) return
       watchFile(args[0], () => {
         unwatchFile(args[0])
+        console.log('🔄 Archivo actualizado, reiniciando...')
         launch(scripts)
       })
     })
