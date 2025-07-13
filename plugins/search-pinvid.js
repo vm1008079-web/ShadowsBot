@@ -1,48 +1,41 @@
 import fetch from 'node-fetch'
-import { writeFileSync, unlinkSync } from 'fs'
+import { exec } from 'child_process'
+import { promisify } from 'util'
 import { tmpdir } from 'os'
-import path from 'path'
+import { join } from 'path'
+import { writeFile, unlink } from 'fs/promises'
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) return m.reply(`📌 Ejemplo de uso:\n${usedPrefix + command} gatitos`)
+const execAsync = promisify(exec)
 
-  const query = encodeURIComponent(args.join(' '))
-  const api = `https://theadonix-api.vercel.app/api/pinvid?q=${query}`
+const handler = async (m, { conn, args, command }) => {
+  const query = args.join(' ') || 'gatitos'
+  const res = await fetch(`https://theadonix-api.vercel.app/api/pinvid?q=${encodeURIComponent(query)}`)
+  const json = await res.json()
+
+  if (!json?.videos?.length) return m.reply('❌ No se encontraron videos')
+
+  const vid = json.videos[Math.floor(Math.random() * json.videos.length)]
+  const m3u8Url = vid.video
+
+  const outPath = join(tmpdir(), `pinterest_${Date.now()}.mp4`)
 
   try {
-    const res = await fetch(api)
-    const json = await res.json()
-
-    if (!json.status || !json.videos?.length) {
-      return m.reply('❌ No se encontraron resultados.')
-    }
-
-    const vid = json.videos[Math.floor(Math.random() * json.videos.length)]
-
-    const vidUrl = vid.video
-    const filePath = path.join(tmpdir(), `pinvid_${Date.now()}.mp4`)
-
-    const videoRes = await fetch(vidUrl)
-    const buffer = await videoRes.buffer()
-    writeFileSync(filePath, buffer)
-
+    await execAsync(`ffmpeg -i "${m3u8Url}" -c copy -bsf:a aac_adtstoasc "${outPath}"`)
     await conn.sendMessage(m.chat, {
-  document: { url: filePath },
-  fileName: `${vid.titulo || 'video'}.mp4`,
-  mimetype: 'video/mp4',
-  caption: `🎬 *${vid.titulo || 'Sin título'}*\n👤 Autor: ${vid.autor}\n📎 Usuario: ${vid.usuario}\n🌐 Fuente: ${vid.fuente}`
-}, { quoted: m })
+      video: { url: outPath },
+      caption: `🎬 *${vid.titulo || 'Video'}*\n👤 *${vid.autor}* (${vid.usuario})\n🔗 ${vid.fuente}`
+    }, { quoted: m })
+  } catch (err) {
+    console.error(err)
+    m.reply('❌ Error al convertir el video. Revisa si tu entorno tiene ffmpeg.')
+  } finally {
     // Limpieza
-    setTimeout(() => unlinkSync(filePath), 10_000)
-
-  } catch (e) {
-    console.error(e)
-    m.reply('⚠️ Error al obtener el video.')
+    setTimeout(() => unlink(outPath).catch(() => {}), 15_000)
   }
 }
 
-handler.command = ['pinvid']
-handler.help = ['pinvid <texto>']
-handler.tags = ['descargas']
+handler.command = ['pintest', 'pinvid']
+handler.help = ['pinvid gatitos']
+handler.tags = ['downloader']
 
 export default handler
