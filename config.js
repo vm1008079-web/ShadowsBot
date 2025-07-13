@@ -19,6 +19,18 @@ global.namebot = '✿◟michi ᴍᴅ◞✿'
 global.sessions = 'Sessions'
 global.jadi = 'JadiBots' 
 global.yukiJadibts = true
+  global.rcanal = {
+    contextInfo: {
+      isForwarded: true,
+      forwardingScore: 200,
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: idcanal,
+        serverMessageId: 100,
+        newsletterName: namecanal,
+      }
+    }
+  }
+}
 
 global.packname = '✦ Michi-Wa ✦'
 global.namebot = '✧ Michi-Wa ✧'
