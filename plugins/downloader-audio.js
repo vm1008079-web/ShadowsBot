@@ -1,3 +1,4 @@
+// Código creador por github.com/Ado-rgb
 import fetch from "node-fetch";
 import ffmpeg from "fluent-ffmpeg";
 import { tmpdir } from "os";
