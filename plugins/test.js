@@ -2,7 +2,6 @@ import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
 import path from 'path'
-import ffmpeg from 'fluent-ffmpeg'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { tmpdir } from 'os'
@@ -11,7 +10,7 @@ const streamPipeline = promisify(pipeline)
 
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
+const handler = async (m, { conn, text, command }) => {
   try {
     if (!text.trim()) {
       return conn.reply(m.chat, `> ☁︎ Por favor, ingresa el nombre o enlace del video.`, m)
@@ -42,18 +41,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, {
       image: thumb,
-      caption: infoMessage,
-      contextInfo: {
-        externalAdReply: {
-          title: title,
-          body: "",
-          thumbnail: thumb,
-          mediaType: 2,
-          mediaUrl: url,
-          sourceUrl: url,
-          renderLargerThumbnail: true,
-        }
-      }
+      caption: infoMessage
     }, { quoted: m })
 
     if (['play', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
@@ -61,27 +49,14 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       const json = await res.json()
       if (!json?.result?.audio) throw new Error('No se pudo generar el audio.')
 
-      const tmpPathIn = path.join(tmpdir(), `in_${Date.now()}.mp3`)
-      const tmpPathOut = path.join(tmpdir(), `out_${Date.now()}.mp3`)
+      const tmpPath = path.join(tmpdir(), `audio_${Date.now()}.mp3`)
       const audioStream = await fetch(json.result.audio)
 
       if (!audioStream.ok) throw new Error('Error al descargar el audio.')
 
-      await streamPipeline(audioStream.body, fs.createWriteStream(tmpPathIn))
+      await streamPipeline(audioStream.body, fs.createWriteStream(tmpPath))
 
-      // 🔊 EFECTO SATURADO
-      await new Promise((resolve, reject) => {
-        ffmpeg(tmpPathIn)
-          .audioFilter('volume=5,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry=\'entry(60,20);entry(100,15);entry(200,10)\'')
-          .audioCodec('libmp3lame')
-          .audioBitrate('128k')
-          .format('mp3')
-          .save(tmpPathOut)
-          .on('end', resolve)
-          .on('error', reject)
-      })
-
-      const audioBuffer = fs.readFileSync(tmpPathOut)
+      const audioBuffer = fs.readFileSync(tmpPath)
       await conn.sendMessage(m.chat, {
         audio: audioBuffer,
         mimetype: 'audio/mpeg',
@@ -89,8 +64,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         ptt: true
       }, { quoted: m })
 
-      fs.unlinkSync(tmpPathIn)
-      fs.unlinkSync(tmpPathOut)
+      fs.unlinkSync(tmpPath)
     }
 
   } catch (err) {
