@@ -1,43 +1,39 @@
-import fs from 'fs'
-import path from 'path'
-import quAx from '../lib/upload.js'
+import adonixScraper from 'adonix-scraper'
 
-const handler = async (m, { conn }) => {
-  if (!m.quoted) return conn.reply(m.chat, 'Responde a un archivo para testear subida', m)
-  if (!m.quoted.download) return conn.reply(m.chat, 'Mensaje no tiene función de descarga', m)
+const handler = async (msg, { conn, args }) => {
+  const chatId = msg.key.remoteJid
+
+  if (!args || args.length === 0) {
+    await conn.sendMessage(chatId, { text: 'Pásame el link de YouTube para descargar video pue' }, { quoted: msg })
+    return
+  }
+
+  const url = args[0]
+
+  await conn.sendMessage(chatId, { react: { text: '🛠️', key: msg.key } })
+  await conn.sendMessage(chatId, { text: '⏳ Buscando y descargando video...' }, { quoted: msg })
 
   try {
-    const tmpDir = path.join(process.cwd(), 'tmp')
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+    const formato = '720' // calidad fija para video
+    const result = await adonixScraper.download(url, formato, 'video')
 
-    const inputPath = path.join(tmpDir, `${Date.now()}_testfile`)
-    const stream = await m.quoted.download()
-    const fileStream = fs.createWriteStream(inputPath)
-
-    for await (const chunk of stream) {
-      if (Buffer.isBuffer(chunk)) {
-        fileStream.write(chunk)
-      } else {
-        fileStream.write(Buffer.from([chunk]))
-      }
+    if (!result.status) {
+      await conn.sendMessage(chatId, { text: `❌ Error: ${result.error}` }, { quoted: msg })
+      return
     }
 
-    fileStream.end()
+    await conn.sendMessage(chatId, {
+      video: { url: result.result.download },
+      mimetype: 'video/mp4',
+      fileName: `${result.result.title}.mp4`
+    }, { quoted: msg })
 
-    await new Promise((resolve, reject) => {
-      fileStream.on('finish', resolve)
-      fileStream.on('error', reject)
-    })
-
-    const res = await quAx(inputPath)
-    await conn.reply(m.chat, `Respuesta upload: ${JSON.stringify(res)}`, m)
-
-    fs.unlinkSync(inputPath)
   } catch (e) {
-    await conn.reply(m.chat, `Error al subir: ${e.message}`, m)
+    await conn.sendMessage(chatId, { text: '❌ Algo salió mal al descargar el video' }, { quoted: msg })
   }
 }
 
-handler.command = /^testupload$/i
-handler.help = ['testupload']
+handler.command = ['descargarvideo', 'vidget']
+
+
 export default handler
