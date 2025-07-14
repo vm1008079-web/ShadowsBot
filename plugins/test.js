@@ -42,7 +42,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const JT = {
       contextInfo: {
         externalAdReply: {
-          title: '✧ Music ● Youtube ᰔᩚ',
+          title: '',
           mediaType: 1,
           previewType: 0,
           mediaUrl: url,
@@ -55,7 +55,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, { text: infoMessage }, { quoted: m, ...JT })
 
-    if (['paudio', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
+    if (['play', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
       const res = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
       const json = await res.json()
       if (!json?.result?.audio) throw new Error('No se pudo generar el audio.')
@@ -98,7 +98,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 }
 
-handler.command = handler.help = ['paudio', 'playaudio', 'yta', 'ytmp3']
+handler.command = handler.help = ['play', 'playaudio', 'yta', 'ytmp3']
 handler.tags = ['downloader']
 handler.register = true
 export default handler
