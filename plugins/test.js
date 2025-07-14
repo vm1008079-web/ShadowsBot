@@ -32,28 +32,29 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const vistas = formatViews(views)
     const canal = author?.name || 'Desconocido'
     const infoMessage = `✧ *<${title}>*\n\n` +
-      ` • Canal : ${canal}\n` +
-      ` • Vistas : ${vistas}\n` +
-      ` • Duración : ${timestamp}\n` +
-      ` • Publicado : ${ago}\n` +
-      ` • Link : ${url}`
+      `✦ Canal : ${canal}\n` +
+      `✦ Vistas : ${vistas}\n` +
+      `✦ Duración : ${timestamp}\n` +
+      `✦ Publicado : ${ago}\n` +
+      `✦ Link : ${url}`
 
     const thumb = (await conn.getFile(thumbnail))?.data
-    const JT = {
+
+    await conn.sendMessage(m.chat, {
+      image: thumb,
+      caption: infoMessage,
       contextInfo: {
         externalAdReply: {
-          title: '',
-          mediaType: 1,
-          previewType: 0,
-          mediaUrl: url,
-          sourceUrl: 'theadonix-api.vercel.app',
+          title: title,
+          body: "",
           thumbnail: thumb,
+          mediaType: 2,
+          mediaUrl: url,
+          sourceUrl: url,
           renderLargerThumbnail: true,
         }
       }
-    }
-
-    await conn.sendMessage(m.chat, { text: infoMessage }, { quoted: m, ...JT })
+    }, { quoted: m })
 
     if (['play', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
       const res = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
@@ -68,7 +69,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       await streamPipeline(audioStream.body, fs.createWriteStream(tmpPathIn))
 
-      // 🔊 EFECTO SATURADO (tipo volumen fuerte + distorsión leve)
+      // 🔊 EFECTO SATURADO
       await new Promise((resolve, reject) => {
         ffmpeg(tmpPathIn)
           .audioFilter('volume=5,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry=\'entry(60,20);entry(100,15);entry(200,10)\'')
