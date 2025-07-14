@@ -3,10 +3,8 @@ import fetch from "node-fetch";
 import ffmpeg from "fluent-ffmpeg";
 import { tmpdir } from "os";
 import { join } from "path";
-import { writeFile, unlink } from "fs/promises";
+import { writeFile, unlink, readFile } from "fs/promises";
 import fs from "fs";
-
-const ytIdRegex = /(?:youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu.be\/)([a-zA-Z0-9_-]{11})/;
 
 const toSansSerifPlain = (text = "") =>
   text.split("").map((char) => {
@@ -24,13 +22,13 @@ const toSansSerifPlain = (text = "") =>
 
 const handler = async (m, { conn }) => {
   if (!m.quoted || !m.quoted.text || !m.quoted.text.includes("乂  M U S I C  -  Y O U T U B E"))
-    return m.reply(toSansSerifPlain("✦ Debes responder a un mensaje que contenga '✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧'));
+    return m.reply(toSansSerifPlain("✦ Debes responder a un mensaje que contenga '✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧'"));
 
   const linkMatch = m.quoted.text.match(/https?:\/\/(?:www\.)?youtu(?:\.be|be\.com)\/[^\s]+/);
   if (!linkMatch) return m.reply(toSansSerifPlain("✦ No se encontró un enlace de YouTube en el mensaje citado."));
 
   const videoUrl = linkMatch[0];
-  conn.sendMessage(m.chat, { react: { text: "🕓", key: m.key } });
+  await conn.sendMessage(m.chat, { react: { text: "🕓", key: m.key } });
 
   try {
     const res = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(videoUrl)}`);
@@ -41,6 +39,7 @@ const handler = async (m, { conn }) => {
     const audioResp = await fetch(json.result.audio);
     const inputPath = join(tmpdir(), `input-${Date.now()}.mp3`);
     const outputPath = join(tmpdir(), `output-${Date.now()}.mp3`);
+
     const fileStream = fs.createWriteStream(inputPath);
     await new Promise((resolve, reject) => {
       audioResp.body.pipe(fileStream);
@@ -57,22 +56,33 @@ const handler = async (m, { conn }) => {
         .on("error", reject);
     });
 
-    const processedBuffer = await fs.promises.readFile(outputPath);
+    const processedBuffer = await readFile(outputPath);
 
     await conn.sendMessage(m.chat, {
       audio: processedBuffer,
       fileName: json.result.filename || "audio.mp3",
       mimetype: "audio/mpeg",
       ptt: true,
+      contextInfo: {
+        externalAdReply: {
+          title: json.result.title || "Descarga completada",
+          body: "Shadow Ultra Edited",
+          thumbnailUrl: json.result.thumbnail,
+          mediaType: 2,
+          mediaUrl: videoUrl,
+          sourceUrl: videoUrl
+        }
+      }
     }, { quoted: m });
 
     await unlink(inputPath).catch(() => {});
     await unlink(outputPath).catch(() => {});
 
-    conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
   } catch (e) {
-    return m.reply(toSansSerifPlain("⚠︎ Error al descargar: ") + e);
+    console.error(e);
+    m.reply(toSansSerifPlain("⚠︎ Error al descargar: ") + e);
   }
 };
 
