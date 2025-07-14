@@ -71,7 +71,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       // 🔊 EFECTO SATURADO (tipo volumen fuerte + distorsión leve)
       await new Promise((resolve, reject) => {
         ffmpeg(tmpPathIn)
-          .audioFilter('volume=10,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry=\'entry(60,20);entry(100,15);entry(200,10)\'')
+          .audioFilter('volume=5,acompressor=threshold=0.2:ratio=20:attack=10:release=250,dynaudnorm=f=150:g=31,firequalizer=gain_entry=\'entry(60,20);entry(100,15);entry(200,10)\'')
           .audioCodec('libmp3lame')
           .audioBitrate('128k')
           .format('mp3')
