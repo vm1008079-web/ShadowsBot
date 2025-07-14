@@ -47,17 +47,17 @@ const handler = async (m, { conn, text }) => {
   const { title, timestamp, views, url, thumbnail, author, ago } = video;
 
   const caption = [
-    "「★」✧─────── · · ·",
-    "乂  M U S I C  -  Y O U T U B E",
+    "✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧",
+    "⧼ ᰔᩚ ⧽  M U S I C  -  Y O U T U B E",
     "",
     `⟩ *${title}*`,
-    `> ● Canal › *${author.name}*`,
-    `> ● Duración › *${timestamp}*`,
-    `> ● Vistas › *${formatViews(views)}*`,
-    `> ● Publicado › *${ago || "desconocido"}*`,
-    `> ● Link › *${url}*`,
+    `> ➩ Canal › *${author.name}*`,
+    `> ➩ Duración › *${timestamp}*`,
+    `> ➩ Vistas › *${formatViews(views)}*`,
+    `> ➩ Publicado › *${ago || "desconocido"}*`,
+    `> ➩ Link › *${url}*`,
     "",
-    "❐ Responde con *Audio* o *Video* para descargar ✧"
+    "> ✰ Responde con *Audio* o *Video* para descargar ✧"
   ].join("\n");
 
   await conn.sendMessage(m.chat, {
