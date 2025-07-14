@@ -14,7 +14,7 @@ const handler = async (msg, { conn, args }) => {
   await conn.sendMessage(chatId, { text: '⏳ Buscando y descargando video...' }, { quoted: msg })
 
   try {
-    const formato = '720' // calidad fija para video
+    const formato = '360' // calidad fija para video
     const result = await adonixScraper.download(url, formato, 'video')
 
     if (!result.status) {
