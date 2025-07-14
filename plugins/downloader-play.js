@@ -66,7 +66,7 @@ const handler = async (m, { conn, text }) => {
   }, { quoted: m });
 };
 
-handler.command = ["play"];
+handler.command = ["pla"];
 handler.help = handler.command;
 handler.tags = ["downloader"];
 handler.register = true;
