@@ -50,7 +50,7 @@ const handler = async (m, { conn, text }) => {
     "✧─── ･ ｡ﾟ★: *.✦ .* :★. ───✧",
     "⧼ ᰔᩚ ⧽  M U S I C  -  Y O U T U B E",
     "",
-    `⟩ *${title}*`,
+    `» ✧ « *${title}*`,
     `> ➩ Canal › *${author.name}*`,
     `> ➩ Duración › *${timestamp}*`,
     `> ➩ Vistas › *${formatViews(views)}*`,
