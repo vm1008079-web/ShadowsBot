@@ -141,8 +141,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     await conn.sendMessage(m.chat, {
       ...imageContent,
       caption: text.trim(),
-      mentionedJid: conn.parseMention(text),
-      ...rcanal
+      mentionedJid: conn.parseMention(text)
     }, { quoted: m })
 
   } catch (e) {
