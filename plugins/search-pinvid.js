@@ -35,7 +35,7 @@ const handler = async (m, { conn, args, command }) => {
 }
 
 handler.command = ['pintest', 'pinvid']
-handler.help = ['pinvid gatitos']
+handler.help = ['pinvid']
 handler.tags = ['downloader']
 
 export default handler
