@@ -83,7 +83,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       }
     }
 
-    const tipo = botActual === '+573147172161'.replace(/\D/g, '')
+    const tipo = botActual === '+50494547493'.replace(/\D/g, '')
       ? 'Principal 🅥'
       : 'Sub Bot 🅑'
 
