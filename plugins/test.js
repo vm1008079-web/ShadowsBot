@@ -69,8 +69,8 @@ const handler = async (m, { conn, text, command, __dirname }) => {
       await new Promise((resolve, reject) => {
         ffmpeg(inputFile)
           .audioCodec('libmp3lame')
-          .audioBitrate('128k')
-          .audioFilters('volume=1.5') // 🔊 Subidita de volumen aquí
+          .audioBitrate('320k')
+          .audioFilters('volume=1.4') // 🔊 Subidita de volumen aquí
           .format('mp3')
           .save(outputFile)
           .on('end', resolve)
@@ -107,7 +107,7 @@ const handler = async (m, { conn, text, command, __dirname }) => {
   }
 }
 
-handler.command = ['play', 'playaudio', 'yta', 'ytmp3']
+handler.command = ['play', 'playaudio', 'yta']
 handler.help = ['play', 'playaudio', 'yta', 'ytmp3']
 handler.tags = ['downloader']
 export default handler
