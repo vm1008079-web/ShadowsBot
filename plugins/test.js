@@ -61,7 +61,7 @@ const handler = async (m, { conn, text, command }) => {
         audio: audioBuffer,
         mimetype: 'audio/mpeg',
         fileName: json.result.filename || `${json.result.title}.mp3`,
-        ptt: true
+        ptt: false
       }, { quoted: m })
 
       fs.unlinkSync(tmpPath)
