@@ -1,50 +1,43 @@
 import fetch from 'node-fetch'
+import ytSearch from 'yt-search'
 
-const handler = async (m, { conn, text, args, command }) => {
-  if (!text) throw '🔍 Ingresa el nombre de un video porfa'
+const handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply('🎵 Ingresa el nombre del video\n\n📌 *Ejemplo:* .play3 bella wolfine')
 
-  await conn.sendMessage(m.chat, { react: { text: '🎶', key: m.key }})
-
-  m.reply('⏳ *Buscando...*')
+  m.react('🎶')
 
   try {
-    // 🔎 Buscar video con la API de Delirius
-    const searchRes = await fetch(`https://delirius-api-oficial.vercel.app/api/ytsearch?q=${encodeURIComponent(text)}`)
-    const searchData = await searchRes.json()
+    // 🔍 Buscar directo en YouTube con yt-search
+    const { videos } = await ytSearch(text)
+    if (!videos.length) return m.reply('❌ No se encontró el video.')
 
-    if (!searchData?.result?.length) {
-      throw '❌ No se encontró ningún video'
+    const video = videos[0]
+    const url = video.url
+
+    // 🔽 Descargar con tu API
+    const res = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`)
+    const json = await res.json()
+
+    if (!json.status || !json.result?.download) {
+      return m.reply('📍 No se pudo enviar el video. Puede ser por tamaño o error en la URL.')
     }
 
-    const video = searchData.result[0]
-    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
-
-    // 🎬 Descargar usando tu API personalizada
-    const apiRes = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${videoUrl}`)
-    const apiData = await apiRes.json()
-
-    if (!apiData.status) {
-      throw '❌ Error al obtener el video.'
-    }
+    const { title, thumbnail, quality, download } = json.result
 
     await conn.sendMessage(m.chat, {
-      video: { url: apiData.result.download },
-      mimetype: 'video/mp4',
-      fileName: `${apiData.result.title}.mp4`,
-      caption: `✅ *Título:* ${apiData.result.title}\n🎞️ *Calidad:* ${apiData.result.quality}`,
-      thumbnail: await (await fetch(apiData.result.thumbnail)).buffer()
+      video: { url: download },
+      caption: `🎬 *${title}*\n📥 Calidad: ${quality}p\n\n🌐 By: @${m.sender.split('@')[0]}`,
+      jpegThumbnail: await (await fetch(thumbnail)).buffer()
     }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    throw '❌ Error inesperado al procesar'
+    m.reply('💥 Ocurrió un error al procesar tu solicitud.')
   }
 }
 
 handler.command = ['play3']
 handler.help = ['play3 <nombre>']
 handler.tags = ['downloader']
-handler.register = true
-handler.limit = true
 
 export default handler
