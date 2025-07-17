@@ -1,5 +1,6 @@
 import fetch from "node-fetch"
 import yts from "yt-search"
+import axios from "axios"
 
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
@@ -61,6 +62,15 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
         if (!json?.status || !json?.result?.download) {
           throw new Error('❌ No se pudo generar el video.')
+        }
+
+        // Verificar tamaño del video antes de enviar
+        const head = await axios.head(json.result.download)
+        const fileSize = parseInt(head.headers['content-length'] || 0)
+        const fileSizeMB = fileSize / (1024 * 1024)
+
+        if (fileSizeMB > 100) {
+          return conn.reply(m.chat, `📦 El video pesa *${fileSizeMB.toFixed(2)} MB* y es muy grande para enviarlo.`, m)
         }
 
         await conn.sendMessage(m.chat, {
