@@ -1,6 +1,5 @@
 import ytSearch from 'yt-search'
 import fetch from 'node-fetch'
-import axios from 'axios'
 
 let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de una canción o pega el link de YouTube')
@@ -19,17 +18,16 @@ let handler = async (m, { conn, text, command }) => {
     const res = await fetch(apiUrl)
     const json = await res.json()
 
-    if (!json.status || !json.result?.audio) throw new Error('La API no devolvió un audio válido')
+    if (!json.status || !json.result?.audio) throw '❌ No se pudo obtener el audio'
 
     let { title, thumbnail, audio } = json.result
 
-    // Validar que el enlace de audio sea válido (HEAD request)
-    let check = await axios.head(audio).catch(() => null)
-    if (!check || check.status !== 200 || !check.headers['content-type']?.includes('audio')) {
-      throw new Error('⚠️ El enlace de audio no es válido o no es un archivo de audio directo')
+    // Validar URL
+    if (typeof audio !== 'string' || !/^https?:\/\//.test(audio)) {
+      throw '❌ La URL del audio está malformada'
     }
 
-    // Enviar miniatura con texto antes
+    // Enviar miniatura con mensaje
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: `🎵 *${title}*\n📥 Descargando audio...`
@@ -37,16 +35,17 @@ let handler = async (m, { conn, text, command }) => {
 
     await new Promise(r => setTimeout(r, 1000))
 
-    // Enviar el audio real
+    // Enviar audio sin contextInfo
     await conn.sendMessage(m.chat, {
       audio: { url: audio.trim() },
       mimetype: 'audio/mpeg',
+      fileName: `${title}.mp3`,
       ptt: false
     }, { quoted: m })
 
   } catch (e) {
-    console.log('❌ Error:', e)
-    m.reply('❌ No se pudo enviar el audio. Es posible que el archivo esté dañado o el link no sea válido.')
+    console.error('❌ Error en play:', e)
+    m.reply('❌ Error al procesar el audio. Puede que el archivo esté corrupto o el link no sirva.')
   }
 }
 
