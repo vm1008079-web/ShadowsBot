@@ -5,9 +5,7 @@ let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de un video o pega el link de YouTube')
 
   try {
-    // Reacción pa' avisar que va cargando
-    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-
+    // Buscar si es nombre
     let url = text
     if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
       let search = await ytSearch(text)
@@ -15,33 +13,32 @@ let handler = async (m, { conn, text, command }) => {
       url = search.videos[0].url
     }
 
-    const apiUrl = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(apiUrl)
-    const json = await res.json()
+    // Llamar a la API  
+    const apiUrl = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`  
+    console.log('🔗 URL usada para API:', apiUrl)  
 
-    if (!json.status || !json.result?.download) throw new Error('La API no devolvió un resultado válido')
+    const res = await fetch(apiUrl)  
+    const json = await res.json()  
 
-    let { title, thumbnail, download } = json.result
+    console.log('🧾 Respuesta de la API:', json)  
 
-    let videoInfo = await ytSearch(url)
-    let vid = videoInfo.videos.find(v => v.url === url) || videoInfo.videos[0]
+    if (!json.status || !json.result?.download) {  
+      throw new Error('La API no devolvió un resultado válido')  
+    }  
 
-    let caption = `🎬 *Título:* ${title}
-⏱️ *Duración:* ${vid.timestamp || 'Desconocida'}
-👤 *Canal:* ${vid.author?.name || 'Desconocido'}
-👀 *Vistas:* ${vid.views?.toLocaleString() || 'N/A'}
-📅 *Publicado:* ${vid.ago || 'N/A'}
-🔗 *URL:* ${url}`
+    let { title, thumbnail, download, size } = json.result
 
-    await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
-      caption: caption
+    // Primero enviamos detalles con la miniatura  
+    await conn.sendMessage(m.chat, {  
+      image: { url: thumbnail },  
+      caption: `🎬 *${title}*\n📦 Tamaño: ${size || 'Desconocido'}\n🔗 Link: ${url}`,  
     }, { quoted: m })
 
-    conn.sendMessage(m.chat, {
-      video: { url: download },
-      caption: `🎬 *${title}*`,
-      mimetype: 'video/mp4'
+    // Luego enviamos el video  
+    await conn.sendMessage(m.chat, {  
+      video: { url: download },  
+      caption: `🎬 Aquí está tu video *${title}*`,  
+      mimetype: 'video/mp4'  
     }, { quoted: m })
 
   } catch (e) {
@@ -50,8 +47,8 @@ let handler = async (m, { conn, text, command }) => {
   }
 }
 
-handler.help = ['ytmp4', 'play2', 'mp4'].map(v => v + ' <nombre o link>')
+handler.help = ['ytvx', 'play2', 'mp4'].map(v => v + ' <nombre o link>')
 handler.tags = ['descargas']
-handler.command = /^(ytmp4|play2|mp4)$/i
+handler.command = /^(ytvx|play2|mp4)$/i
 
 export default handler
