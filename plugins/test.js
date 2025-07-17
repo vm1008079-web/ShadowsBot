@@ -45,7 +45,7 @@ const handler = async (m, { conn, text, command }) => {
     }, { quoted: m })
 
     if (['play', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
-      const res = await fetch(`https://theadonix-api.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
+      const res = await fetch(`https://apiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
       const json = await res.json()
       if (!json?.result?.audio) throw new Error('No se pudo generar el audio.')
 
