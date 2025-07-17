@@ -5,7 +5,6 @@ let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de una canción o pega el link de YouTube')
 
   try {
-    // Buscar si es nombre
     let url = text
     if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
       let search = await ytSearch(text)
@@ -13,7 +12,6 @@ let handler = async (m, { conn, text, command }) => {
       url = search.videos[0].url
     }
 
-    // Llamar a la API
     const apiUrl = `https://apiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
     const res = await fetch(apiUrl)
     const json = await res.json()
@@ -22,12 +20,14 @@ let handler = async (m, { conn, text, command }) => {
 
     let { title, thumbnail, audio } = json.result
 
-    // Validar URL
+    // Limpiar la URL de audio de caracteres raros
+    audio = audio.replace(/[`,]/g, '')
+
+    // Validar URL limpia
     if (typeof audio !== 'string' || !/^https?:\/\//.test(audio)) {
-      throw '❌ La URL del audio está malformada'
+      throw '❌ La URL del audio está malformada incluso después de limpiar'
     }
 
-    // Enviar miniatura con mensaje
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: `🎵 *${title}*\n📥 Descargando audio...`
@@ -35,7 +35,6 @@ let handler = async (m, { conn, text, command }) => {
 
     await new Promise(r => setTimeout(r, 1000))
 
-    // Enviar audio sin contextInfo
     await conn.sendMessage(m.chat, {
       audio: { url: audio.trim() },
       mimetype: 'audio/mpeg',
