@@ -1,39 +1,54 @@
-import yts from 'yt-search'
+import ytSearch from 'yt-search'
 import fetch from 'node-fetch'
 
-let handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!args[0]) throw `✳️ Ingresa el nombre de una canción.\n\nEjemplo: *${usedPrefix + command} Arcade - Duncan Laurence*`
+let handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply('📍 Escribe el nombre de una canción o pega el link de YouTube')
 
-  let search = await yts(args.join(' '))
-  let vid = search.videos[0]
-  if (!vid) throw '❌ No se encontró ningún resultado'
+  try {
+    // Buscar si es nombre
+    let url = text
+    if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
+      let search = await ytSearch(text)
+      if (!search?.videos?.length) return m.reply('❌ No se encontraron resultados')
+      url = search.videos[0].url
+    }
 
-  // Usa la nueva API de ytmp3
-  let res = await fetch(`https://apiadonix.vercel.app/api/ytmp3?url=${vid.url}`)
-  let json = await res.json()
+    // Llamar a la API
+    const apiUrl = `https://apiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
+    console.log('🔗 URL usada para API:', apiUrl)
 
-  if (json.status !== 200) throw '❌ Error al descargar el audio'
+    const res = await fetch(apiUrl)
+    const json = await res.json()
 
-  // Mensaje con detalles del video
-  let caption = `🎵 *Título:* ${json.result.title}
-🕒 *Duración:* ${vid.timestamp}
-📅 *Publicado:* ${vid.ago}
-👤 *Autor:* ${vid.author.name}
-🔗 *URL:* ${vid.url}`
+    console.log('🧾 Respuesta de la API:', json)
 
-  // Manda la miniatura y detalles
-  await conn.sendMessage(m.chat, {
-    image: { url: vid.thumbnail },
-    caption: caption
-  }, { quoted: m })
+    if (!json.status || !json.result?.audio) {
+      throw new Error('La API no devolvió un resultado válido')
+    }
 
-  // Manda el audio mp3 desde el enlace que devuelve la API nueva
-  await conn.sendMessage(m.chat, {
-    audio: { url: json.result.audio },
-    mimetype: 'audio/mpeg',
-    ptt: false
-  }, { quoted: m })
+    let { title, thumbnail, audio } = json.result
+
+    // Enviar miniatura con detalles
+    await conn.sendMessage(m.chat, {
+      image: { url: thumbnail },
+      caption: `🎵 *${title}*\n📥 Descargando audio...`
+    }, { quoted: m })
+
+    // Enviar audio
+    await conn.sendMessage(m.chat, {
+      audio: { url: audio },
+      mimetype: 'audio/mpeg',
+      ptt: false
+    }, { quoted: m })
+
+  } catch (e) {
+    console.log('❌ Error al descargar el audio:', e)
+    m.reply('❌ Error al descargar el audio')
+  }
 }
 
-handler.command = ['play']
+handler.help = ['play'].map(v => v + ' <nombre o link>')
+handler.tags = ['descargas']
+handler.command = ['play', 'playmp3']
+
 export default handler
