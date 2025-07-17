@@ -1,150 +1,62 @@
-import axios from 'axios'
+import AdonixScraper from 'adonix-scraper'
 import ytSearch from 'yt-search'
-import crypto from 'crypto'
 
-const headers = {
-  accept: '*/*',
-  'content-type': 'application/json',
-  origin: 'https://yt.savetube.me',
-  referer: 'https://yt.savetube.me/',
-  'user-agent': 'Postify/1.0.0'
-}
-
-const formats = ['144', '240', '360', '480', '720', '1080', 'mp3']
-
-const isUrl = str => {
-  try {
-    const url = new URL(str)
-    return url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')
-  } catch {
-    return false
-  }
-}
-
-const youtube = url => {
-  const patterns = [
-    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
-    /youtu\.be\/([a-zA-Z0-9_-]{11})/
-  ]
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match) return match[1]
-  }
-  return null
-}
-
-const hexToBuffer = hex => Buffer.from(hex.match(/.{1,2}/g).join(''), 'hex')
-
-const decrypt = encrypted => {
-  try {
-    const key = hexToBuffer('C5D58EF67A7584E4A29F6C35BBC4EB12')
-    const buffer = Buffer.from(encrypted, 'base64')
-    const iv = buffer.slice(0, 16)
-    const content = buffer.slice(16)
-
-    const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
-    const decrypted = Buffer.concat([
-      decipher.update(content),
-      decipher.final()
-    ])
-    return JSON.parse(decrypted.toString())
-  } catch (e) {
-    return null
-  }
-}
-
-const request = async (endpoint, data = {}, method = 'post') => {
-  const base = 'https://media.savetube.me/api'
-  try {
-    const res = await axios({
-      method,
-      url: endpoint.startsWith('http') ? endpoint : base + endpoint,
-      data: method === 'post' ? data : undefined,
-      params: method === 'get' ? data : undefined,
-      headers
-    })
-    return { status: true, data: res.data }
-  } catch (e) {
-    return { status: false, error: e.message }
-  }
-}
+const scraper = new AdonixScraper()
 
 let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply('📍 Poné un nombre o link de YouTube')
+  if (!text) return m.reply('📍 Pon el nombre o link de YouTube')
 
   try {
     let url = text
-    if (!isUrl(url)) {
-      // buscar video si es texto
+    if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await ytSearch(text)
-      if (!search?.videos?.length) return m.reply('❌ No encontré videos')
+      if (!search?.videos?.length) return m.reply('❌ No encontré resultados')
       url = search.videos[0].url
     }
 
-    const format = command.toLowerCase() === 'play' ? 'mp3' : '360'
-    if (!formats.includes(format)) return m.reply(`❌ Formato no válido. Usa: ${formats.join(', ')}`)
+    if (command === 'play') {
+      const json = await scraper.ytmp3(url)
+      if (!json.status) throw new Error('Error al obtener audio')
 
-    // Extraer ID
-    const id = youtube(url)
-    if (!id) return m.reply('❌ No pude sacar el ID del video')
+      const { title, thumbnail, audio } = json.result
 
-    // Obtener CDN
-    const cdnRes = await request('/random-cdn', {}, 'get')
-    if (!cdnRes.status || !cdnRes.data?.cdn) throw new Error('❌ Falló obtener CDN')
-
-    const cdn = cdnRes.data.cdn
-
-    // Info del video
-    const infoRes = await request(`https://${cdn}/v2/info`, {
-      url: `https://www.youtube.com/watch?v=${id}`
-    })
-    if (!infoRes.status || !infoRes.data?.data) throw new Error('❌ No pude obtener info del video')
-
-    const decrypted = decrypt(infoRes.data.data)
-    if (!decrypted || !decrypted.key || !decrypted.title) throw new Error('❌ No pude descifrar info')
-
-    // Descargar URL
-    const downloadRes = await request(`https://${cdn}/download`, {
-      id,
-      downloadType: format === 'mp3' ? 'audio' : 'video',
-      quality: format,
-      key: decrypted.key
-    })
-
-    const downloadUrl = downloadRes?.data?.data?.downloadUrl
-    if (!downloadRes.status || !downloadUrl || !downloadUrl.startsWith('http')) throw new Error('❌ No pude obtener link válido')
-
-    // Enviar miniatura con título
-    await conn.sendMessage(m.chat, {
-      image: { url: decrypted.thumbnail || `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` },
-      caption: `🎬 *${decrypted.title}*\n📥 Descargando ${format === 'mp3' ? 'audio' : 'video'}...`
-    }, { quoted: m })
-
-    await new Promise(r => setTimeout(r, 1200))
-
-    // Enviar audio o video
-    if (format === 'mp3') {
       await conn.sendMessage(m.chat, {
-        audio: { url: downloadUrl },
+        image: { url: thumbnail },
+        caption: `🎵 *${title}*\n📥 Descargando audio...`
+      }, { quoted: m })
+
+      await new Promise(r => setTimeout(r, 1200))
+
+      await conn.sendMessage(m.chat, {
+        audio: { url: audio },
         mimetype: 'audio/mpeg',
-        fileName: `${decrypted.title}.mp3`,
+        fileName: `${title}.mp3`,
         ptt: false
       }, { quoted: m })
-    } else {
+
+    } else if (command === 'ytvx') {
+      const json = await scraper.ytmp4(url)
+      if (!json.status) throw new Error('Error al obtener video')
+
+      const { title, thumbnail, download } = json.result
+
       await conn.sendMessage(m.chat, {
-        video: { url: downloadUrl },
+        image: { url: thumbnail },
+        caption: `🎬 *${title}*\n📥 Descargando video...`
+      }, { quoted: m })
+
+      await new Promise(r => setTimeout(r, 1200))
+
+      await conn.sendMessage(m.chat, {
+        video: { url: download },
         mimetype: 'video/mp4',
-        fileName: `${decrypted.title}.mp4`,
-        caption: `🎬 *${decrypted.title}*`
+        fileName: `${title}.mp4`,
+        caption: `🎬 *${title}*`
       }, { quoted: m })
     }
-
   } catch (e) {
-    console.error('❌ Error en yt plugin:', e)
-    m.reply('❌ Error descargando, prueba con otro video o link')
+    console.error('❌ Error en adonix-scraper:', e)
+    m.reply('❌ Error descargando, prueba con otro link o nombre')
   }
 }
 
