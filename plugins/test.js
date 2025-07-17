@@ -3,7 +3,6 @@ import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
 import path from 'path'
-import ffmpeg from 'fluent-ffmpeg'
 import { promisify } from 'util'
 import { tmpdir } from 'os'
 import { pipeline } from 'stream'
@@ -14,9 +13,7 @@ const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-z
 
 const handler = async (m, { conn, text, command, __dirname }) => {
   try {
-    if (!text.trim()) {
-      return m.reply('☁︎ Escribe el nombre o link del video maje')
-    }
+    if (!text.trim()) return m.reply('☁︎ Escribe el nombre o link del video maje')
 
     let videoIdToFind = text.match(youtubeRegexID)
     let ytplay2 = await yts(videoIdToFind ? `https://youtu.be/${videoIdToFind[1]}` : text)
@@ -56,39 +53,21 @@ const handler = async (m, { conn, text, command, __dirname }) => {
       const tmpDir = path.join(__dirname, '../tmp')
       if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
-      const inputFile = path.join(tmpDir, `yt_input_${Date.now()}.mp3`)
-      const outputFile = path.join(tmpDir, `yt_fixed_${Date.now()}.mp3`)
-
+      const tempFilePath = path.join(tmpDir, `audio_${Date.now()}.mp3`)
       const audioStream = await fetch(json.result.audio)
-      if (!audioStream.ok) throw new Error('Error al descargar el audio original')
+      if (!audioStream.ok) throw new Error('Error al descargar el audio')
 
-      await streamPipeline(audioStream.body, fs.createWriteStream(inputFile))
-
-      const start = Date.now()
-
-      await new Promise((resolve, reject) => {
-        ffmpeg(inputFile)
-          .audioCodec('libmp3lame')
-          .audioBitrate('320k')
-          .audioFilters('volume=1.4') // 🔊 Subidita de volumen aquí
-          .format('mp3')
-          .save(outputFile)
-          .on('end', resolve)
-          .on('error', reject)
-      })
-
-      const time = ((Date.now() - start) / 1000).toFixed(1)
+      await streamPipeline(audioStream.body, fs.createWriteStream(tempFilePath))
 
       await conn.sendMessage(m.chat, {
-        audio: fs.readFileSync(outputFile),
+        audio: fs.readFileSync(tempFilePath),
         mimetype: 'audio/mpeg',
         fileName: json.result.filename || `${json.result.title}.mp3`,
         ptt: false,
-        caption: `✅ Audio procesado correctamente\n⏱️ Tiempo: ${time}s`
+        caption: `✅ Audio descargado sin editar`
       }, { quoted: m })
 
-      fs.unlinkSync(inputFile)
-      fs.unlinkSync(outputFile)
+      fs.unlinkSync(tempFilePath)
 
       await conn.sendMessage(m.chat, {
         react: { text: '✅', key: m.key }
@@ -96,7 +75,7 @@ const handler = async (m, { conn, text, command, __dirname }) => {
     }
 
   } catch (err) {
-    console.error('[YT-FIX]', err)
+    console.error('[YT-DOWNLOAD]', err)
     await conn.sendMessage(m.chat, {
       text: `❌ Error: ${err.message}`,
     }, { quoted: m })
