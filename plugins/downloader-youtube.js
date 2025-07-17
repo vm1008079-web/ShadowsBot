@@ -1,7 +1,5 @@
-import AdonixScraper from 'adonix-scraper'
+import AdonixScraper from 'adonix-scraper'  // o import * as AdonixScraper from 'adonix-scraper'
 import ytSearch from 'yt-search'
-
-const scraper = new AdonixScraper()
 
 let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Pon el nombre o link de YouTube')
@@ -15,7 +13,7 @@ let handler = async (m, { conn, text, command }) => {
     }
 
     if (command === 'play') {
-      const json = await scraper.ytmp3(url)
+      const json = await AdonixScraper.ytmp3(url)
       if (!json.status) throw new Error('Error al obtener audio')
 
       const { title, thumbnail, audio } = json.result
@@ -35,7 +33,7 @@ let handler = async (m, { conn, text, command }) => {
       }, { quoted: m })
 
     } else if (command === 'ytvx') {
-      const json = await scraper.ytmp4(url)
+      const json = await AdonixScraper.ytmp4(url)
       if (!json.status) throw new Error('Error al obtener video')
 
       const { title, thumbnail, download } = json.result
