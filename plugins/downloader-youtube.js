@@ -16,27 +16,30 @@ let handler = async (m, { conn, text, command }) => {
     const res = await fetch(apiUrl)
     const json = await res.json()
 
-    if (!json.status || !json.result?.audio) throw '❌ No se pudo obtener el audio'
+    if (!json.status || !json.result?.audio) throw new Error('❌ No se pudo obtener el audio')
 
     let { title, thumbnail, audio } = json.result
 
-    // Limpiar la URL de audio de caracteres raros
-    audio = audio.replace(/[`,]/g, '')
+    console.log('🔍 audio raw:', audio)
+    if (!audio || typeof audio !== 'string') throw new Error('❌ Audio no es string o está vacío')
 
-    // Validar URL limpia
-    if (typeof audio !== 'string' || !/^https?:\/\//.test(audio)) {
-      throw '❌ La URL del audio está malformada incluso después de limpiar'
-    }
+    // Limpieza ligera (quitar espacios)
+    audio = audio.trim()
+
+    // Validar url
+    if (!audio.startsWith('http')) throw new Error('❌ URL de audio no comienza con http')
+
+    console.log('🔍 audio limpio:', audio)
 
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: `🎵 *${title}*\n📥 Descargando audio...`
     }, { quoted: m })
 
-    await new Promise(r => setTimeout(r, 1000))
+    await new Promise(r => setTimeout(r, 1200))
 
     await conn.sendMessage(m.chat, {
-      audio: { url: audio.trim() },
+      audio: { url: audio },
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`,
       ptt: false
