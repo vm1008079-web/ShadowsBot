@@ -1,45 +1,47 @@
+import ytSearch from 'yt-search'
 import fetch from 'node-fetch'
-import yts from 'yt-search'
 
-let handler = async (m, { conn, text, args, usedPrefix, command }) => {
-  if (!text) return m.reply(`✳️ Ingresa el título o link de YouTube\n\n📌 Ejemplo:\n${usedPrefix + command} bella wolfine`)
-  
-  m.react('🎬')
-  m.reply(`📥 *Buscando el video...*`)
-
-  let url = ''
-  if (text.includes('youtube.com') || text.includes('youtu.be')) {
-    url = text
-  } else {
-    let yt = await yts(text)
-    let vid = yt.videos[0]
-    if (!vid) return m.reply('❌ No se encontró el video')
-    url = vid.url
-  }
+let handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply('📍 Escribe el nombre de un video o pega el link de YouTube')
 
   try {
-    let api = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`)
-    let res = await api.json()
+    // Buscar si es nombre
+    let url = text
+    if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
+      let search = await ytSearch(text)
+      if (!search?.videos?.length) return m.reply('❌ No se encontraron resultados')
+      url = search.videos[0].url
+    }
 
-    if (!res.status) throw '❌ No se pudo descargar el video'
+    // Llamar a la API
+    const apiUrl = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
+    console.log('🔗 URL usada para API:', apiUrl)
 
-    let { title, thumbnail, download } = res.result
-    let videoBuffer = await fetch(download).then(v => v.arrayBuffer())
+    const res = await fetch(apiUrl)
+    const json = await res.json()
+
+    console.log('🧾 Respuesta de la API:', json)
+
+    if (!json.status || !json.result?.download) {
+      throw new Error('La API no devolvió un resultado válido')
+    }
+
+    let { title, thumbnail, download } = json.result
 
     await conn.sendMessage(m.chat, {
-      video: Buffer.from(videoBuffer),
+      video: { url: download },
       caption: `🎬 *${title}*`,
-      jpegThumbnail: await (await fetch(thumbnail)).buffer()
+      mimetype: 'video/mp4'
     }, { quoted: m })
 
   } catch (e) {
-    console.error(e)
+    console.log('❌ Error al descargar el video:', e)
     m.reply('❌ Error al descargar el video')
   }
 }
 
-handler.command = ['video']
-handler.help = ['ytmp4 <texto o link>']
-handler.tags = ['downloader']
+handler.help = ['ytvx'].map(v => v + ' <nombre o link>')
+handler.tags = ['descargas']
+handler.command = /^ytvx$/i
 
 export default handler
