@@ -5,8 +5,8 @@ let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de un video o pega el link de YouTube')
 
   try {
-    // Mandar reacción de carga rápido
-    await conn.sendReact(m.chat, '⏳', m.key)
+    // Reacción pa' avisar que va cargando
+    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
     let url = text
     if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
@@ -23,11 +23,9 @@ let handler = async (m, { conn, text, command }) => {
 
     let { title, thumbnail, download } = json.result
 
-    // Buscar detalles con yt-search
     let videoInfo = await ytSearch(url)
     let vid = videoInfo.videos.find(v => v.url === url) || videoInfo.videos[0]
 
-    // Caption con detalles
     let caption = `🎬 *Título:* ${title}
 ⏱️ *Duración:* ${vid.timestamp || 'Desconocida'}
 👤 *Canal:* ${vid.author?.name || 'Desconocido'}
@@ -35,13 +33,11 @@ let handler = async (m, { conn, text, command }) => {
 📅 *Publicado:* ${vid.ago || 'N/A'}
 🔗 *URL:* ${url}`
 
-    // Envía primero la imagen con la info (await para que llegue rápido)
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: caption
     }, { quoted: m })
 
-    // Luego manda el video sin await para no bloquear
     conn.sendMessage(m.chat, {
       video: { url: download },
       caption: `🎬 *${title}*`,
