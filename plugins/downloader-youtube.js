@@ -1,5 +1,6 @@
 import ytSearch from 'yt-search'
 import fetch from 'node-fetch'
+import axios from 'axios'
 
 let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de una canción o pega el link de YouTube')
@@ -15,41 +16,37 @@ let handler = async (m, { conn, text, command }) => {
 
     // Llamar a la API
     const apiUrl = `https://apiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
-    console.log('🔗 URL usada para API:', apiUrl)
-
     const res = await fetch(apiUrl)
     const json = await res.json()
 
-    console.log('🧾 Respuesta de la API:', json)
-
-    if (!json.status || !json.result?.audio) {
-      throw new Error('La API no devolvió un resultado válido')
-    }
+    if (!json.status || !json.result?.audio) throw new Error('La API no devolvió un audio válido')
 
     let { title, thumbnail, audio } = json.result
 
-    // Validar que el audio sea un link funcional
-    if (!/^https?:\/\//.test(audio)) throw new Error('La URL del audio no es válida')
+    // Validar que el enlace de audio sea válido (HEAD request)
+    let check = await axios.head(audio).catch(() => null)
+    if (!check || check.status !== 200 || !check.headers['content-type']?.includes('audio')) {
+      throw new Error('⚠️ El enlace de audio no es válido o no es un archivo de audio directo')
+    }
 
-    // Enviar miniatura con detalles
+    // Enviar miniatura con texto antes
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: `🎵 *${title}*\n📥 Descargando audio...`
     }, { quoted: m })
 
-    // Espera un poco para que el mensaje se vea antes
     await new Promise(r => setTimeout(r, 1000))
 
-    // Enviar audio
+    // Enviar el audio real
     await conn.sendMessage(m.chat, {
-      audio: { url: audio.toString().trim() },
+      audio: { url: audio.trim() },
       mimetype: 'audio/mpeg',
       ptt: false
     }, { quoted: m })
 
   } catch (e) {
-    console.log('❌ Error al descargar el audio:', e)
-    m.reply('❌ Error al descargar el audio, puede que el archivo esté corrupto o el link sea inválido')
+    console.log('❌ Error:', e)
+    m.reply('❌ No se pudo enviar el audio. Es posible que el archivo esté dañado o el link no sea válido.')
   }
 }
 
