@@ -56,18 +56,22 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
       try {
-        const r = await fetch(`https://theadonix-api.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`)
+        const r = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`)
         const json = await r.json()
-        if (!json?.result?.video) throw new Error('❌ No se pudo generar el video.')
+
+        if (!json?.status || !json?.result?.download) {
+          throw new Error('❌ No se pudo generar el video.')
+        }
 
         await conn.sendMessage(m.chat, {
-          video: { url: json.result.video },
+          video: { url: json.result.download },
           mimetype: 'video/mp4',
-          fileName: json.result.filename || `${json.result.title}.mp4`,
+          fileName: `${json.result.title}.mp4`,
           caption: `🎬 *${json.result.title}*\n📥 Calidad: ${json.result.quality}`
         }, { quoted: m })
 
       } catch (e) {
+        console.error(e)
         return conn.reply(m.chat, '📍 No se pudo enviar el video. Puede ser por tamaño o error en la URL.', m)
       }
 
@@ -76,6 +80,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
   } catch (error) {
+    console.error(error)
     return m.reply(`⚠︎ Ocurrió un error: ${error.message}`)
   }
 }
