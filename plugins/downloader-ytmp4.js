@@ -5,42 +5,50 @@ let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de un video o pega el link de YouTube')
 
   try {
-    // Buscar si es nombre o link
+    // Buscar si es nombre
     let url = text
     if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
-      let res = await ytSearch(text)
-      let vid = res.videos[0]
-      if (!vid) return m.reply('❌ No encontré resultados para eso.')
-      url = vid.url
+      let search = await ytSearch(text)
+      if (!search?.videos?.length) return m.reply('❌ No se encontraron resultados')
+      url = search.videos[0].url
     }
 
-    // Reacción y mensaje de espera
-    if (conn.sendMessage) conn.sendMessage(m.chat, { react: { text: '📥', key: m.key }})
-    await m.reply('⏳ Buscando y procesando video...\n\n🔗 *URL:* ' + url)
+    // Llamar a la API
+    const apiUrl = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
+    console.log('🔗 URL usada para API:', apiUrl)
 
-    // Llamar a tu API
-    let api = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`)
-    let json = await api.json()
+    const res = await fetch(apiUrl)
+    const json = await res.json()
 
-    if (!json.status) {
-      return m.reply('❌ No se pudo obtener el video.\n\n' + json.message || 'Error desconocido')
+    console.log('🧾 Respuesta de la API:', json)
+
+    if (!json.status || !json.result?.download) {
+      throw new Error('La API no devolvió un resultado válido')
     }
 
-    let { title, thumbnail, quality, download } = json.result
+    let { title, thumbnail, download } = json.result
 
-    // Enviar primero miniatura y detalles
-    await conn.sendFile(m.chat, thumbnail, 'thumb.jpg', `🎬 *Título:* ${title}\n🎥 *Calidad:* ${quality}`, m)
+    // Enviar miniatura con detalles
+    await conn.sendMessage(m.chat, {
+      image: { url: thumbnail },
+      caption: `🎬 *${title}*\n📥 Descargando video...`
+    }, { quoted: m })
 
-    // Luego enviar video
-    await conn.sendFile(m.chat, download, 'video.mp4', null, m)
+    // Enviar video
+    await conn.sendMessage(m.chat, {
+      video: { url: download },
+      caption: `🎬 *${title}*`,
+      mimetype: 'video/mp4'
+    }, { quoted: m })
 
   } catch (e) {
-    console.error('[❌ ERROR]', e)
-    return m.reply('❌ Error al procesar el video.')
+    console.log('❌ Error al descargar el video:', e)
+    m.reply('❌ Error al descargar el video')
   }
 }
 
-handler.command = /^(play2|mp4|ytmp4)$/i
-handler.register = true
+handler.help = ['ytvx'].map(v => v + ' <nombre o link>')
+handler.tags = ['descargas']
+handler.command = /^(ytvx|play2|mp4)$/i
 
 export default handler
