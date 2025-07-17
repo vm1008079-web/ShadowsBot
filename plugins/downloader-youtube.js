@@ -12,6 +12,8 @@ let handler = async (m, { conn, text, command }) => {
       url = search.videos[0].url
     }
 
+await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key } })
+
     if (command === 'play') {
       const res = await AdonixScraper.download(url, '320', 'audio')
       if (!res.status) throw new Error(res.error || 'Error al descargar audio')
