@@ -1,19 +1,21 @@
+// creado por github.com/Ado-rgb 💻
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
 import path from 'path'
-import { pipeline } from 'stream'
+import ffmpeg from 'fluent-ffmpeg'
 import { promisify } from 'util'
 import { tmpdir } from 'os'
+import { pipeline } from 'stream'
 
 const streamPipeline = promisify(pipeline)
 
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
-const handler = async (m, { conn, text, command }) => {
+const handler = async (m, { conn, text, command, __dirname }) => {
   try {
     if (!text.trim()) {
-      return conn.reply(m.chat, `> ☁︎ Por favor, ingresa el nombre o enlace del video.`, m)
+      return m.reply('☁︎ Escribe el nombre o link del video maje')
     }
 
     let videoIdToFind = text.match(youtubeRegexID)
@@ -25,11 +27,12 @@ const handler = async (m, { conn, text, command }) => {
     }
 
     ytplay2 = ytplay2.all?.[0] || ytplay2.videos?.[0] || ytplay2
-    if (!ytplay2) return m.reply('✧ No se encontraron resultados para tu búsqueda.')
+    if (!ytplay2) return m.reply('✧ No encontré nada bro')
 
     const { title, thumbnail, timestamp, views, ago, url, author } = ytplay2
     const vistas = formatViews(views)
     const canal = author?.name || 'Desconocido'
+
     const infoMessage = `✧ *<${title}>*\n\n` +
       `✦ Canal : ${canal}\n` +
       `✦ Vistas : ${vistas}\n` +
@@ -38,44 +41,74 @@ const handler = async (m, { conn, text, command }) => {
       `✦ Link : ${url}`
 
     const thumb = (await conn.getFile(thumbnail))?.data
-
-    await conn.sendMessage(m.chat, {
-      image: thumb,
-      caption: infoMessage
-    }, { quoted: m })
+    await conn.sendMessage(m.chat, { image: thumb, caption: infoMessage }, { quoted: m })
 
     if (['play', 'playaudio', 'yta', 'ytmp3'].includes(command)) {
+      await conn.sendMessage(m.chat, {
+        react: { text: '🔄', key: m.key }
+      })
+
       const res = await fetch(`https://apiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`)
       const json = await res.json()
-      if (!json?.result?.audio) throw new Error('No se pudo generar el audio.')
 
-      const tmpPath = path.join(tmpdir(), `audio_${Date.now()}.mp3`)
+      if (!json?.result?.audio) throw new Error('No se pudo obtener el audio')
+
+      const tmpDir = path.join(__dirname, '../tmp')
+      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+
+      const inputFile = path.join(tmpDir, `yt_input_${Date.now()}.mp3`)
+      const outputFile = path.join(tmpDir, `yt_fixed_${Date.now()}.mp3`)
+
       const audioStream = await fetch(json.result.audio)
+      if (!audioStream.ok) throw new Error('Error al descargar el audio original')
 
-      if (!audioStream.ok) throw new Error('Error al descargar el audio.')
+      await streamPipeline(audioStream.body, fs.createWriteStream(inputFile))
 
-      await streamPipeline(audioStream.body, fs.createWriteStream(tmpPath))
+      const start = Date.now()
 
-      const audioBuffer = fs.readFileSync(tmpPath)
+      await new Promise((resolve, reject) => {
+        ffmpeg(inputFile)
+          .audioCodec('libmp3lame')
+          .audioBitrate('128k')
+          .format('mp3')
+          .save(outputFile)
+          .on('end', resolve)
+          .on('error', reject)
+      })
+
+      const time = ((Date.now() - start) / 1000).toFixed(1)
+
       await conn.sendMessage(m.chat, {
-        audio: audioBuffer,
+        audio: fs.readFileSync(outputFile),
         mimetype: 'audio/mpeg',
         fileName: json.result.filename || `${json.result.title}.mp3`,
-        ptt: false
+        ptt: false,
+        caption: `✅ Audio procesado correctamente\n⏱️ Tiempo: ${time}s`
       }, { quoted: m })
 
-      fs.unlinkSync(tmpPath)
+      fs.unlinkSync(inputFile)
+      fs.unlinkSync(outputFile)
+
+      await conn.sendMessage(m.chat, {
+        react: { text: '✅', key: m.key }
+      })
     }
 
   } catch (err) {
-    console.error(err)
-    return m.reply(`⚠︎ Ocurrió un error: ${err.message}`)
+    console.error('[YT-FIX]', err)
+    await conn.sendMessage(m.chat, {
+      text: `❌ Error: ${err.message}`,
+    }, { quoted: m })
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '❌', key: m.key }
+    })
   }
 }
 
-handler.command = handler.help = ['play', 'playaudio', 'yta', 'ytmp3']
+handler.command = ['play', 'playaudio', 'yta', 'ytmp3']
+handler.help = ['play', 'playaudio', 'yta', 'ytmp3']
 handler.tags = ['downloader']
-handler.register = true
 export default handler
 
 function formatViews(views) {
