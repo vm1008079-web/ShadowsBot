@@ -5,6 +5,9 @@ let handler = async (m, { conn, text, command }) => {
   if (!text) return m.reply('📍 Escribe el nombre de un video o pega el link de YouTube')
 
   try {
+    // Mandar reacción de carga rápido
+    await conn.sendReact(m.chat, '⏳', m.key)
+
     let url = text
     if (!text.includes('youtube.com') && !text.includes('youtu.be')) {
       let search = await ytSearch(text)
@@ -13,8 +16,6 @@ let handler = async (m, { conn, text, command }) => {
     }
 
     const apiUrl = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
-    console.log('🔗 URL usada para API:', apiUrl)
-
     const res = await fetch(apiUrl)
     const json = await res.json()
 
@@ -22,11 +23,11 @@ let handler = async (m, { conn, text, command }) => {
 
     let { title, thumbnail, download } = json.result
 
-    // Busca info con yt-search para más detalles
+    // Buscar detalles con yt-search
     let videoInfo = await ytSearch(url)
     let vid = videoInfo.videos.find(v => v.url === url) || videoInfo.videos[0]
 
-    // Arma caption completo con detalles
+    // Caption con detalles
     let caption = `🎬 *Título:* ${title}
 ⏱️ *Duración:* ${vid.timestamp || 'Desconocida'}
 👤 *Canal:* ${vid.author?.name || 'Desconocido'}
@@ -34,14 +35,14 @@ let handler = async (m, { conn, text, command }) => {
 📅 *Publicado:* ${vid.ago || 'N/A'}
 🔗 *URL:* ${url}`
 
-    // Manda miniatura + detalles
+    // Envía primero la imagen con la info (await para que llegue rápido)
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: caption
     }, { quoted: m })
 
-    // Manda video mp4
-    await conn.sendMessage(m.chat, {
+    // Luego manda el video sin await para no bloquear
+    conn.sendMessage(m.chat, {
       video: { url: download },
       caption: `🎬 *${title}*`,
       mimetype: 'video/mp4'
