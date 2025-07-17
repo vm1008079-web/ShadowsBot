@@ -1,51 +1,49 @@
-import * as Adonix from 'adonix-scraper'
+import AdonixScraper from 'adonix-scraper'
 import ytSearch from 'yt-search'
 
 let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply('📍 Pon el nombre o link de YouTube')
+  if (!text) return m.reply('📍 Pon nombre o link de YouTube')
 
   try {
     let url = text
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
-      let search = await ytSearch(text)
+      const search = await ytSearch(text)
       if (!search?.videos?.length) return m.reply('❌ No encontré resultados')
       url = search.videos[0].url
     }
 
     if (command === 'play') {
-      // El método correcto para descargar audio
-      const json = await Adonix.ytmp3(url)
-      if (!json.status) throw new Error('Error al obtener audio')
+      const res = await AdonixScraper.download(url, '320', 'audio')
+      if (!res.status) throw new Error(res.error || 'Error al descargar audio')
 
-      const { title, thumbnail, audio } = json.result
+      const { title, thumbnail, download } = res.result
 
       await conn.sendMessage(m.chat, {
         image: { url: thumbnail },
         caption: `🎵 *${title}*\n📥 Descargando audio...`
       }, { quoted: m })
 
-      await new Promise(r => setTimeout(r, 1200))
+      await new Promise(r => setTimeout(r, 1000))
 
       await conn.sendMessage(m.chat, {
-        audio: { url: audio },
+        audio: { url: download },
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
         ptt: false
       }, { quoted: m })
 
     } else if (command === 'ytvx') {
-      // El método correcto para descargar video
-      const json = await Adonix.ytmp4(url)
-      if (!json.status) throw new Error('Error al obtener video')
+      const res = await AdonixScraper.download(url, '720', 'video')
+      if (!res.status) throw new Error(res.error || 'Error al descargar video')
 
-      const { title, thumbnail, download } = json.result
+      const { title, thumbnail, download } = res.result
 
       await conn.sendMessage(m.chat, {
         image: { url: thumbnail },
         caption: `🎬 *${title}*\n📥 Descargando video...`
       }, { quoted: m })
 
-      await new Promise(r => setTimeout(r, 1200))
+      await new Promise(r => setTimeout(r, 1000))
 
       await conn.sendMessage(m.chat, {
         video: { url: download },
@@ -55,7 +53,7 @@ let handler = async (m, { conn, text, command }) => {
       }, { quoted: m })
     }
   } catch (e) {
-    console.error('❌ Error en adonix-scraper:', e)
+    console.error('❌ Error:', e)
     m.reply('❌ Error descargando, prueba con otro link o nombre')
   }
 }
