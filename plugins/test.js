@@ -70,6 +70,7 @@ const handler = async (m, { conn, text, command, __dirname }) => {
         ffmpeg(inputFile)
           .audioCodec('libmp3lame')
           .audioBitrate('128k')
+          .audioFilters('volume=1.5') // 🔊 Subidita de volumen aquí
           .format('mp3')
           .save(outputFile)
           .on('end', resolve)
