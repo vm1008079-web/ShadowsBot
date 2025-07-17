@@ -1,38 +1,40 @@
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 
-let handler = async (m, { conn, args, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`🚫 Ingresa el nombre de la canción\n\n*Ejemplo:* ${usedPrefix + command} pintao`)
-  
+let handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply('🔍 Ingresa el nombre de un video para buscar.')
+
   try {
-    m.react('🎧')
-    m.reply('🔍 Buscando canción, espérate un toque...')
-
+    // Buscar en YouTube
     let search = await yts(text)
-    let vid = search.videos[0]
-    if (!vid) return m.reply('❌ No encontré nada con ese nombre')
+    let video = search.videos[0]
+    if (!video) return m.reply('❌ No encontré el video.')
 
-    let url = `https://apiadonix.vercel.app/api/ytmp4?url=${vid.url}`
-    let res = await fetch(url)
+    let ytUrl = video.url
+    let title = video.title
+
+    // Llamar tu API personalizada
+    let api = `https://apiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(ytUrl)}`
+    let res = await fetch(api)
     let json = await res.json()
 
-    if (!json.status || !json.result || !json.result.downloadUrl) {
-      return m.reply('❌ No se pudo obtener el video\nIntenta con otro nombre')
-    }
+    if (!json.status) return m.reply('❌ Error al obtener el video.')
+
+    let { download, thumbnail, quality } = json.result
 
     await conn.sendMessage(m.chat, {
-      video: { url: json.result.downloadUrl },
-      caption: `🎬 *${vid.title}*\n📥 Descargado con *Adonix API*`
+      video: { url: download },
+      caption: `✅ *${title}*\n📥 Calidad: ${quality}`,
+      thumbnail: await (await fetch(thumbnail)).buffer()
     }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    m.reply('💥 Falló la descarga, intenta otra vez')
+    m.reply('❌ Error inesperado al procesar.')
   }
 }
 
-handler.help = ['play3'].map(v => v + ' <texto>')
-handler.tags = ['downloader']
 handler.command = /^play3$/i
-
+handler.help = ['play3 <nombre>']
+handler.tags = ['descargas']
 export default handler
