@@ -28,27 +28,33 @@ let handler = async (m, { conn, text, command }) => {
 
     let { title, thumbnail, audio } = json.result
 
+    // Validar que el audio sea un link funcional
+    if (!/^https?:\/\//.test(audio)) throw new Error('La URL del audio no es válida')
+
     // Enviar miniatura con detalles
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: `🎵 *${title}*\n📥 Descargando audio...`
     }, { quoted: m })
 
+    // Espera un poco para que el mensaje se vea antes
+    await new Promise(r => setTimeout(r, 1000))
+
     // Enviar audio
     await conn.sendMessage(m.chat, {
-      audio: { url: audio },
+      audio: { url: audio.toString().trim() },
       mimetype: 'audio/mpeg',
       ptt: false
     }, { quoted: m })
 
   } catch (e) {
     console.log('❌ Error al descargar el audio:', e)
-    m.reply('❌ Error al descargar el audio')
+    m.reply('❌ Error al descargar el audio, puede que el archivo esté corrupto o el link sea inválido')
   }
 }
 
 handler.help = ['play'].map(v => v + ' <nombre o link>')
 handler.tags = ['descargas']
-handler.command = ['play', 'playmp3']
+handler.command = /^play$/i
 
 export default handler
