@@ -8,30 +8,31 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   let vid = search.videos[0]
   if (!vid) throw '❌ No se encontró ningún resultado'
 
-  let res = await fetch(`https://apiadonix.vercel.app/api/ytmp4?url=${vid.url}&format=mp3`)
+  // Usa la nueva API de ytmp3
+  let res = await fetch(`https://apiadonix.vercel.app/api/ytmp3?url=${vid.url}`)
   let json = await res.json()
 
-  if (!json.status) throw '❌ Error al descargar el audio'
+  if (json.status !== 200) throw '❌ Error al descargar el audio'
 
-  // 🧾 Mensaje con detalles del video
-  let caption = `🎵 *Título:* ${vid.title}
+  // Mensaje con detalles del video
+  let caption = `🎵 *Título:* ${json.result.title}
 🕒 *Duración:* ${vid.timestamp}
 📅 *Publicado:* ${vid.ago}
 👤 *Autor:* ${vid.author.name}
 🔗 *URL:* ${vid.url}`
 
+  // Manda la miniatura y detalles
   await conn.sendMessage(m.chat, {
     image: { url: vid.thumbnail },
     caption: caption
   }, { quoted: m })
 
-  // 🎧 Enviar el audio mp3
+  // Manda el audio mp3 desde el enlace que devuelve la API nueva
   await conn.sendMessage(m.chat, {
-    audio: { url: json.result.download },
+    audio: { url: json.result.audio },
     mimetype: 'audio/mpeg',
     ptt: false
   }, { quoted: m })
-
 }
 
 handler.command = ['play']
