@@ -1,4 +1,4 @@
-import AdonixScraper from 'adonix-scraper'  // o import * as AdonixScraper from 'adonix-scraper'
+import * as Adonix from 'adonix-scraper'
 import ytSearch from 'yt-search'
 
 let handler = async (m, { conn, text, command }) => {
@@ -13,7 +13,8 @@ let handler = async (m, { conn, text, command }) => {
     }
 
     if (command === 'play') {
-      const json = await AdonixScraper.ytmp3(url)
+      // El método correcto para descargar audio
+      const json = await Adonix.ytmp3(url)
       if (!json.status) throw new Error('Error al obtener audio')
 
       const { title, thumbnail, audio } = json.result
@@ -33,7 +34,8 @@ let handler = async (m, { conn, text, command }) => {
       }, { quoted: m })
 
     } else if (command === 'ytvx') {
-      const json = await AdonixScraper.ytmp4(url)
+      // El método correcto para descargar video
+      const json = await Adonix.ytmp4(url)
       if (!json.status) throw new Error('Error al obtener video')
 
       const { title, thumbnail, download } = json.result
