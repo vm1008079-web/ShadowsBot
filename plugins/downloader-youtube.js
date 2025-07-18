@@ -1,5 +1,4 @@
 // ✰ Creado y editado para Michi wa ✰
-// Dev: Erenxszy ⚔︎
 // github.com/Ado-rgb 💻
 
 import fetch from 'node-fetch'
