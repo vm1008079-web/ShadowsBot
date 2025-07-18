@@ -105,7 +105,7 @@ const handler = async (msg, { conn, args }) => {
   )
 }
 
-handler.command = handler.help = ['guardar']
+handler.command = handler.help = ['guardar', 'guar']
 handler.group = true
 handler.tags = ['tools']
 
