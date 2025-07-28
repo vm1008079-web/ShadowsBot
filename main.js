@@ -134,8 +134,11 @@ const connectionOptions = {
   },
   getMessage: async (key) => {
     const jid = jidNormalizedUser(key.remoteJid);
-    // IMPORTANTE: Si necesitas cargar mensajes anteriores,
+    // IMPORTANTE: Si necesitas cargar mensajes anteriores (como para "citar" mensajes),
     // asegúrate de que 'store' esté definido y sea accesible aquí.
+    // Ejemplo de cómo podrías definir 'store' si no lo tienes:
+    // import { makeInMemoryStore } from '@whiskeysockets/baileys';
+    // const store = makeInMemoryStore({ logger }); // Debe ser accesible globalmente o pasado
     // const msg = await store.loadMessage(jid, key.id);
     // return msg?.message || '';
     return ''; // Placeholder si 'store' no está disponible o no se usa
@@ -157,6 +160,12 @@ async function reconnectSubBot(botPath) {
         console.log(chalk.yellow(`[DEBUG] Paso 1: Obteniendo estado de autenticación para ${path.basename(botPath)}`));
         const { state: subBotState, saveCreds: saveSubBotCreds } = await useMultiFileAuthState(botPath);
         
+        // Verifica si el sub-bot ya está registrado (tiene credenciales)
+        if (!subBotState.creds.registered) {
+            console.warn(chalk.yellow(`[DEBUG] Advertencia: El sub-bot en ${path.basename(botPath)} no está registrado. Salto la conexión.`));
+            return; // No intentes conectar si no está registrado
+        }
+
         console.log(chalk.yellow(`[DEBUG] Paso 2: Creando conexión makeWASocket para ${path.basename(botPath)}`));
         const subBotConn = makeWASocket({
             version: version,
@@ -179,7 +188,7 @@ async function reconnectSubBot(botPath) {
             },
             getMessage: async (key) => {
                 const jid = jidNormalizedUser(key.remoteJid);
-                // IMPORTANTE: Si necesitas cargar mensajes anteriores,
+                // IMPORTANTE: Si necesitas cargar mensajes anteriores (como para "citar" mensajes),
                 // asegúrate de que 'store' esté definido y sea accesible aquí.
                 // const msg = await store.loadMessage(jid, key.id);
                 // return msg?.message || '';
@@ -237,7 +246,7 @@ async function reconnectSubBot(botPath) {
 async function handleLogin() {
   if (conn.authState.creds.registered) {
     console.log(chalk.green('Sesión principal ya registrada.'));
-    return;
+    return; // Si ya está registrado, salimos de la función sin pedir QR/código
   }
 
   let loginMethod = await question(
@@ -357,12 +366,17 @@ async function connectionUpdate(update) {
         console.log(chalk.magenta(`[DEBUG] Iniciando proceso de reconexión de sub-bots. Total de directorios encontrados: ${readRutaJadiBot.length}`));
         for (const subBotDir of readRutaJadiBot) {
             const botPath = join(rutaJadiBot, subBotDir);
-            const readBotPath = readdirSync(botPath);
-            if (readBotPath.includes(credsFile)) {
-                console.log(chalk.magenta(`[DEBUG] Se encontró 'creds.json' en ${subBotDir}. Intentando reconectar...`));
-                await reconnectSubBot(botPath);
+            // Asegúrate de que subBotDir sea un directorio antes de intentar leerlo
+            if (statSync(botPath).isDirectory()) {
+                const readBotPath = readdirSync(botPath);
+                if (readBotPath.includes(credsFile)) {
+                    console.log(chalk.magenta(`[DEBUG] Se encontró 'creds.json' en ${subBotDir}. Intentando reconectar...`));
+                    await reconnectSubBot(botPath);
+                } else {
+                    console.log(chalk.yellow(`[DEBUG] No se encontró 'creds.json' en ${subBotDir}. Este sub-bot puede no estar registrado o la sesión es inválida.`));
+                }
             } else {
-                console.log(chalk.yellow(`[DEBUG] No se encontró 'creds.json' en ${subBotDir}. Este sub-bot puede no estar registrado.`));
+                console.log(chalk.gray(`[DEBUG] '${subBotDir}' en JadiBots no es un directorio, saltando.`));
             }
         }
         console.log(chalk.magenta(`[DEBUG] Proceso de reconexión de sub-bots finalizado.`));
