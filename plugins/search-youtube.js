@@ -42,11 +42,11 @@ let handler = async (m, { conn, usedPrefix, text, command }) => {
 
     for (let i = 0; i < videos.length; i++) {
       const video = videos[i]
-      caption += `*${i + 1}.* ✩ *${video.title}*\n`
+      caption += `*${i + 1}.* ✩ *${video.title}*\n\n`
       caption += `✿ Descripción › *${video.description?.slice(0, 100) || 'Sin descripción'}*\n`
-      caption += `🜲 Autor › *${video.author.name}*\n`
-      caption += `✰ Duración › *${video.timestamp}*\n`
-      caption += `❒ Publicado el › *${video.ago}*\n`
+      caption += `🜲 Autor › *${video.author.name}*\n\n`
+      caption += `✰ Duración › *${video.timestamp}*\n\n`
+      caption += `❒ Publicado el › *${video.ago}*\n\n`
       caption += `⌦ Link › ${video.url}\n\n`
     }
 
