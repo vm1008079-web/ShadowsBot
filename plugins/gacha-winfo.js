@@ -74,8 +74,8 @@ let handler = async (m, { conn, args }) => {
     }
 };
 
-handler.help = ['charinfo <nombre>', 'winfo <nombre>', 'waifuinfo <nombre>'];
-handler.tags = ['anime'];
+handler.help = ['winfo'];
+handler.tags = ['gacha'];
 handler.command = ['charinfo', 'winfo', 'waifuinfo'];
 handler.group = true;
 handler.register = true;
