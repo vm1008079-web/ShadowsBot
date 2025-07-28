@@ -30,7 +30,7 @@ let handler = async (m, { conn }) => {
   const totalUsers = uniqueUsers.size
 
   let txt = `❀ *Subs Activos* ✦\n\n`
-  txt += `> ✦ *Tiempo activo:* ${formatUptime}\n`
+  txt += `> ✦ *Actividad total:* ${formatUptime}\n`
   txt += `> ✦ *Subs conectados:* ${totalUsers}\n`
 
   if (totalUsers > 0) {
