@@ -1,22 +1,21 @@
-// plugins/setprimary.js
-let handler = async (m, { args, usedPrefix }) => {
-  if (!m.isGroup) return m.reply('Este comando solo funciona en grupos wey')
-  if (!args[0]) return m.reply(`Usa: ${usedPrefix}setprimary <numero_sin_codigo> \nEjemplo: ${usedPrefix}setprimary 5049382783`)
+let handler = async (m, { text }) => {
+  // Si no se escribió texto (número o mención)
+  if (!text || !text.replace(/[^0-9]/g, '')) {
+    return m.reply('Debes etiquetar al bot que quieres hacer principal en este grupo.')
+  }
 
-  let number = args[0].replace(/\D/g, '') // solo números limpios
-  if (number.length < 5) return m.reply('Número inválido, pon un número válido we')
+  let botJid = text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
 
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
-  global.db.data.chats[m.chat].primaryBot = number
 
-  if (global.saveDatabase) await global.saveDatabase()
+  global.db.data.chats[m.chat].primaryBot = botJid
 
-  m.reply(`El subbot con número *${number}* fue puesto como primario en este grupo`)
+  m.reply(`El bot principal para este grupo ahora es:\n*${botJid}*`)
 }
 
-handler.help = ['setprimary <numero>']
+handler.help = ['setprimary @bot']
 handler.tags = ['owner']
-handler.command = ['setprimary', 'primarybot']
-handler.rowner = true
+handler.command = ['setprimary']
+handler.admin = true
 
 export default handler
