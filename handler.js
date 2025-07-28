@@ -25,17 +25,20 @@ export async function handler(chatUpdate) {
     m.limit = false
 
     // --- FILTRO SUBBOT PRIMARIO ---
-    if (m.isGroup) {
-      let chat = global.db.data.chats[m.chat] || {}
-      if (chat.primaryBot) {
-        // Normalizamos ambos números pa’ evitar fallos con el formato
-        let thisBotNumber = (this.user.jid || '').split('@')[0].replace(/\D/g, '')
-        let primaryBotNumber = String(chat.primaryBot).replace(/\D/g, '')
-        console.log('Este bot:', thisBotNumber)
-        console.log('Primary bot guardado:', primaryBotNumber)
-        if (thisBotNumber !== primaryBotNumber) return // no es el primario, se sale sin responder
-      }
+    // handler.js (parte inicial, filtro primaryBot)
+if (m.isGroup) {
+  let chat = global.db.data.chats[m.chat] || {}
+  if (chat.primaryBot) {
+    let thisBotNumber = (this.user.jid || '').split('@')[0].replace(/\D/g, '')
+    let primaryBotNumber = String(chat.primaryBot).replace(/\D/g, '')
+    console.log('Este bot:', thisBotNumber)
+    console.log('Primary bot guardado:', primaryBotNumber)
+    if (thisBotNumber !== primaryBotNumber) {
+      // cortamos toda la función porque no es el bot primario
+      return // o return null o return false, lo que haga salir del handler
     }
+  }
+}
     // ------------------------------
 
     // setup de usuario y chat
