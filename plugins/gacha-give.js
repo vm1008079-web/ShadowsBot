@@ -91,7 +91,7 @@ let handler = async (m, { conn, args }) => {
         await saveHarem(harem)
 
         await conn.sendMessage(m.chat, { 
-            text: `ꕥ *${character.name}* ahora pertenece a @${who.split('@')[0]}!\n> ● *¡Que disfrute su nuevo\a waifu!*`, 
+            text: `ꕥ *${character.name}* ahora pertenece a @${who.split('@')[0]}!\n> ● *¡Que disfrute su nuevo/a waifu!*`, 
             mentions: [who],
             ...global.rcanal 
         }, { quoted: m })
