@@ -3,18 +3,18 @@ import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
 const tags = {
-serbot: '❀ *Sockets*',
-eco: '❀ *Economía*',
-downloader: '❀ *Downloaders*',
-tools: '❀ *Herramientas*',
-owner: '❀ *Owner*',
-info: '❀ *Información*',
-gacha: '❀ *Gacha Anime*',
-group: '❀ *Grupos*',
-search: '❀ *Buscadores*',
-sticker: '❀ *Stickers*',
-ia: '❀ *IA*',
-channel: '❀ *Channels*',
+serbot: '❀ Sockets',
+eco: '❀ Economía',
+downloader: '❀ Downloaders',
+tools: '❀ Herramientas',
+owner: '❀ Owner',
+info: '❀ Información',
+gacha: '❀ Gacha Anime',
+group: '❀ Grupos',
+search: '❀ Buscadores',
+sticker: '❀ Stickers',
+ia: '❀ IA',
+channel: '❀ Channels',
 }
 
 const defaultMenu = {
@@ -33,8 +33,8 @@ before: `
 > ⤿ .setbanner ← Cambiar banner
 ╰─────────────
 
-➪ *Adonix API*
-> ❀ https://theadonix-api.vercel.app
+➪ *OFC API*
+> ❀ https://myapiadonix.vercel.app
 
 ❀───────────────❀
 
