@@ -1,13 +1,28 @@
 // github.com/Ado-rgb
 import fetch from 'node-fetch'
 import yts from 'yt-search'
+import fs from 'fs'
+import path from 'path'
 
 let handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!args[0]) return m.reply(`*ꕥ Uso correcto ›* ${usedPrefix + command} <enlace o nombre>`)
 
   try {
-    let url = args[0]
+    // Obtener nombre personalizado del subbot
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = path.join('./JadiBots', botActual, 'config.json')
 
+    let nombreBot = global.namebot || '✧ michi ✧'
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+        if (config.name) nombreBot = config.name
+      } catch (err) {
+        console.log('⚠️ No se pudo leer config del subbot:', err)
+      }
+    }
+
+    let url = args[0]
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
@@ -45,8 +60,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       text: details, 
       contextInfo: { 
         externalAdReply: { 
-          title: globalThis.botname, 
-          body: '',
+          title: nombreBot, 
+          body: 'Un momento..',
           thumbnailUrl: thumbnail,
           sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
           mediaType: 1,
