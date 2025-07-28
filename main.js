@@ -1,4 +1,4 @@
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+Process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 
 import './config.js';
 import { createRequire } from 'module';
@@ -134,19 +134,17 @@ const connectionOptions = {
   },
   getMessage: async (key) => {
     const jid = jidNormalizedUser(key.remoteJid);
-    // You need to define 'store' or make sure it's accessible.
-    // If 'store' is not defined elsewhere, this will cause an error.
-    // For a minimal fix, you could return an empty object or handle the case where store is undefined.
-    // Assuming 'store' is meant to be a message store like the one in Baileys examples:
+    // IMPORTANTE: Si necesitas cargar mensajes anteriores,
+    // asegúrate de que 'store' esté definido y sea accesible aquí.
     // const msg = await store.loadMessage(jid, key.id);
     // return msg?.message || '';
-    return ''; // Placeholder if 'store' is not available
+    return ''; // Placeholder si 'store' no está disponible o no se usa
   },
 };
 
 global.conn = makeWASocket(connectionOptions);
 
-// Define global.conns before it's used in reconnectSubBot
+// **INICIALIZACIÓN CRÍTICA:** Aseguramos que global.conns sea un array desde el principio.
 global.conns = global.conns || [];
 
 /**
@@ -154,9 +152,12 @@ global.conns = global.conns || [];
  * @param {string} botPath - Ruta completa a la carpeta de sesión del sub-bot.
  */
 async function reconnectSubBot(botPath) {
-    console.log(chalk.yellow(`Intentando reconectar sub-bot en: ${path.basename(botPath)}`));
+    console.log(chalk.yellow(`[DEBUG] Intentando reconectar sub-bot en: ${path.basename(botPath)}`));
     try {
+        console.log(chalk.yellow(`[DEBUG] Paso 1: Obteniendo estado de autenticación para ${path.basename(botPath)}`));
         const { state: subBotState, saveCreds: saveSubBotCreds } = await useMultiFileAuthState(botPath);
+        
+        console.log(chalk.yellow(`[DEBUG] Paso 2: Creando conexión makeWASocket para ${path.basename(botPath)}`));
         const subBotConn = makeWASocket({
             version: version,
             logger,
@@ -178,41 +179,46 @@ async function reconnectSubBot(botPath) {
             },
             getMessage: async (key) => {
                 const jid = jidNormalizedUser(key.remoteJid);
-                // Similar to the main bot's getMessage, ensure 'store' is defined or handle its absence.
+                // IMPORTANTE: Si necesitas cargar mensajes anteriores,
+                // asegúrate de que 'store' esté definido y sea accesible aquí.
                 // const msg = await store.loadMessage(jid, key.id);
                 // return msg?.message || '';
-                return ''; // Placeholder
+                return ''; // Placeholder si 'store' no está disponible o no se usa
             },
         });
 
+        console.log(chalk.yellow(`[DEBUG] Paso 3: Configurando eventos de conexión para ${path.basename(botPath)}`));
         subBotConn.ev.on('connection.update', (update) => {
             const { connection, lastDisconnect } = update;
             if (connection === 'open') {
-                console.log(chalk.green(`Sub-bot conectado correctamente: ${path.basename(botPath)}`));
-                // Add the sub-bot to global.conns only when it's successfully connected
+                console.log(chalk.green(`[DEBUG] Sub-bot conectado correctamente: ${path.basename(botPath)}`));
+                // Solo agrega a global.conns si la conexión es exitosa y no existe ya
                 const yaExiste = global.conns.some(c => c.user?.jid === subBotConn.user?.jid);
                 if (!yaExiste) {
                     global.conns.push(subBotConn);
-                    console.log(chalk.green(`🟢 Sub-bot agregado a global.conns: ${subBotConn.user?.jid}`));
+                    console.log(chalk.green(`🟢 [DEBUG] Sub-bot agregado a global.conns: ${subBotConn.user?.jid}`));
                 }
             } else if (connection === 'close') {
                 const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-                console.error(chalk.red(`Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
+                console.error(chalk.red(`[DEBUG] Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
+                // Remueve el sub-bot de global.conns si se desconecta (ej. 401: Unauthorized)
                 if (reason === 401) {
                     global.conns = global.conns.filter(conn => conn.user?.jid !== subBotConn.user?.jid);
-                    console.log(chalk.red(`❌ Sub-bot removido de global.conns: ${subBotConn.user?.jid}`));
+                    console.log(chalk.red(`❌ [DEBUG] Sub-bot removido de global.conns: ${subBotConn.user?.jid}`));
                 }
             }
         });
         subBotConn.ev.on('creds.update', saveSubBotCreds);
 
+        console.log(chalk.yellow(`[DEBUG] Paso 4: Asignando manejador de mensajes al sub-bot: ${path.basename(botPath)}`));
         // ¡IMPORTANTE!: Asignar el manejador de mensajes al sub-bot
+        // Asumiendo que 'handler' es el objeto importado de handler.js y contiene la función handler.
         if (handler && handler.handler) {
             subBotConn.handler = handler.handler.bind(subBotConn);
             subBotConn.ev.on('messages.upsert', subBotConn.handler);
-            console.log(chalk.blue(`Manejador asignado al sub-bot: ${path.basename(botPath)}`));
+            console.log(chalk.blue(`[DEBUG] Manejador asignado correctamente al sub-bot: ${path.basename(botPath)}`));
         } else {
-            console.warn(chalk.yellow(`Advertencia: No se encontró el manejador para asignar al sub-bot: ${path.basename(botPath)}`));
+            console.warn(chalk.yellow(`[DEBUG] Advertencia: No se encontró el manejador para asignar al sub-bot: ${path.basename(botPath)}. Asegúrate que handler.js exporte 'handler'.`));
         }
 
         // Guarda la conexión del sub-bot en un objeto global para acceso futuro si lo necesitas
@@ -220,16 +226,17 @@ async function reconnectSubBot(botPath) {
             global.subBots = {};
         }
         global.subBots[path.basename(botPath)] = subBotConn;
+        console.log(chalk.yellow(`[DEBUG] Paso 5: Sub-bot ${path.basename(botPath)} procesado y almacenado.`));
 
     } catch (e) {
-        console.error(chalk.red(`Error al reconectar sub-bot en ${path.basename(botPath)}:`), e);
+        console.error(chalk.red(`[DEBUG] Error fatal al intentar reconectar sub-bot en ${path.basename(botPath)}:`), e);
     }
 }
 
 
 async function handleLogin() {
   if (conn.authState.creds.registered) {
-    console.log(chalk.green('Sesión ya registrada.'));
+    console.log(chalk.green('Sesión principal ya registrada.'));
     return;
   }
 
@@ -251,8 +258,8 @@ async function handleLogin() {
     // Ajustes básicos para México (52)
     if (phoneNumber.startsWith('52') && phoneNumber.length === 12) {
       phoneNumber = `521${phoneNumber.slice(2)}`;
-    } else if (phoneNumber.startsWith('52')) {
-      phoneNumber = `521${phoneNumber.slice(2)}`;
+    } else if (phoneNumber.startsWith('52') && phoneNumber.length === 10) { // Si solo ponen 10 dígitos después del 52
+        phoneNumber = `521${phoneNumber.slice(2)}`;
     } else if (phoneNumber.startsWith('0')) {
       phoneNumber = phoneNumber.replace(/^0/, '');
     }
@@ -265,7 +272,7 @@ async function handleLogin() {
           code = code?.match(/.{1,4}/g)?.join('-') || code;
           console.log(chalk.cyan('Tu código de emparejamiento es:', code));
         } else {
-          console.log(chalk.red('La conexión no está abierta. Intenta nuevamente.'));
+          console.log(chalk.red('La conexión principal no está abierta. Intenta nuevamente.'));
         }
       } catch (e) {
         console.log(chalk.red('Error al solicitar código de emparejamiento:'), e.message || e);
@@ -329,7 +336,7 @@ async function connectionUpdate(update) {
   }
   if (global.db.data == null) await loadDatabase();
   if (connection === 'open') {
-    console.log(chalk.yellow('Conectado correctamente.'));
+    console.log(chalk.yellow('Conectado correctamente el bot principal.'));
 
     // --- Lógica de reconexión de sub-bots al iniciar el bot principal ---
     const rutaJadiBot = join(__dirname, './JadiBots');
@@ -341,20 +348,26 @@ async function connectionUpdate(update) {
         console.log(chalk.bold.cyan(`La carpeta: ${rutaJadiBot} ya está creada.`));
     }
 
-    // Initialize global.conns here if it's not already, before iterating
+    // Aseguramos que global.conns esté inicializado para evitar errores.
     global.conns = global.conns || [];
 
     const readRutaJadiBot = readdirSync(rutaJadiBot);
     if (readRutaJadiBot.length > 0) {
         const credsFile = 'creds.json';
+        console.log(chalk.magenta(`[DEBUG] Iniciando proceso de reconexión de sub-bots. Total de directorios encontrados: ${readRutaJadiBot.length}`));
         for (const subBotDir of readRutaJadiBot) {
             const botPath = join(rutaJadiBot, subBotDir);
             const readBotPath = readdirSync(botPath);
             if (readBotPath.includes(credsFile)) {
-                // Llama a la función para reconectar cada sub-bot
+                console.log(chalk.magenta(`[DEBUG] Se encontró 'creds.json' en ${subBotDir}. Intentando reconectar...`));
                 await reconnectSubBot(botPath);
+            } else {
+                console.log(chalk.yellow(`[DEBUG] No se encontró 'creds.json' en ${subBotDir}. Este sub-bot puede no estar registrado.`));
             }
         }
+        console.log(chalk.magenta(`[DEBUG] Proceso de reconexión de sub-bots finalizado.`));
+    } else {
+        console.log(chalk.gray(`[DEBUG] No se encontraron carpetas de sub-bots en ${rutaJadiBot}.`));
     }
     // --- Fin de la lógica de reconexión de sub-bots ---
 
@@ -364,7 +377,7 @@ async function connectionUpdate(update) {
     if (existsSync('./sessions/creds.json')) unlinkSync('./sessions/creds.json');
     console.log(
       chalk.bold.redBright(
-        `Conexión reemplazada, por favor espera un momento. Reiniciando...\nSi aparecen errores, vuelve a iniciar con: npm start`
+        `Conexión reemplazada para el bot principal, por favor espera un momento. Reiniciando...\nSi aparecen errores, vuelve a iniciar con: npm start`
       )
     );
     process.send('reset');
@@ -372,28 +385,28 @@ async function connectionUpdate(update) {
   if (connection === 'close') {
     switch (reason) {
       case DisconnectReason.badSession:
-        conn.logger.error(`Sesión incorrecta, elimina la carpeta ${global.authFile} y escanea nuevamente.`);
+        conn.logger.error(`Sesión principal incorrecta, elimina la carpeta ${global.authFile} y escanea nuevamente.`);
         break;
       case DisconnectReason.connectionClosed:
       case DisconnectReason.connectionLost:
       case DisconnectReason.timedOut:
-        conn.logger.warn(`Conexión perdida o cerrada, reconectando...`);
+        conn.logger.warn(`Conexión principal perdida o cerrada, reconectando...`);
         await global.reloadHandler(true).catch(console.error);
         break;
       case DisconnectReason.connectionReplaced:
         conn.logger.error(
-          `Conexión reemplazada, se abrió otra sesión. Cierra esta sesión primero.`
+          `Conexión principal reemplazada, se abrió otra sesión. Cierra esta sesión primero.`
         );
         break;
       case DisconnectReason.loggedOut:
-        conn.logger.error(`Sesión cerrada, elimina la carpeta ${global.authFile} y escanea nuevamente.`);
+        conn.logger.error(`Sesión principal cerrada, elimina la carpeta ${global.authFile} y escanea nuevamente.`);
         break;
       case DisconnectReason.restartRequired:
-        conn.logger.info(`Reinicio necesario, reinicia el servidor si hay problemas.`);
+        conn.logger.info(`Reinicio necesario del bot principal, reinicia el servidor si hay problemas.`);
         await global.reloadHandler(true).catch(console.error);
         break;
       default:
-        conn.logger.warn(`Desconexión desconocida: ${reason || ''} - Estado: ${connection || ''}`);
+        conn.logger.warn(`Desconexión desconocida del bot principal: ${reason || ''} - Estado: ${connection || ''}`);
         await global.reloadHandler(true).catch(console.error);
         break;
     }
@@ -411,7 +424,7 @@ global.reloadHandler = async function (restartConn) {
     const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
     if (Handler && Object.keys(Handler).length) handler = Handler;
   } catch (e) {
-    console.error(e);
+    console.error(`[ERROR] Fallo al cargar handler.js: ${e}`);
   }
 
   if (restartConn) {
@@ -452,7 +465,7 @@ async function filesInit() {
       const module = await import(file);
       global.plugins[filename] = module.default || module;
     } catch (e) {
-      conn.logger.error(e);
+      conn.logger.error(`Error al cargar el plugin '${filename}': ${e}`);
       delete global.plugins[filename];
     }
   }
