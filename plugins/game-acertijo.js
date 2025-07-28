@@ -3,6 +3,7 @@ const acertijosPath = './database/acertijos.json'
 
 let acertijoActual = null
 const tiempoLimite = 60000
+const maxIntentos = 6
 
 async function cargarAcertijos() {
   try {
@@ -23,14 +24,15 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       ...acertijos[idx],
       inicio: Date.now(),
       jugador: m.sender,
-      chat: m.chat
+      chat: m.chat,
+      intentos: 0
     }
     return conn.reply(m.chat, `
 🎭 *¡ACERTIJO NUEVO PA' TI!* 🎭
 
 ${acertijoActual.pregunta}
 
-*Responde rápido antes de que se acabe el tiempo* (60 segundos)
+*Responde rápido antes de que se acabe el tiempo* (60 segundos) y solo tienes 6 intentos.
 
 *Usa:* ${usedPrefix}${command} <tu respuesta>
     `.trim(), m)
@@ -42,8 +44,10 @@ ${acertijoActual.pregunta}
 
   if (!text) return conn.reply(m.chat, `✎ Responde el acertijo con: *${usedPrefix}${command} <tu respuesta>*`, m)
 
+  acertijoActual.intentos++
+
   if (text.toLowerCase().trim() === acertijoActual.respuesta) {
-    conn.reply(m.chat, `
+    await conn.reply(m.chat, `
 🎉 ¡Bien hecho @${m.sender.split`@`[0]}! 🎉
 Acertaste el acertijo:
 
@@ -51,11 +55,24 @@ ${acertijoActual.pregunta}
 
 Respuesta: *${acertijoActual.respuesta}*
 
-👏 ¡Eres un duro!
+👏 Eres un duro, felicidades w
     `.trim(), m, { mentions: [m.sender] })
     acertijoActual = null
   } else {
-    conn.reply(m.chat, `❌ Incorrecto, inténtalo otra vez.\n\nPregunta: ${acertijoActual.pregunta}`, m)
+    if (acertijoActual.intentos >= maxIntentos) {
+      await conn.reply(m.chat, `
+❌ Se te acabaron los intentos (6) :c
+
+⌛ Se acabó el tiempo para responder!
+
+La respuesta correcta era: *${acertijoActual.respuesta}*
+
+${acertijoActual.pregunta}
+      `.trim(), m)
+      acertijoActual = null
+    } else {
+      await conn.reply(m.chat, `❌ Incorrecto, intenta otra vez.\n\nIntento *${acertijoActual.intentos}* de *${maxIntentos}*\n\nPregunta: ${acertijoActual.pregunta}`, m)
+    }
   }
 }
 
