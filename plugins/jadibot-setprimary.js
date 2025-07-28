@@ -1,41 +1,50 @@
-// plugin: primary-bot.js
+// plugin: primary-control.js
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!m.isGroup) return m.reply('Este comando solo sirve en grupos')
+let handler = async (m, { conn, command }) => {
+    if (!m.isGroup) return m.reply('Solo funciona en grupos')
 
     let chat = global.db.data.chats[m.chat] || {}
-
-    // Sacar ID del subbot: o por respuesta o por mención
     let botID = null
 
+    // Detecta al subbot: respondiendo mensaje o mencionando
     if (m.quoted && m.quoted.sender) {
-        botID = m.quoted.sender // respondieron a un mensaje del subbot
+        botID = m.quoted.sender
     } else if (m.mentionedJid && m.mentionedJid.length > 0) {
-        botID = m.mentionedJid[0] // mencionaron al subbot
+        botID = m.mentionedJid[0]
     }
 
-    if (!botID) return m.reply(`Responde a un mensaje del subbot o menciónalo para ponerlo como primario`)
+    if (/^setprimary$/i.test(command)) {
+        if (!botID) return m.reply('Responde al subbot o menciónalo para hacerlo primario')
+        chat.primaryBot = botID
+        global.db.data.chats[m.chat] = chat
+        return m.reply(`👑 *${botID.split('@')[0]}* ahora es el único que responde en este grupo`)
+    }
 
-    chat.primaryBot = botID
-    global.db.data.chats[m.chat] = chat
+    if (/^getprimary$/i.test(command)) {
+        if (!chat.primaryBot) return m.reply('No hay subbot primario en este grupo')
+        return m.reply(`👑 Subbot primario: *${chat.primaryBot.split('@')[0]}*`)
+    }
 
-    return m.reply(`👑 Ahora *${botID.split('@')[0]}* es el único subbot que responderá en este grupo`)
+    if (/^delprimary$/i.test(command)) {
+        if (!chat.primaryBot) return m.reply('No hay primario que borrar')
+        delete chat.primaryBot
+        global.db.data.chats[m.chat] = chat
+        return m.reply('❎ Se eliminó el subbot primario de este grupo')
+    }
 }
 
-handler.help = ['setprimary']
-handler.tags = ['group']
-handler.command = /^setprimary$/i
+handler.command = /^(setprimary|getprimary|delprimary)$/i
 handler.group = true
 
 export default handler
 
-// Filtro para que solo el primario responda
+// --- Filtro que bloquea otros subbots ---
 export async function before(m, { conn }) {
     if (!m.isGroup) return true
 
     let chat = global.db.data.chats[m.chat] || {}
     if (chat.primaryBot && conn.user.jid !== chat.primaryBot) {
-        return false // si no es el primario no responde
+        return false // este bot no es el primario, no responde
     }
     return true
 }
