@@ -24,6 +24,16 @@ export async function handler(chatUpdate) {
     m.exp = 0
     m.limit = false
 
+    // --- BLOQUEO SUBBOTS NO PRIMARIOS ---
+    if (m.isGroup) {
+      let chat = global.db.data.chats[m.chat] || {}
+      if (chat.primaryBot) {
+        let thisBot = (this.user.jid || '').split('@')[0]
+        if (thisBot !== chat.primaryBot) return
+      }
+    }
+    // ------------------------------------
+
     try {
       let user = global.db.data.users[m.sender]
       if (typeof user !== 'object') global.db.data.users[m.sender] = {}
