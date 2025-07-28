@@ -83,7 +83,7 @@ if (fs.existsSync(configPath)) {
   }
 }
 
-const tipo = botActual === '+50494547493'.replace(/\D/g, '')
+const tipo = botActual === '+50493059810'.replace(/\D/g, '')
   ? 'Principal 🅥'
   : 'Sub Bot 🅑'
 
