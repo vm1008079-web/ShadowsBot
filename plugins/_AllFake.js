@@ -35,8 +35,8 @@ export async function before(m, { conn }) {
           title: nombreBot,
           body: global.author,
           thumbnailUrl: bannerFinal, // Imagen personalizada o por defecto
-          mediaUrl: 'https://myapiadonix.vercel.app',
-          sourceType: 1,
+          sourceUrl: 'https://myapiadonix.vercel.app',
+          mediaType: 1,
           renderLargerThumbnail: false
         }
       }
