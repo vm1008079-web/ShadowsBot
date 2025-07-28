@@ -29,6 +29,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.help = ['aivideo'];
 handler.tags = ['ia'];
-handler.command = ['aivideo', 'videoai' 'iavideo'];
+handler.command = ['aivideo', 'videoai', 'iavideo'];
 
 export default handler;
