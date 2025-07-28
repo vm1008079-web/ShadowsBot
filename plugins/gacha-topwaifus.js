@@ -37,9 +37,9 @@ let handler = async (m, { conn, args }) => {
         message += `╰─────────────────
 > • Página *${page}* de *${totalPages}*`;
 
-        await conn.reply(m.chat, message, m);
+        await conn.sendMessage(m.chat, { text: message, ...global.rcanal }, { quoted: m });
     } catch (error) {
-        await conn.reply(m.chat, `✘ Error al cargar los personajes: ${error.message}`, m);
+        await conn.sendMessage(m.chat, { text: `✘ Error al cargar los personajes: ${error.message}`, ...global.rcanal }, { quoted: m });
     }
 };
 
