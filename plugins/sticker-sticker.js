@@ -5,7 +5,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   const mime = (q.msg || q).mimetype || ''
 
   if (!/image|video/.test(mime)) 
-    return m.reply(`✿ Responde a una *imagen o video* para convertirlo en sticker\n\n➪ Ejemplo:\n${usedPrefix + command}`)
+    return conn.sendMessage(m.chat, { text: `✿ Responde a una *imagen o video* para convertirlo en sticker\n`, ...global.rcanal }, { quoted: m })
 
   await m.react('🕒')
 
@@ -16,18 +16,18 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     const sticker = new Sticker(media, {
       pack: global.packname || '✦ Michi - AI ✦',
       author: global.author || '© Made with ☁︎ Wirk ✧',
-      type: StickerTypes.FULL, // FULL = mantiene tamaño original
+      type: StickerTypes.FULL,
       quality: 70
     })
 
     const buffer = await sticker.build()
-    await conn.sendMessage(m.chat, { sticker: buffer }, { quoted: m })
+    await conn.sendMessage(m.chat, { sticker: buffer, ...global.rcanal }, { quoted: m })
 
     await m.react('✅')
   } catch (e) {
     console.error(e)
     await m.react('❌')
-    m.reply('╭─❀ *Error de Conversión* ❀─╮\n✘ No se pudo generar el sticker\n╰───────────────────────────╯')
+    conn.sendMessage(m.chat, { text: '╭─❀ *Error de Conversión* ❀─╮\n✘ No se pudo generar el sticker\n╰───────────────────────────╯', ...global.rcanal }, { quoted: m })
   }
 }
 
