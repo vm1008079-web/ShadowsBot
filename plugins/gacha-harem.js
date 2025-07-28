@@ -8,7 +8,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8')
         return JSON.parse(data)
     } catch (error) {
-        throw new Error('❀ No se pudo cargar el archivo characters.json.')
+        throw new Error('ꕥ No pudimos cargar los datos de personajes.\n> ● *Si crees que es un fallo, repórtalo usando /report*')
     }
 }
 
@@ -16,7 +16,7 @@ async function loadHarem() {
     try {
         const data = await fs.readFile(haremFilePath, 'utf-8')
         return JSON.parse(data)
-    } catch (error) {
+    } catch {
         return []
     }
 }
@@ -27,9 +27,9 @@ let handler = async (m, { conn, args }) => {
         const harem = await loadHarem()
         let userId
 
-        if (m.quoted && m.quoted.sender) {
+        if (m.quoted?.sender) {
             userId = m.quoted.sender
-        } else if (args[0] && args[0].startsWith('@')) {
+        } else if (args[0]?.startsWith('@')) {
             userId = args[0].replace('@', '') + '@s.whatsapp.net'
         } else {
             userId = m.sender
@@ -38,7 +38,10 @@ let handler = async (m, { conn, args }) => {
         const userCharacters = characters.filter(character => character.user === userId)
 
         if (userCharacters.length === 0) {
-            await conn.reply(m.chat, '❀ No tiene personajes reclamados en tu harem.', m)
+            await conn.sendMessage(m.chat, {
+                text: 'ꕥ No tienes personajes reclamados en tu harem.\n> ● *Usa /claim para empezar tu colección.*',
+                ...global.rcanal
+            }, { quoted: m })
             return
         }
 
@@ -46,17 +49,21 @@ let handler = async (m, { conn, args }) => {
         const charactersPerPage = 50
         const totalCharacters = userCharacters.length
         const totalPages = Math.ceil(totalCharacters / charactersPerPage)
-        const startIndex = (page - 1) * charactersPerPage
-        const endIndex = Math.min(startIndex + charactersPerPage, totalCharacters)
 
         if (page < 1 || page > totalPages) {
-            await conn.reply(m.chat, `❀ Página no válida. Hay un total de *${totalPages}* páginas.`, m)
+            await conn.sendMessage(m.chat, {
+                text: `ꕥ Página inválida.\n> ● *Tu harem tiene ${totalPages} páginas en total.*`,
+                ...global.rcanal
+            }, { quoted: m })
             return
         }
 
-        let message = `*✿ Personajes reclamados ✿*\n`
-        message += `> ⌦ User » @${userId.split('@')[0]}\n`
-        message += `> ☄︎ Personajes » *(${totalCharacters}):*\n\n`
+        const startIndex = (page - 1) * charactersPerPage
+        const endIndex = Math.min(startIndex + charactersPerPage, totalCharacters)
+
+        let message = `*✿ Harem ✿*\n`
+        message += `> ⌦ Dueño » @${userId.split('@')[0]}\n`
+        message += `> ☄︎ Personajes » *${totalCharacters}*\n\n`
 
         for (let i = startIndex; i < endIndex; i++) {
             const character = userCharacters[i]
@@ -65,9 +72,16 @@ let handler = async (m, { conn, args }) => {
 
         message += `\n✎ _Página *${page}* de *${totalPages}*_`
 
-        await conn.reply(m.chat, message, m, { mentions: [userId] })
+        await conn.sendMessage(m.chat, {
+            text: message,
+            mentions: [userId],
+            ...global.rcanal
+        }, { quoted: m })
     } catch (error) {
-        await conn.reply(m.chat, `✘ Error al cargar el harem: ${error.message}`, m)
+        await conn.sendMessage(m.chat, {
+            text: `ꕥ Ocurrió un error al cargar tu harem.\n> ● *Error ›* ${error.message}`,
+            ...global.rcanal
+        }, { quoted: m })
     }
 }
 
@@ -76,5 +90,5 @@ handler.tags = ['gacha']
 handler.command = ['harem', 'claims', 'waifus']
 handler.group = true
 handler.register = true
+
 export default handler
-          
