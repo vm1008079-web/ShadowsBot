@@ -35,7 +35,7 @@ export async function before(m, { conn }) {
           title: nombreBot,
           body: global.author,
           thumbnailUrl: bannerFinal, // Imagen personalizada o por defecto
-          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+          mediaUrl: 'https://myapiadonix.vercel.app',
           mediaType: 1,
           renderLargerThumbnail: false
         }
