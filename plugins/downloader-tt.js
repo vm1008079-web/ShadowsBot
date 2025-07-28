@@ -1,43 +1,71 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) 
-    return m.reply(
-      `🌸 Envía un enlace TikTok.\n\nEj: ${usedPrefix + command} https://vm.tiktok.com/xxxxxx`
-    );
+let handler = async (m, { conn, args, usedPrefix, command }) => {
+  if (!args[0]) return m.reply(`¿Cómo usar?
+✎ ${usedPrefix + command} <link válido de TikTok>
+
+Ejemplo:
+> ${usedPrefix + command} https://www.tiktok.com/@usuario/video/123456789`)
 
   try {
-    await m.react('🕒');
+    // Reaccionar mientras procesa
+    await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key } })
 
-    const api = `https://theadonix-api.vercel.app/api/tiktok?url=${encodeURIComponent(text)}`;
-    const res = await fetch(api);
-    const json = await res.json();
-    const r = json?.result;
+    // Llamar API
+    let apiURL = `https://myapiadonix.vercel.app/api/tiktok?url=${encodeURIComponent(args[0])}`
+    let response = await fetch(apiURL)
+    let data = await response.json()
 
-    if (!r?.video) {
-      await m.react('❌');
-      return m.reply('❌ No se pudo obtener video.');
-    }
+    if (data.status !== 200 || !data.result?.video)
+      throw new Error('No se pudo obtener el video')
 
-    const cap = `
-✿ ${r.title}
-✐ Autor: ${r.author.name} (@${r.author.username})
-✎ Duración: ${r.duration}s
-✰ Likes:${r.likes}`.trim();
+    let info = data.result
 
-    await conn.sendMessage(m.chat, { image: { url: r.thumbnail }, caption: cap }, { quoted: m });
-    await conn.sendMessage(m.chat, { video: { url: r.video }, mimetype: 'video/mp4', fileName: `${r.author.username}.mp4` }, { quoted: m });
 
-    await m.react('✅');
-  } catch (e) {
-    console.error(e);
-    await m.react('⚠️');
-    return m.reply('❌ Error procesando enlace.');
+    let caption = `
+*✩ TikTokInfo (✿❛◡❛)*
+*❑ Título ›* ${info.title}
+
+✿ *Autor ›* @${info.author.username || 'Desconocido'}
+♡ *Duración ›* ${info.duration || 'N/D'} seg
+
+➭ *Estadísticas*
+› ♡ Likes › ${info.likes?.toLocaleString() || 0}
+› ꕥ Comentarios › ${info.comments?.toLocaleString() || 0}
+› ✎ Compartidos › ${info.shares?.toLocaleString() || 0}
+› ☁︎ Vistas › ${info.views?.toLocaleString() || 0}
+`.trim()
+
+
+    await conn.sendMessage(m.chat, {
+      video: { url: info.video },
+      caption,
+      fileName: `${info.title}.mp4`,
+      mimetype: 'video/mp4',
+      contextInfo: {
+        externalAdReply: {
+          title: info.title,
+          body: `Autor: ${info.author.name || 'Desconocido'}`,
+          thumbnailUrl: info.thumbnail,
+          sourceUrl: args[0],
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: m })
+
+
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+
+  } catch (err) {
+    console.error('Error descargando TikTok:', err)
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    m.reply('✿ *Error:* No pude descargar el video, intenta otra vez más tarde.')
   }
-};
+}
 
-handler.help = ['tiktok <enlace>'];
-handler.tags = ['downloader'];
-handler.command = ['ttdl', 'tt', 'tiktok'];
-handler.register = true;
-export default handler;
+handler.command = ['tiktok', 'tt']
+handler.help = ['tiktok']
+handler.tags = ['downloader']
+
+export default handler
