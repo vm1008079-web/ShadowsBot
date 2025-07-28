@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 export async function before(m, { conn }) {
   global.rcanal = {
     contextInfo: {
-      isForwarded: false,
+      isForwarded: true,
       forwardingScore: 1,
       forwardedNewsletterMessageInfo: {
         newsletterJid: idcanal,
