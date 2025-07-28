@@ -15,6 +15,7 @@ search: '❀ Buscadores',
 sticker: '❀ Stickers',
 ia: '❀ IA',
 channel: '❀ Channels',
+fun: '❀ Fun',
 }
 
 const defaultMenu = {
