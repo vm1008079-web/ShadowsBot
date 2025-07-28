@@ -4,33 +4,28 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!m.isGroup) return m.reply('Este comando solo sirve en grupos')
 
     let chat = global.db.data.chats[m.chat] || {}
-    let subCmd = command.toLowerCase()
 
-    if (subCmd === 'setprimary') {
-        if (!args[0]) return m.reply(`Usa: ${usedPrefix}setprimary <id_del_subbot>`)
-        chat.primaryBot = args[0]
-        global.db.data.chats[m.chat] = chat
-        return m.reply(`✅ El subbot *${args[0]}* ahora es el primario del grupo`)
+    // Sacar ID del subbot: o por respuesta o por mención
+    let botID = null
+
+    if (m.quoted && m.quoted.sender) {
+        botID = m.quoted.sender // respondieron a un mensaje del subbot
+    } else if (m.mentionedJid && m.mentionedJid.length > 0) {
+        botID = m.mentionedJid[0] // mencionaron al subbot
     }
 
-    if (subCmd === 'getprimary') {
-        if (!chat.primaryBot) return m.reply('❌ No hay ningún subbot primario en este grupo')
-        return m.reply(`👑 El subbot primario aquí es: *${chat.primaryBot}*`)
-    }
+    if (!botID) return m.reply(`Responde a un mensaje del subbot o menciónalo para ponerlo como primario`)
 
-    if (subCmd === 'delprimary') {
-        if (!chat.primaryBot) return m.reply('No hay primario que borrar')
-        delete chat.primaryBot
-        global.db.data.chats[m.chat] = chat
-        return m.reply('❎ Se eliminó el subbot primario de este grupo')
-    }
+    chat.primaryBot = botID
+    global.db.data.chats[m.chat] = chat
+
+    return m.reply(`👑 Ahora *${botID.split('@')[0]}* es el único subbot que responderá en este grupo`)
 }
 
-handler.help = ['setprimary <id>', 'getprimary', 'delprimary']
+handler.help = ['setprimary']
 handler.tags = ['group']
-handler.command = /^(setprimary|getprimary|delprimary)$/i
+handler.command = /^setprimary$/i
 handler.group = true
-handler.admin = true
 
 export default handler
 
@@ -40,8 +35,7 @@ export async function before(m, { conn }) {
 
     let chat = global.db.data.chats[m.chat] || {}
     if (chat.primaryBot && conn.user.jid !== chat.primaryBot) {
-        // si hay primario y este bot no es el primario, no responde
-        return false
+        return false // si no es el primario no responde
     }
     return true
 }
