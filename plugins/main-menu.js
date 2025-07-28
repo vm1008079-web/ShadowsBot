@@ -19,11 +19,10 @@ channel: '❀ Channels',
 
 const defaultMenu = {
 before: `
-❀ *Panel Principal*
+➪ Hola, soy %botname
+> *%tipo*
 
-➪ *Bot ›* %botname
-> ☁︎ Modo › *%tipo*
-> ⏳ Activo › *%uptime*
+> ⏳ Actividad total › *%uptime*
 > 📅 Fecha › *%date*
 
 ➪ *Hola %name*, %greeting
