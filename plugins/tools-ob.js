@@ -83,7 +83,7 @@ const handler = async (msg, { conn, args }) => {
 
 handler.help = ['🔥']
 handler.tags = ['tools']
-handler.customPrefix = ['🔥']
+handler.customPrefix = ['+']
 handler.command = new RegExp
 handler.rowner = true
 
