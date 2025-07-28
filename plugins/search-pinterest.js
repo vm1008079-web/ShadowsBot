@@ -10,24 +10,33 @@ let handler = async (m, { conn, text, args }) => {
       m.react("🕒");
       let i = await dl(args[0]);
       let isVideo = i.download.includes(".mp4");
-      await conn.sendMessage(m.chat, { [isVideo ? "video" : "image"]: { url: i.download }, caption: i.title }, { quoted: fkontak });
+      await conn.sendMessage(
+        m.chat,
+        { [isVideo ? "video" : "image"]: { url: i.download }, caption: i.title, ...rcanal },
+        { quoted: fkontak }
+      );
       m.react("☑️");
     } else {
       m.react('🕒');
       const results = await pins(text);
-      if (!results.length) return conn.reply(m.chat, `No se encontraron resultados para "${text}".`, m);
+      if (!results.length) return conn.sendMessage(m.chat, { text: `No se encontraron resultados para "${text}".`, ...rcanal }, { quoted: m });
 
       const medias = results.slice(0, 10).map(img => ({ type: 'image', data: { url: img.image_large_url } }));
 
-      await conn.sendSylphy(m.chat, medias, {
-        caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${medias.length}`,
-        quoted: m
-      });
+      await conn.sendSylphy(
+        m.chat,
+        medias,
+        {
+          caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${medias.length}`,
+          quoted: m,
+          ...rcanal
+        }
+      );
 
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }, ...rcanal });
     }
-  } catch(e) {
-    conn.reply(m.chat, 'Error al obtener imágenes de Pinterest :\n\n' + e, m);
+  } catch (e) {
+    conn.sendMessage(m.chat, { text: 'Error al obtener imágenes de Pinterest:\n\n' + e, ...rcanal }, { quoted: m });
   }
 };
 
