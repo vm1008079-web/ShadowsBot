@@ -1,30 +1,28 @@
-import fs from 'fs'
-import path from 'path'
+let handler = async (m, { conn, args, usedPrefix }) => {
+  if (!m.isGroup) return m.reply('Este comando solo funciona en grupos we')
+  if (!args[0]) return m.reply(`Usa: ${usedPrefix}setprimary <número_sin_codigo> \nEjemplo: ${usedPrefix}setprimary 5049382783`)
+  
+  let number = args[0].replace(/[^0-9]/g, '') // solo números limpios
+  
+  // Validación simple para que el número tenga mínimo 5 dígitos (ajusta según necesites)
+  if (number.length < 5) return m.reply('Número inválido, pon un número válido we')
 
-function existeSubbot(numero) {
-  let dir = path.join('./JadiBots', numero)
-  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory()
+  // Cargar base de datos si no está
+  if (global.db.data == null) await global.loadDatabase()
+
+  // Guardar el número como primaryBot en el chat
+  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
+  global.db.data.chats[m.chat].primaryBot = number
+
+  // Guardar DB (si usas algo para guardar)
+  if (global.saveDatabase) await global.saveDatabase()
+
+  m.reply(`El subbot con número *${number}* fue puesto como primario en este grupo`)
 }
 
-let handler = async (m, { conn, args, command }) => {
-  let chat = global.db.data.chats[m.chat] || {}
-  if (!m.isGroup) return m.reply('Solo funciona en grupos')
-
-  let botID = null
-  if (m.quoted && m.quoted.sender) botID = m.quoted.sender.split('@')[0]
-  else if (m.mentionedJid && m.mentionedJid.length > 0) botID = m.mentionedJid[0].split('@')[0]
-  else if (args[0]) botID = args[0].replace(/[^0-9]/g, '')
-
-  if (!botID) return m.reply('Responde a un mensaje del subbot, menciónalo o escribe su número')
-
-  if (!existeSubbot(botID)) return m.reply(`No existe subbot con número ${botID} en ./JadiBots/`)
-
-  chat.primaryBot = botID
-  global.db.data.chats[m.chat] = chat
-  return m.reply(`👑 Subbot primario establecido:\n*${botID}*`)
-}
-
-handler.command = /^setprimary$/i
-handler.group = true
+handler.help = ['setprimary <numero>']
+handler.tags = ['owner']
+handler.command = ['setprimary', 'primarybot']
+handler.rowner = true // solo el creador puede usarlo
 
 export default handler
