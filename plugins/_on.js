@@ -133,8 +133,7 @@ handler.before = async (m, { conn }) => {
 ✿ *Bienvenid@* a *${groupMetadata.subject}*   
 ✰ ${userMention}, qué gusto :D 
 ✦ Ahora somos *${groupSize}*    
-> ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
-`.trim()
+>`.trim()
 
       await conn.sendMessage(m.chat, {
         image: { url: profilePic },
@@ -149,7 +148,6 @@ handler.before = async (m, { conn }) => {
 ✿ *Adiós* de *${groupMetadata.subject}*   
 ✰ ${userMention}, vuelve pronto :>  
 ✦ Somos *${groupSize}* aún.  
-> ͞➳❥ ꒰ ⌨ ✰ ᴜsᴀ .help ᴘᴀʀᴀ ᴠᴇʀ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs ꒱ | ೃ࿔₊•
 `.trim()
 
       await conn.sendMessage(m.chat, {
