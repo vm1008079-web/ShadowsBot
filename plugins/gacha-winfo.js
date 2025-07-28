@@ -23,11 +23,10 @@ async function loadHarem() {
 
 let handler = async (m, { conn, args }) => {
     if (args.length === 0) {
-        await conn.reply(
-            m.chat,
-            '✎ Necesitamos un nombre para buscar la información.\n> *Ejemplo:* `#winfo Aika Sano`',
-            m
-        );
+        await conn.sendMessage(m.chat, { 
+            text: '✎ Necesitamos un nombre para buscar la información.\n> *Ejemplo:* `#winfo Aika Sano`', 
+            ...global.rcanal 
+        }, { quoted: m });
         return;
     }
 
@@ -38,11 +37,10 @@ let handler = async (m, { conn, args }) => {
         const character = characters.find(c => c.name.toLowerCase() === characterName);
 
         if (!character) {
-            await conn.reply(
-                m.chat,
-                `✎ No pudimos atrapar la información esta vez.\n> *¿Seguro que existe "${characterName}"?*`,
-                m
-            );
+            await conn.sendMessage(m.chat, { 
+                text: `✎ No pudimos atrapar la información esta vez.\n> *¿Seguro que existe "${characterName}"?*`, 
+                ...global.rcanal 
+            }, { quoted: m });
             return;
         }
 
@@ -62,15 +60,16 @@ let handler = async (m, { conn, args }) => {
 ┃✎ *Fuente:* » *${character.source}*
 ╰─────────────────`;
 
-        await conn.reply(m.chat, message, m, {
-            mentions: userEntry ? [userEntry.userId] : []
-        });
+        await conn.sendMessage(m.chat, { 
+            text: message, 
+            mentions: userEntry ? [userEntry.userId] : [], 
+            ...global.rcanal 
+        }, { quoted: m });
     } catch (error) {
-        await conn.reply(
-            m.chat,
-            `✎ No pudimos atrapar la información esta vez.`,
-            m
-        );
+        await conn.sendMessage(m.chat, { 
+            text: `✎ No pudimos atrapar la información esta vez.`, 
+            ...global.rcanal 
+        }, { quoted: m });
     }
 };
 
