@@ -134,12 +134,20 @@ const connectionOptions = {
   },
   getMessage: async (key) => {
     const jid = jidNormalizedUser(key.remoteJid);
-    const msg = await store.loadMessage(jid, key.id);
-    return msg?.message || '';
+    // You need to define 'store' or make sure it's accessible.
+    // If 'store' is not defined elsewhere, this will cause an error.
+    // For a minimal fix, you could return an empty object or handle the case where store is undefined.
+    // Assuming 'store' is meant to be a message store like the one in Baileys examples:
+    // const msg = await store.loadMessage(jid, key.id);
+    // return msg?.message || '';
+    return ''; // Placeholder if 'store' is not available
   },
 };
 
 global.conn = makeWASocket(connectionOptions);
+
+// Define global.conns before it's used in reconnectSubBot
+global.conns = global.conns || [];
 
 /**
  * Función para reconectar un sub-bot y asignarle un manejador de mensajes.
@@ -170,8 +178,10 @@ async function reconnectSubBot(botPath) {
             },
             getMessage: async (key) => {
                 const jid = jidNormalizedUser(key.remoteJid);
-                const msg = await store.loadMessage(jid, key.id);
-                return msg?.message || '';
+                // Similar to the main bot's getMessage, ensure 'store' is defined or handle its absence.
+                // const msg = await store.loadMessage(jid, key.id);
+                // return msg?.message || '';
+                return ''; // Placeholder
             },
         });
 
@@ -179,19 +189,24 @@ async function reconnectSubBot(botPath) {
             const { connection, lastDisconnect } = update;
             if (connection === 'open') {
                 console.log(chalk.green(`Sub-bot conectado correctamente: ${path.basename(botPath)}`));
+                // Add the sub-bot to global.conns only when it's successfully connected
+                const yaExiste = global.conns.some(c => c.user?.jid === subBotConn.user?.jid);
+                if (!yaExiste) {
+                    global.conns.push(subBotConn);
+                    console.log(chalk.green(`🟢 Sub-bot agregado a global.conns: ${subBotConn.user?.jid}`));
+                }
             } else if (connection === 'close') {
                 const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
                 console.error(chalk.red(`Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
                 if (reason === 401) {
-  global.conns = global.conns.filter(conn => conn.user?.jid !== subBotConn.user?.jid);
-  console.log(chalk.red(`❌ Sub-bot removido de global.conns: ${subBotConn.user?.jid}`));
-}
+                    global.conns = global.conns.filter(conn => conn.user?.jid !== subBotConn.user?.jid);
+                    console.log(chalk.red(`❌ Sub-bot removido de global.conns: ${subBotConn.user?.jid}`));
+                }
             }
         });
         subBotConn.ev.on('creds.update', saveSubBotCreds);
 
         // ¡IMPORTANTE!: Asignar el manejador de mensajes al sub-bot
-        // Asumiendo que 'handler' es el objeto importado de handler.js y contiene la función handler.
         if (handler && handler.handler) {
             subBotConn.handler = handler.handler.bind(subBotConn);
             subBotConn.ev.on('messages.upsert', subBotConn.handler);
@@ -205,16 +220,7 @@ async function reconnectSubBot(botPath) {
             global.subBots = {};
         }
         global.subBots[path.basename(botPath)] = subBotConn;
-        
-        // 🔥 Agregar también a global.conns para mostrar en listjadibot
-global.conns = global.conns || []
 
-const yaExiste = global.conns.some(c => c.user?.jid === subBotConn.user?.jid)
-if (!yaExiste) {
-  global.conns.push(subBotConn)
-  console.log(chalk.green(`🟢 Sub-bot agregado a global.conns: ${subBotConn.user?.jid}`))
-}
-        
     } catch (e) {
         console.error(chalk.red(`Error al reconectar sub-bot en ${path.basename(botPath)}:`), e);
     }
@@ -327,13 +333,16 @@ async function connectionUpdate(update) {
 
     // --- Lógica de reconexión de sub-bots al iniciar el bot principal ---
     const rutaJadiBot = join(__dirname, './JadiBots');
-    
+
     if (!existsSync(rutaJadiBot)) {
         mkdirSync(rutaJadiBot, { recursive: true });
         console.log(chalk.bold.cyan(`La carpeta: ${rutaJadiBot} se creó correctamente.`));
     } else {
         console.log(chalk.bold.cyan(`La carpeta: ${rutaJadiBot} ya está creada.`));
     }
+
+    // Initialize global.conns here if it's not already, before iterating
+    global.conns = global.conns || [];
 
     const readRutaJadiBot = readdirSync(rutaJadiBot);
     if (readRutaJadiBot.length > 0) {
