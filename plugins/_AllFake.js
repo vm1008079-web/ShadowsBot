@@ -36,7 +36,7 @@ export async function before(m, { conn }) {
           body: global.author,
           thumbnailUrl: bannerFinal, // Imagen personalizada o por defecto
           mediaUrl: 'https://myapiadonix.vercel.app',
-          mediaType: 1,
+          sourceType: 1,
           renderLargerThumbnail: false
         }
       }
