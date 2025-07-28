@@ -6,26 +6,24 @@ const handler = async (m, { conn }) => {
     const memeUrl = res.data.url
 
     if (!memeUrl) {
-      return m.reply('❌ No se pudo obtener el meme.')
+      return conn.sendMessage(m.chat, {
+        text: '❌ No se pudo obtener el meme.',
+        ...global.rcanal
+      }, { quoted: m })
     }
 
     await conn.sendMessage(m.chat, {
       image: { url: memeUrl },
-      caption: `> ✿ *Meme de Hoy*`,
-      footer: '¿Quieres otro?',
-      buttons: [
-        {
-          buttonId: '.meme',
-          buttonText: { displayText: '🔰 Siguiente Meme' },
-          type: 1
-        }
-      ],
-      headerType: 4
+      caption: `> ✿ *Aqui tienes*`,
+      ...global.rcanal
     }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    m.reply('⚠️ Hubo un error al intentar obtener el meme.')
+    await conn.sendMessage(m.chat, {
+      text: '⚠️ Hubo un error al intentar obtener el meme.',
+      ...global.rcanal
+    }, { quoted: m })
   }
 }
 
