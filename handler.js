@@ -24,15 +24,17 @@ export async function handler(chatUpdate) {
     m.exp = 0
     m.limit = false
 
-    // --- BLOQUEO SUBBOTS NO PRIMARIOS ---
+    // --- FILTRO SUBBOT PRIMARIO ---
     if (m.isGroup) {
       let chat = global.db.data.chats[m.chat] || {}
       if (chat.primaryBot) {
-        let thisBot = (this.user.jid || '').split('@')[0]
-        if (thisBot !== chat.primaryBot) return
+        let thisBotNumber = (this.user.jid || '').split('@')[0]
+        if (thisBotNumber !== chat.primaryBot) return // si no es el primario, no responde
       }
     }
-    // ------------------------------------
+    // ------------------------------
+
+    // resto del código de setup usuario y chat
 
     try {
       let user = global.db.data.users[m.sender]
@@ -346,7 +348,7 @@ global.dfail = (type, m, conn, usedPrefix) => {
     restrict: '⛔ Esta función está deshabilitada.'
   }
 
-  const msg = mensajes[type]
+    const msg = mensajes[type]
   if (msg) return conn.reply(m.chat, msg, m).then(() => m.react('❌'))
 }
 
