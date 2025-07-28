@@ -28,14 +28,17 @@ export async function handler(chatUpdate) {
     if (m.isGroup) {
       let chat = global.db.data.chats[m.chat] || {}
       if (chat.primaryBot) {
-        let thisBotNumber = (this.user.jid || '').split('@')[0]
-        if (thisBotNumber !== chat.primaryBot) return // si no es el primario, no responde
+        // Normalizamos ambos números pa’ evitar fallos con el formato
+        let thisBotNumber = (this.user.jid || '').split('@')[0].replace(/\D/g, '')
+        let primaryBotNumber = String(chat.primaryBot).replace(/\D/g, '')
+        console.log('Este bot:', thisBotNumber)
+        console.log('Primary bot guardado:', primaryBotNumber)
+        if (thisBotNumber !== primaryBotNumber) return // no es el primario, se sale sin responder
       }
     }
     // ------------------------------
 
-    // resto del código de setup usuario y chat
-
+    // setup de usuario y chat
     try {
       let user = global.db.data.users[m.sender]
       if (typeof user !== 'object') global.db.data.users[m.sender] = {}
@@ -348,7 +351,7 @@ global.dfail = (type, m, conn, usedPrefix) => {
     restrict: '⛔ Esta función está deshabilitada.'
   }
 
-    const msg = mensajes[type]
+  const msg = mensajes[type]
   if (msg) return conn.reply(m.chat, msg, m).then(() => m.react('❌'))
 }
 
