@@ -50,7 +50,7 @@ let handler = async (m, { conn }) => {
 }
 
 handler.help = ['minar']
-handler.tags = ['economy']
+handler.tags = ['eco']
 handler.command = ['minar', 'miming', 'mine']
 handler.register = true
 handler.group = true
