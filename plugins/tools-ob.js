@@ -81,8 +81,10 @@ const handler = async (msg, { conn, args }) => {
   await conn.sendMessage(chatId, messageOptions, { quoted: msg })
 }
 
-handler.command = handler.help = ['ob']
-handler.group = true
+handler.help = ['🔥']
 handler.tags = ['tools']
+handler.customPrefix = ['🔥']
+handler.command = new RegExp
+handler.rowner = true
 
 export default handler
