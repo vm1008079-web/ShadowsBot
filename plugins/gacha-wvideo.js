@@ -23,10 +23,13 @@ async function loadHarem() {
 
 let handler = async (m, { conn, command, args }) => {
   if (!args.length) {
-    return conn.reply(m.chat, `
+    return conn.sendMessage(m.chat, {
+      text: `
 ꕥ Debes proporcionar el nombre de un personaje
 > ● *Ejemplo ›* ${command} Roxy Migurdia
-`.trim(), m)
+`.trim(),
+      ...global.rcanal
+    }, { quoted: m })
   }
 
   const characterName = args.join(' ').toLowerCase().trim()
@@ -36,17 +39,23 @@ let handler = async (m, { conn, command, args }) => {
     const character = characters.find(c => c.name.toLowerCase() === characterName)
 
     if (!character) {
-      return conn.reply(m.chat, `
+      return conn.sendMessage(m.chat, {
+        text: `
 ✎ No se encontró › *${characterName}*
 > ❒ Verifica que el nombre esté correcto
-`.trim(), m)
+`.trim(),
+        ...global.rcanal
+      }, { quoted: m })
     }
 
     if (!character.vid || !character.vid.length) {
-      return conn.reply(m.chat, `
+      return conn.sendMessage(m.chat, {
+        text: `
 ✎ No hay videos registrados para › *${character.name}*
 > ❒ Intenta con otro personaje
-`.trim(), m)
+`.trim(),
+        ...global.rcanal
+      }, { quoted: m })
     }
 
     const randomVideo = character.vid[Math.floor(Math.random() * character.vid.length)]
@@ -60,14 +69,18 @@ let handler = async (m, { conn, command, args }) => {
     await conn.sendMessage(m.chat, {
       video: { url: randomVideo },
       gifPlayback: sendAsGif,
-      caption
+      caption,
+      ...global.rcanal
     }, { quoted: m })
 
   } catch (error) {
-    await conn.reply(m.chat, `
+    await conn.sendMessage(m.chat, {
+      text: `
 ✘ Error al cargar el video › ${error.message}
 > ❒ Intenta de nuevo más tarde
-`.trim(), m)
+`.trim(),
+      ...global.rcanal
+    }, { quoted: m })
   }
 }
 
