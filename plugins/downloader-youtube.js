@@ -23,11 +23,18 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     let url = args[0]
+    let videoInfo = null
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
       if (!search.videos || search.videos.length === 0) return m.reply('*ꕥ No encontré resultados*')
-      url = search.videos[0].url
+      videoInfo = search.videos[0]
+      url = videoInfo.url
+    } else {
+      // Buscar info del video por enlace
+      let id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
+      let search = await yts({ videoId: id })
+      if (search && search.title) videoInfo = search
     }
 
     let apiUrl = ''
@@ -48,9 +55,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     if (!json.success) throw new Error('No se pudo obtener la información del video')
 
     let { title, thumbnail, quality, download } = json.data
+    let duration = videoInfo?.timestamp || 'N/A'
 
     // Mensaje con detalles decorados
     let details = `› *${title}*
+» Duración › *${duration}*
 ⚥ Calidad › *${quality}*
 ⛁ Tipo › *${isAudio ? 'Audio' : 'Video'}*
 ❒ Fuente › *YouTube*
