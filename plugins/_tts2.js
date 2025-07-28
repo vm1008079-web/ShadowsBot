@@ -1,33 +1,27 @@
 import fetch from 'node-fetch';
 
-const handler = async (m, { conn, text, command, usedPrefix }) => {
-  if (!text) return m.reply(`❌ Escribe un texto\n*Ejemplo:* ${usedPrefix + command} Hola que pex soy un loquendo xd`);
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) return m.reply(`*Uso correcto:* ${usedPrefix + command} Tu texto`);
 
-  try {
-    m.react('🎙️');
-    m.reply('🎧 *Generando tu voz Loquendo...*\nEspera un momento 👀');
+    try {
+        let url = `https://api.nekorinn.my.id/tools/openai-tts?text=${encodeURIComponent(text)}&voice=nova`;
+        let res = await fetch(url);
 
-    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/loquendo?text=${encodeURIComponent(text)}&voice=juan`);
-    const json = await res.json();
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        let audioBuffer = await res.arrayBuffer();
 
-    if (!json.audio) throw `❌ Error: No se recibió audio`;
-
-    const audioBuffer = Buffer.from(json.audio, 'base64');
-
-    await conn.sendMessage(m.chat, {
-      audio: audioBuffer,
-      mimetype: 'audio/mpeg',
-      ptt: true // si lo querés como nota de voz
-    }, { quoted: m });
-
-  } catch (e) {
-    console.error(e);
-    m.reply('❌ Ocurrió un error generando el TTS Loquendo');
-  }
+        await conn.sendMessage(m.chat, {
+            audio: Buffer.from(audioBuffer),
+            mimetype: 'audio/mpeg',
+            ptt: true
+        }, { quoted: m });
+    } catch (e) {
+        m.reply(`❌ *Error al generar audio:* ${e.message}`);
+    }
 };
 
 handler.help = ['tts <texto>'];
-handler.tags = ['voz'];
+handler.tags = ['tools'];
 handler.command = /^tts$/i;
-handler.register = true
+
 export default handler;
