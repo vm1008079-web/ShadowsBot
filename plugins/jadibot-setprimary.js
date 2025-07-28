@@ -14,7 +14,7 @@ let handler = async (m, { text }) => {
 }
 
 handler.help = ['setprimary @bot']
-handler.tags = ['owner']
+handler.tags = ['serbot']
 handler.command = ['setprimary']
 handler.admin = true
 
