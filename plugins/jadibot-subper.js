@@ -27,18 +27,16 @@ const handler = async (m, { conn }) => {
   // ✦ Si no hay subs activos
   if (!listaSubs.length) {
     return conn.reply(m.chat, `
-╭───❀ *Subs Personalizados* ❀───╮
+❀ *Subs Personalizados* 
 
 ➪ ✦ *No hay subs personalizados activos*
 ➪ ❀ Usa *.setname* para crear uno
-
-╰─────────❀──────────╯
 `.trim(), m)
   }
 
   // ✦ Si hay subs activos
   let msg = `
-╭───❀ *Subs Personalizados Activos* ❀───╮\n
+*Subs Personalizados Activos*\n
 `
 
   listaSubs.forEach((s, i) => {
@@ -47,7 +45,7 @@ const handler = async (m, { conn }) => {
   })
 
   msg += `➪ ✦ ❀ *Total:* ${listaSubs.length}\n`
-  msg += `╰────────❀──────────╯`
+  msg += `╰────────❀────────╯`
 
   await conn.reply(m.chat, msg.trim(), m)
 }
