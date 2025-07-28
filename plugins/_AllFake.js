@@ -37,7 +37,7 @@ export async function before(m, { conn }) {
           thumbnailUrl: bannerFinal, // Imagen personalizada o por defecto
           sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
           mediaType: 1,
-          renderLargerThumbnail: true
+          renderLargerThumbnail: falsd
         }
       }
     }
