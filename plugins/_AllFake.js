@@ -29,7 +29,7 @@ export async function before(m, { conn }) {
         forwardedNewsletterMessageInfo: {
           newsletterJid: global.idcanal,
           serverMessageId: 100,
-          newsletterName: nombre Bot, // Nombre personalizado
+          newsletterName: nombreBot, // Nombre personalizado
         },
         externalAdReply: {
           title: nombreBot,
