@@ -11,7 +11,7 @@ global.prems = []
 
 global.namebot = '❀ Michi - AI ❀'
 global.packname = '➪ Michi - AI ✦'
-global.author = '© ｍᥲძᥱ ᥕі𝗍һ 𝗪𝗶𝗿𝗸 ✧'
+global.author = 'ꕤ 𝖬𝖺𝖽𝖾 𝗐𝗂𝗍𝗁 𝖻𝗒 🫟 𝖠𝖽𝗈'
 global.moneda = '⛁ ¥ Mangos ¥'
 
 global.libreria = 'Baileys'
@@ -21,7 +21,7 @@ global.sessions = 'Sessions'
 global.jadi = 'JadiBots'
 global.yukiJadibts = true
 
-global.namecanal = '🔰     IA     🔰'
+global.namecanal = '❇️'
 global.idcanal = '120363403739366547@newsletter'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.canalreg = '120363402895449162@newsletter'
