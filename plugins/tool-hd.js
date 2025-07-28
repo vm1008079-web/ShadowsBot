@@ -1,53 +1,74 @@
 import fetch from 'node-fetch'
 import FormData from 'form-data'
 
-let handler = async (m, { conn, command }) => {
-  conn.hdr = conn.hdr || {}
-  if (m.sender in conn.hdr) throw '⏳ Aún hay un proceso pendiente, espera...'
+async function uploadImage(buffer) {
+  const form = new FormData()
+  form.append('fileToUpload', buffer, 'image.jpg')
+  form.append('reqtype', 'fileupload')
 
-  let q = m.quoted || m
-  let mime = (q.msg || q).mimetype || q.mediaType || ''
-  if (!mime) throw '🖼️ Envía o responde a una imagen para mejorarla.'
-  if (!/image\/(jpe?g|png)/.test(mime)) throw `❌ Formato *${mime}* no compatible. Usa JPG o PNG.`
+  const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form })
+  if (!res.ok) throw new Error('Error al subir la imagen')
+  return await res.text()
+}
 
-  conn.hdr[m.sender] = true
-  await conn.sendMessage(m.chat, { react: { text: '♻️', key: m.key } })
-
-  let img = await q.download?.()
-  let footer = '📸 Imagen mejorada con IA.'
-  let error = null
-
+let handler = async (m, { conn, usedPrefix, command }) => {
   try {
-    const imageUrl = await up(img)
-    const api = `https://fastrestapis.fasturl.cloud/aiimage/upscale?imageUrl=${encodeURIComponent(imageUrl)}&resize=4`
-    const res = await fetch(api)
+    await m.react('🕓')
 
-    if (!res.ok) throw await res.text()
+    let q = m.quoted ? m.quoted : m
+    let mime = (q.msg || q).mimetype || q.mediaType || ''
+    if (!mime) {
+      return conn.sendMessage(m.chat, {
+        text: `❀ Por favor, envía una imagen o responde a una imagen usando *${usedPrefix + command}*`,
+        ...global.rcanal
+      }, { quoted: m })
+    }
+    if (!/image\/(jpe?g|png|webp)/.test(mime)) {
+      return conn.sendMessage(m.chat, {
+        text: `✧ El formato (${mime}) no es compatible, usa JPG, PNG o WEBP.`,
+        ...global.rcanal
+      }, { quoted: m })
+    }
 
-    const buffer = await res.buffer()
-    await conn.sendFile(m.chat, buffer, 'hd.jpg', footer, m)
+    await conn.sendMessage(m.chat, {
+      text: `✧ Mejorando tu imagen, espera...`,
+      ...global.rcanal
+    }, { quoted: m })
+
+    let img = await q.download?.()
+    if (!img) throw new Error('No pude descargar la imagen.')
+
+    let uploadedUrl = await uploadImage(img)
+
+    const apiUrl = `https://fastapi.alifproject.cloud/api/ai/upscalev2?url=${encodeURIComponent(uploadedUrl)}`
+    const res = await fetch(apiUrl)
+    if (!res.ok) throw new Error(`Error en la API: ${res.statusText}`)
+    const data = await res.json()
+
+    if (data.status !== 'success' || !data.data?.result_url) throw new Error('No se pudo mejorar la imagen.')
+
+    const improvedRes = await fetch(data.data.result_url)
+    const buffer = await improvedRes.buffer()
+
+    await conn.sendMessage(m.chat, {
+      image: buffer,
+      caption: '✅ *Imagen mejorada con éxito*',
+      ...global.rcanal
+    }, { quoted: m })
+
+    await m.react('✅')
   } catch (e) {
-    error = e?.message || e || '❌ Error al procesar la imagen.'
-  } finally {
-    delete conn.hdr[m.sender]
-    if (error) m.reply(String(error))
+    console.error(e)
+    await m.react('✖️')
+    await conn.sendMessage(m.chat, {
+      text: '❌ *Error al mejorar la imagen, inténtalo más tarde.*',
+      ...global.rcanal
+    }, { quoted: m })
   }
 }
 
 handler.help = ['hd']
 handler.tags = ['tools']
-handler.command = /^(hd|remini)$/i
-handler.register = true
+handler.command = ['remini', 'hd', 'enhance']
+
 export default handler
-
-async function up(buffer) {
-  const form = new FormData()
-  form.append('reqtype', 'fileupload')
-  form.append('fileToUpload', buffer, 'image.jpg')
-
-  const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form })
-  const url = await res.text()
-
-  if (!url.startsWith('https://')) throw '❌ Falló la subida a Catbox.'
-  return url.trim()
-}
