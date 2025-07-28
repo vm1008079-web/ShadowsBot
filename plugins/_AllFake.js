@@ -5,7 +5,7 @@ export async function before(m, { conn }) {
   try {
     // Datos base
     let nombreBot = global.namebot || 'Bot'
-    let bannerFinal = './storage/img/menu.jpg'
+    let bannerFinal = 'https://files.catbox.moe/epbfv9.jpg'
 
     // Obtener datos del subbot
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
