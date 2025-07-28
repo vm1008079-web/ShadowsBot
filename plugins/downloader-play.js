@@ -67,6 +67,5 @@ const handler = async (m, { conn, text }) => {
 };
 
 handler.command = ["pla"];
-handler.tags = ["downloader"];
 handler.register = true;
 export default handler;
