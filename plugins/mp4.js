@@ -1,12 +1,7 @@
 import axios from 'axios'
 import crypto from 'crypto'
-import { createWriteStream } from 'fs'
-import { get } from 'https'
-import { promisify } from 'util'
-import fs from 'fs'
-const unlink = promisify(fs.unlink)
 
-let handler = async (m, { conn, text, args }) => {
+let handler = async (m, { conn, text }) => {
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/(?:v|e(?:mbed)?)\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})|(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
   if (!text || !youtubeRegex.test(text)) {
     return conn.reply(m.chat, `🌱 Uso correcto: mp4 https://youtube.com/watch?v=DLh9mnfZvc0`, m)
@@ -15,52 +10,33 @@ let handler = async (m, { conn, text, args }) => {
   try {
     await m.react('🕒')
 
-    // Primero intento con savetube
     let vid = await yta(text)
     if (!vid.status) {
-      // Si falla intento con ytmp3
       vid = await ytv(text)
       if (!vid.status) {
-        return conn.reply(m.chat, `❌ No pude descargar el video: ${vid.error}`, m)
+        return conn.reply(m.chat, `❌ No pude obtener el video: ${vid.error}`, m)
       }
     }
 
-    const path = `./tmp/${Date.now()}.mp4`
-
-    await new Promise((resolve, reject) => {
-      const file = createWriteStream(path)
-      get(vid.result.download, (res) => {
-        res.pipe(file)
-        file.on('finish', () => file.close(resolve))
-        file.on('error', reject)
-      }).on('error', reject)
-    })
-
-    const stats = fs.statSync(path)
-    const sizeMB = stats.size / (1024 * 1024)
-    const asDoc = sizeMB > 80
-
     const cap = `🎬 *${vid.result.title}*
 📁 Tipo: ${vid.result.format || 'mp4'}
-📦 Tamaño: ${vid.result.size || sizeMB.toFixed(2) + ' MB'}
-🔗 Link directo: ${vid.result.download}`
+🔗 Link directo`
 
-    await conn.sendFile(m.chat, path, `${vid.result.title}.mp4`, cap, m, null, {
-      mimetype: 'video/mp4',
-      asDocument: asDoc
-    })
+    await conn.sendMessage(m.chat, {
+      video: { url: vid.result.download },
+      caption: cap,
+      mimetype: 'video/mp4'
+    }, { quoted: m })
 
-    await unlink(path)
     await m.react('✅')
-  } catch (error) {
-    console.error(error)
-    await conn.reply(m.chat, `❌ Error al descargar el video.\n\n${error.message}`, m)
+  } catch (e) {
+    console.error(e)
+    await conn.reply(m.chat, `❌ Error al enviar el video.\n\n${e.message}`, m)
   }
 }
 
 handler.command = ['mp4', 'ytmp4', 'ytv']
 
-// API savetube para video mp4
 async function yta(link) {
   const apiBase = "https://media.savetube.me/api"
   const apiCDN = "/random-cdn"
@@ -134,22 +110,17 @@ async function yta(link) {
 
   if (!downloadUrl) return { status: false, error: "No hay enlace de descarga disponible." }
 
-  const fileResponse = await axios.head(downloadUrl)
-  const size = fileResponse.headers['content-length']
-
   return {
     status: true,
     result: {
       title: decrypted.title || "Unknown",
       format: 'mp4',
       download: downloadUrl,
-      size: size ? `${(size / 1024 / 1024).toFixed(2)} MB` : 'Unknown',
       type: 'video'
     }
   }
 }
 
-// API ytmp3 para video mp4
 async function ytv(url) {
   const headers = {
     accept: '*/*',
