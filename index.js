@@ -23,7 +23,7 @@ cfonts.say('✧ Michi Wa ✧', {
 cfonts.say('Bot Multi Device 😺', {
   font: 'console',     
   align: 'center',
-  gradient: ['pink', 'white'],
+  gradient: ['cyan', 'white'],
   env: 'node'
 })
 
