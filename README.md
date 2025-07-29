@@ -22,7 +22,7 @@ ___
 termux-setup-storage
 
 # 2. Actualizar paquetes e instalar dependencias
-apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick build-essential libc++ libjpeg-turbo libpng libvips
+apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick
 
 # 3. Clonar el repositorio
 git clone https://github.com/Ado-rgb/Michi-WaBot
