@@ -1,4 +1,5 @@
-import ytdl from 'ytdl-core'
+import axios from 'axios'
+import cheerio from 'cheerio'
 import fs from 'fs'
 import path from 'path'
 
@@ -6,43 +7,53 @@ let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('❌ Escribe el enlace del video')
 
   try {
-    let info = await ytdl.getInfo(text)
-    let { title, lengthSeconds, ownerChannelName } = info.videoDetails
-    let duration = parseInt(lengthSeconds)
-    if (duration > 3600) return m.reply('⏳ El video pasa de 1 hora')
+    // 1. Hace POST al backend de y2mate
+    let res = await axios.post(
+      'https://www.y2mate.com/mates/analyze/ajax',
+      new URLSearchParams({ url: text, q_auto: 0, ajax: 1 }),
+      { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+    )
 
-    let calidad = '360p' // puedes usar 480p o 720p según el tamaño
-    let pesoAprox = (duration * 0.055).toFixed(2) // cálculo estimado MB
+    // 2. Parsear HTML
+    const $ = cheerio.load(res.data.result)
+    let titulo = $('b').first().text() || 'Video'
+    let duracion = $('span:contains("Duration")').text().replace('Duration: ', '')
+    let urlDescarga = $('a[href*="download"]').attr('href')
 
-    // Mensaje previo
+    if (!urlDescarga) return m.reply('❌ No se pudo obtener el enlace de descarga')
+
+    // 3. Mensaje previo
     await conn.sendMessage(m.chat, {
-      text: `「✧」 Descargando <${title}>\n\n` +
-        `📺 Canal » ${ownerChannelName}\n` +
-        `⏳ Duración » ${Math.floor(duration / 60)} minutos ${duration % 60} segundos\n` +
-        `📥 Calidad » ${calidad}\n` +
-        `📦 Tamaño » ${pesoAprox} MB\n` +
+      text: `「✧」 Descargando <${titulo}>\n\n` +
+        `📺 Canal » YouTube\n` +
+        `⏳ Duración » ${duracion}\n` +
+        `📥 Calidad » 360p\n` +
+        `📦 Tamaño » ~Desconocido\n` +
         `🔗 Link » ${text}`
     }, { quoted: m })
 
-    let filePath = path.join('./tmp', `${title}.mp4`)
+    // 4. Descargar el video
+    const filePath = path.join('./tmp', `${titulo}.mp4`)
+    const writer = fs.createWriteStream(filePath)
+    const download = await axios({ url: urlDescarga, method: 'GET', responseType: 'stream' })
+    download.data.pipe(writer)
 
-    // Descarga del video
     await new Promise((resolve, reject) => {
-      ytdl(text, { quality: '18' }) // calidad 360p
-        .pipe(fs.createWriteStream(filePath))
-        .on('finish', resolve)
-        .on('error', reject)
+      writer.on('finish', resolve)
+      writer.on('error', reject)
     })
 
-    // Enviar video
+    // 5. Enviar video
     await conn.sendMessage(m.chat, {
       video: { url: filePath },
       mimetype: 'video/mp4',
-      fileName: `${title}.mp4`
+      fileName: `${titulo}.mp4`
     }, { quoted: m })
 
-    fs.unlinkSync(filePath)
+    fs.unlinkSync(filePath) // borrar archivo temporal
+
   } catch (e) {
+    console.log(e)
     m.reply('❌ Error al descargar el video')
   }
 }
