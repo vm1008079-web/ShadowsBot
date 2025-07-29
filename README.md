@@ -33,6 +33,9 @@ cd Michi-WaBot
 # 5. Instalar dependencias
 npm install
 
+# 6. Instalar wa-sticker-formatter
+npm install wa-sticker-formatter
+
 # 6. Iniciar el bot
 npm start
 ```
