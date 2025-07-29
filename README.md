@@ -1,13 +1,13 @@
-# Michi-WaBot ⚜️
+# ⚜️ Michi-WaBot ⚜️
 
-Un bot sencillo para WhatsApp hecho con cariño.  
-Funciona rápido y busca ser útil para quien lo use.
+Un bot sencillo para WhatsApp hecho con cariño  
+Funciona rápido y busca ser útil para quien lo use  
 
 ---
 
-## Instalación en Termux 🔥
+## 🔥 Instalación en Termux
 
-> 🔰 Ejecuta estos pasos en orden :
+> **Sigue estos pasos en orden:**
 
 ```bash
 # 1. Permitir acceso al almacenamiento
@@ -27,3 +27,21 @@ npm install
 
 # 6. Iniciar el bot
 npm start
+
+---
+
+## 👤 Créditos
+
+- Creador: [Ado](https://github.com/Ado-rgb)
+
+---
+
+## 📜 Licencia
+
+Este proyecto está bajo la **Licencia MIT**  
+Puedes usarlo, modificarlo y compartirlo libremente manteniendo los créditos
+
+---
+
+Gracias por darle una oportunidad a **Michi-WaBot**  
+Un proyecto hecho con humildad y buena onda 🐾
