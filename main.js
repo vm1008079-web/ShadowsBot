@@ -270,7 +270,7 @@ async function handleLogin() {
   loginMethod = loginMethod.toLowerCase().trim();
 
   if (loginMethod === 'code') {
-    let phoneNumber = await question(chalk.blue('Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
+    let phoneNumber = await question(chalk.red('🔥 Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
     phoneNumber = phoneNumber.replace(/\D/g, ''); // Solo números
 
     // Ajustes básicos para México (52)
