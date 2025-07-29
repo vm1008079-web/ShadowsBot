@@ -25,7 +25,7 @@ let handler = async (m, { conn, text, args }) => {
       }
     }
 
-    const path = `/tmp/${Date.now()}.mp4`
+    const path = `./tmp/${Date.now()}.mp4`
 
     await new Promise((resolve, reject) => {
       const file = createWriteStream(path)
