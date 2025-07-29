@@ -1,13 +1,13 @@
-# Michi-WaBot
+# Michi-WaBot ⚜️
 
 Un bot sencillo para WhatsApp hecho con cariño.  
 Funciona rápido y busca ser útil para quien lo use.
 
 ---
 
-## Instalación en Termux
+## Instalación en Termux 🔥
 
-Ejecuta estos pasos en orden:
+> 🔰 Ejecuta estos pasos en orden :
 
 ```bash
 # 1. Permitir acceso al almacenamiento
