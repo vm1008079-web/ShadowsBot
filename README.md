@@ -10,7 +10,7 @@ Funciona rápido y busca ser útil para quien lo use
 > **Sigue estos pasos en orden:**
 
 ```bash
-# 1. Permitir acceso al almacenamiento
+# 1. Permitir acceso al almacenamiento.
 termux-setup-storage
 
 # 2. Actualizar paquetes e instalar dependencias
@@ -27,6 +27,7 @@ npm install
 
 # 6. Iniciar el bot
 npm start
+```bash
 
 ---
 
@@ -44,4 +45,4 @@ Puedes usarlo, modificarlo y compartirlo libremente manteniendo los créditos
 ---
 
 Gracias por darle una oportunidad a **Michi-WaBot**  
-Un proyecto hecho con humildad y buena onda 🐾
+Un proyecto hecho con humildad y buena onda :D
