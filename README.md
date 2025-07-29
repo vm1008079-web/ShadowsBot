@@ -62,3 +62,8 @@ Puedes usarlo, modificarlo y compartirlo libremente manteniendo los créditos
 
 Gracias por darle una oportunidad a **Michi-WaBot**  
 Un proyecto hecho con humildad y buena onda 🐾
+
+## Licencia
+
+MIT License  
+(C) 2025 Ado
