@@ -169,7 +169,7 @@ async function reconnectSubBot(botPath) {
     try {
         console.log(chalk.yellow(`[DEBUG] Paso 1: Obteniendo estado de autenticación para ${path.basename(botPath)}`));
         const { state: subBotState, saveCreds: saveSubBotCreds } = await useMultiFileAuthState(botPath);
-        
+
         // Verifica si el sub-bot ya está registrado (tiene credenciales)
         if (!subBotState.creds.registered) {
             console.warn(chalk.yellow(`[DEBUG] Advertencia: El sub-bot en ${path.basename(botPath)} no está registrado. Salto la conexión.`));
