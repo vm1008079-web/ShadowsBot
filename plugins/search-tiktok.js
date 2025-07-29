@@ -3,39 +3,38 @@ import axios from 'axios'
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     if (!text) {
-      return conn.reply(m.chat, `💜 Ejemplo de uso: ${usedPrefix + command} Mini Dog`, m);
+      return conn.reply(m.chat, `💜 Ejemplo de uso: ${usedPrefix + command} Mini Dog`, m)
     }
-    m.react('🕒');
-    let old = new Date();
-    let res = await ttks(text);
-    let videos = res.data;
+    m.react('🕒')
+
+    const res = await ttks(text)
+    const videos = res.data
     if (!videos.length) {
-      return conn.reply(m.chat, "No se encontraron videos.", m);
+      return conn.reply(m.chat, "No se encontraron videos.", m)
     }
 
-    let cap = `◜ 𝗧𝗶𝗸𝘁𝗼𝗸 ◞\n\n`
-            + `≡ 🎋 𝖳𝗂́𝗍𝗎𝗅𝗈  : ${videos[0].title}\n`
-            + `≡ ⚜️ 𝖡𝗎́𝗌𝗊𝗎𝖾𝖽𝖺 : ${text}`
+    const cap = `◜ 𝗧𝗶𝗸𝘁𝗼𝗸 ◞\n\n`
+               + `≡ 🎋 𝖳𝗂́𝗍𝗎𝗅𝗈  : ${videos[0].title}\n`
+               + `≡ ⚜️ 𝖡𝗎́𝗌𝗊𝗎𝖾𝖽𝖺 : ${text}`
 
-    let medias = videos.map((video, index) => ({
-      type: "video",
-      data: { url: video.no_wm },
-      caption: index === 0
-        ? cap
-        : `👤 \`Titulo\` : ${video.title}\n🍟 \`Process\` : ${((new Date() - old) * 1)} ms`
-    }));
+    // Mandar todos los videos directamente por URL sin descarga
+    for (let i = 0; i < videos.length; i++) {
+      await conn.sendMessage(m.chat, {
+        video: { url: videos[i].no_wm },
+        caption: i === 0 ? cap : `👤 Titulo: ${videos[i].title}`
+      }, { quoted: m })
+    }
 
-    await conn.sendSylphy(m.chat, medias, { quoted: m });
-    m.react('✅');
+    m.react('✅')
   } catch (e) {
-    return conn.reply(m.chat, `Ocurrió un problema al obtener los videos:\n\n` + e, m);
+    return conn.reply(m.chat, `Ocurrió un problema al obtener los videos:\n\n${e}`, m)
   }
-};
+}
 
-handler.command = ["ttsesearch", "tiktoks", "ttrndm", "ttks", "tiktoksearch"];
-handler.help = ["tiktoksearch"];
-handler.tags = ["search"];
-export default handler;
+handler.command = ["ttsesearch", "tiktoks", "ttrndm", "ttks", "tiktoksearch"]
+handler.help = ["tiktoksearch"]
+handler.tags = ["search"]
+export default handler
 
 async function ttks(query) {
   try {
@@ -53,12 +52,12 @@ async function ttks(query) {
         cursor: 0,
         HD: 1
       }
-    });
+    })
 
-    const videos = response.data.data.videos;
-    if (videos.length === 0) throw new Error("⚠️ No se encontraron videos para esa búsqueda.");
+    const videos = response.data.data.videos
+    if (videos.length === 0) throw new Error("⚠️ No se encontraron videos para esa búsqueda.")
 
-    const shuffled = videos.sort(() => 0.5 - Math.random()).slice(0, 5);
+    const shuffled = videos.sort(() => 0.5 - Math.random()).slice(0, 5)
     return {
       status: true,
       creator: "Made with Ado",
@@ -68,8 +67,8 @@ async function ttks(query) {
         watermark: video.wmplay,
         music: video.music
       }))
-    };
+    }
   } catch (error) {
-    throw error;
+    throw error
   }
 }
