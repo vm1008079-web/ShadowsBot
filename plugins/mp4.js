@@ -29,7 +29,6 @@ let handler = async (m, { conn, text, args }) => {
 *≡ 📅 Publicado :* ${video.ago}
 *≡ 🔗 Enlace :* ${video.url}
 *≡ 🌳 Calidad :* ${args[1] || "360"}
-  ${footer}
 `
         if (isDoc) m.reply(cap)
         const vid = await ytmp4(video.url, args[1] || "360")
