@@ -1,172 +1,106 @@
-import axios from 'axios'
-import crypto from 'crypto'
+import fetch from 'node-fetch'
+import yts from 'yt-search'
+import fs from 'fs'
+import path from 'path'
 
-let handler = async (m, { conn, text }) => {
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/(?:v|e(?:mbed)?)\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})|(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
-  if (!text || !youtubeRegex.test(text)) {
-    return conn.reply(m.chat, `🌱 Uso correcto: mp4 https://youtube.com/watch?v=DLh9mnfZvc0`, m)
-  }
+let handler = async (m, { conn, args, command, usedPrefix }) => {
+  if (!args[0]) return m.reply(`*ꕥ Uso correcto ›* ${usedPrefix + command} <enlace o nombre>`)
 
   try {
-    await m.react('🕒')
+    // Obtener nombre personalizado del subbot
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = path.join('./JadiBots', botActual, 'config.json')
 
-    let vid = await yta(text)
-    if (!vid.status) {
-      vid = await ytv(text)
-      if (!vid.status) {
-        return conn.reply(m.chat, `❌ No pude obtener el video: ${vid.error}`, m)
+    let nombreBot = global.namebot || '✧ michi ✧'
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+        if (config.name) nombreBot = config.name
+      } catch (err) {
+        console.log('⚠️ No se pudo leer config del subbot:', err)
       }
     }
 
-    const cap = `🎬 *${vid.result.title}*
-📁 Tipo: ${vid.result.format || 'mp4'}
-🔗 Link directo`
+    let url = args[0]
+    let videoInfo = null
 
-    await conn.sendMessage(m.chat, {
-      video: { url: vid.result.download },
-      caption: cap,
-      mimetype: 'video/mp4'
+    if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+      let search = await yts(args.join(' '))
+      if (!search.videos || search.videos.length === 0) return m.reply('*ꕥ No encontré resultados*')
+      videoInfo = search.videos[0]
+      url = videoInfo.url
+    } else {
+      // Buscar info del video por enlace
+      let id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
+      let search = await yts({ videoId: id })
+      if (search && search.title) videoInfo = search
+    }
+
+    let apiUrl = ''
+    let isAudio = false
+
+    if (command == 'play' || command == 'ytmp3') {
+      apiUrl = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
+      isAudio = true
+    } else if (command == 'mp4' || command == 'ytmp4') {
+      apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
+    } else {
+      return m.reply('*ꕥ Comando no reconocido*')
+    }
+
+    let res = await fetch(apiUrl)
+    if (!res.ok) throw new Error('No se pudo conectar a la API')
+    let json = await res.json()
+    if (!json.success) throw new Error('No se pudo obtener la información del video')
+
+    let { title, thumbnail, quality, download } = json.data
+    let duration = videoInfo?.timestamp || 'N/A'
+
+    // Mensaje con detalles decorados
+    let details = `› *${title}*
+» Duración › *${duration}*
+⚥ Calidad › *${quality}*
+⛁ Tipo › *${isAudio ? 'Audio' : 'Video'}*
+❒ Fuente › *YouTube*`.trim()
+
+    // Envía detalles con miniatura y link tipo "reproducción"
+    await conn.sendMessage(m.chat, { 
+      text: details, 
+      contextInfo: { 
+        externalAdReply: { 
+          title: nombreBot, 
+          body: 'Un momento..',
+          thumbnailUrl: thumbnail,
+          sourceUrl: url,
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
     }, { quoted: m })
 
-    await m.react('✅')
+    // Enviar archivo directo sin descargar, con miniatura si video
+    if (isAudio) {
+      await conn.sendMessage(m.chat, { 
+        audio: { url: download }, 
+        mimetype: 'audio/mpeg',
+        fileName: `${title}.mp3`,
+        ptt: true
+      }, { quoted: m })
+    } else {
+      await conn.sendMessage(m.chat, { 
+        video: { url: download }, 
+        mimetype: 'video/mp4',
+        fileName: `${title}.mp4`,
+        jpegThumbnail: Buffer.from(await (await fetch(thumbnail)).arrayBuffer())
+      }, { quoted: m })
+    }
+
   } catch (e) {
     console.error(e)
-    await conn.reply(m.chat, `❌ Error al enviar el video.\n\n${e.message}`, m)
+    m.reply('*ꕥ Ocurrió un error al procesar tu solicitud*')
   }
 }
 
-handler.command = ['mp4', 'ytmp4', 'ytv']
-
-async function yta(link) {
-  const apiBase = "https://media.savetube.me/api"
-  const apiCDN = "/random-cdn"
-  const apiInfo = "/v2/info"
-  const apiDownload = "/download"
-
-  const decryptData = (enc) => {
-    try {
-      const key = Buffer.from('C5D58EF67A7584E4A29F6C35BBC4EB12', 'hex')
-      const data = Buffer.from(enc, 'base64')
-      const iv = data.slice(0, 16)
-      const content = data.slice(16)
-      const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
-      let decrypted = decipher.update(content)
-      decrypted = Buffer.concat([decrypted, decipher.final()])
-      return JSON.parse(decrypted.toString())
-    } catch {
-      return null
-    }
-  }
-
-  const request = async (endpoint, data = {}, method = 'post') => {
-    try {
-      const { data: response } = await axios({
-        method,
-        url: `${endpoint.startsWith('http') ? '' : apiBase}${endpoint}`,
-        data: method === 'post' ? data : undefined,
-        params: method === 'get' ? data : undefined,
-        headers: {
-          accept: '*/*',
-          'content-type': 'application/json',
-          origin: 'https://yt.savetube.me',
-          referer: 'https://yt.savetube.me/',
-          'user-agent': 'Postify/1.0.0'
-        }
-      })
-      return { status: true, data: response }
-    } catch (error) {
-      return { status: false, error: error.message }
-    }
-  }
-
-  const youtubeID = link.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/)
-  if (!youtubeID) return { status: false, error: "No se pudo extraer el ID del video." }
-
-  const qualityOptions = ['1080', '720', '480', '360', '240']
-
-  const cdnRes = await request(apiCDN, {}, 'get')
-  if (!cdnRes.status) return cdnRes
-  const cdn = cdnRes.data.cdn
-
-  const infoRes = await request(`https://${cdn}${apiInfo}`, { url: `https://www.youtube.com/watch?v=${youtubeID[1]}` })
-  if (!infoRes.status) return infoRes
-
-  const decrypted = decryptData(infoRes.data.data)
-  if (!decrypted) return { status: false, error: "No se pudo desencriptar la info del video." }
-
-  let downloadUrl = null
-  for (const quality of qualityOptions) {
-    const downloadRes = await request(`https://${cdn}${apiDownload}`, {
-      id: youtubeID[1],
-      downloadType: 'video',
-      quality,
-      key: decrypted.key
-    })
-    if (downloadRes.status && downloadRes.data.data.downloadUrl) {
-      downloadUrl = downloadRes.data.data.downloadUrl
-      break
-    }
-  }
-
-  if (!downloadUrl) return { status: false, error: "No hay enlace de descarga disponible." }
-
-  return {
-    status: true,
-    result: {
-      title: decrypted.title || "Unknown",
-      format: 'mp4',
-      download: downloadUrl,
-      type: 'video'
-    }
-  }
-}
-
-async function ytv(url) {
-  const headers = {
-    accept: '*/*',
-    'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-    'sec-ch-ua': '"Not A(Brand";v="8", "Chromium";v="132"',
-    'sec-ch-ua-mobile': '?1',
-    'sec-ch-ua-platform': '"Android"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'cross-site',
-    referer: 'https://id.ytmp3.mobi/',
-    'referrer-policy': 'strict-origin-when-cross-origin'
-  }
-  try {
-    const initial = await axios.get(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers })
-    const init = initial.data
-
-    const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1]
-    if (!id) return { status: false, error: "No se pudo extraer el ID del video." }
-
-    const convertURL = `${init.convertURL}&v=${id}&f=mp4&_=${Math.random()}`
-    const converts = await axios.get(convertURL, { headers })
-    const convert = converts.data
-
-    let info = {}
-    for (let i = 0; i < 5; i++) {
-      const progressResponse = await axios.get(convert.progressURL, { headers })
-      info = progressResponse.data
-      if (info.progress === 3) break
-      await new Promise(r => setTimeout(r, 1500))
-    }
-
-    if (!convert.downloadURL) return { status: false, error: "No se encontró enlace de descarga." }
-
-    return {
-      status: true,
-      result: {
-        title: info.title || "Unknown",
-        format: 'mp4',
-        download: convert.downloadURL,
-        type: 'video'
-      }
-    }
-  } catch (error) {
-    return { status: false, error: error.message }
-  }
-}
+handler.command = ['mp4']
 
 export default handler
