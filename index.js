@@ -20,7 +20,7 @@ cfonts.say('✧ Michi Wa ✧', {
 })
 
 
-cfonts.say('Bot Multi Device 😺', {
+cfonts.say('Hecho por Ado :D', {
   font: 'console',     
   align: 'center',
   gradient: ['cyan', 'white'],
