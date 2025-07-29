@@ -1,4 +1,6 @@
 # ⚜️ Michi-WaBot ⚜️
+![Michi-IA] (https://files.catbox.moe/8zf4yo.png)
+
 
 Un bot sencillo para WhatsApp hecho con cariño  
 Funciona rápido y busca ser útil para quien lo use  
