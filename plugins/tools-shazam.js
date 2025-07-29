@@ -1,1 +1,28 @@
-import acrcloud from 'acrcloud';const a=new acrcloud({host:'identify-eu-west-1.acrcloud.com',access_key:'c33c767d683f78bd17d4bd4991955d81',access_secret:'bvgaIAEtADBTbLwiPGYlxupWqkNGIjT7J9Ag2vIu'});let h=async(m,{conn:c,usedPrefix:d,command:e})=>{try{let f=m?.quoted??m;let g=(f?.msg||f)?.mimetype||f?.mediaType||'';if(/video|audio/.test(g)){let i=await f.download();let{status:j,metadata:k}=await a.identify(i);if(j.code!==0)throw j.msg;let{title:l,artists:m,album:n,genres:o,release_date:p}=k.music[0];let q='╭─⬣「 *Whatmusic Tool* 」⬣\n';q+=`│  ≡◦ *Titulo ∙* ${l}${m?`\\n│  ≡◦ *Artista ∙* ${m.map(r=>r.name).join(', ')}`:''}`;q+=`${n?`\\n│  ≡◦ *Album ∙* ${n.name}`:''}${o?`\\n│  ≡◦ *Genero ∙* ${o.map(s=>s.name).join(', ')}`:''}\\n`;q+=`│  ≡◦ *Fecha de lanzamiento ∙* ${p}\\n`;q+='╰─⬣';await c.reply(m.chat,q,m)}else return c.reply(m.chat,`Etiqueta un audio o video de poca duración con el comando *${d+e}* para ver que música contiene.`,m)}catch(x){return c.reply(m.chat,'Ocurrió un error detectando la música',m)}};h.help=['whatmusic <audio/video>'];h.tags=['tools'];h.command=['shazam','whatmusic'];h.register=true;export default h;
+import acrcloud from 'acrcloud'
+
+let acr = new acrcloud({
+  host: 'identify-eu-west-1.acrcloud.com',
+  access_key: 'c33c767d683f78bd17d4bd4991955d81',
+  access_secret: 'bvgaIAEtADBTbLwiPGYlxupWqkNGIjT7J9Ag2vIu'
+})
+let handler = async (m, { conn, usedPrefix, command }) => {
+  let q = m.quoted ? m.quoted : m
+  let mime = (q.msg || q).mimetype || q.mediaType || ''
+  if (/video|audio/.test(mime)) {
+  let buffer = await q.download()
+  let { status, metadata } = await acr.identify(buffer)
+  if (status.code !== 0) throw status.msg 
+  let { title, artists, album, genres, release_date } = metadata.music[0]
+  let txt = '╭─⬣「 *Whatmusic Tool* 」⬣\n'
+      txt += `│  ≡◦ *Titulo ∙* ${title}${artists ? `\n│  ≡◦ *Artista ∙* ${artists.map(v => v.name).join(', ')}` : ''}`
+      txt += `${album ? `\n│  ≡◦ *Album ∙* ${album.name}` : ''}${genres ? `\n│  ≡◦ *Genero ∙* ${genres.map(v => v.name).join(', ')}` : ''}\n`
+      txt += `│  ≡◦ *Fecha de lanzamiento ∙* ${release_date}\n`
+      txt += `╰─⬣`
+     conn.reply(m.chat, txt, m)
+  } else return conn.reply(m.chat, `Etiqueta un audio o video de poca duración con el comando *${usedPrefix + command}* para ver que música contiene.`, m)
+}
+handler.help = ['whatmusic <audio/video>']
+handler.tags = ['tools']
+handler.command = ['shazam', 'whatmusic']
+handler.register = true 
+export default handler
