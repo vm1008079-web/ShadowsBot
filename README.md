@@ -33,7 +33,7 @@ npm start
 
 ## 👤 Créditos
 
-- Creador: [Ado](https://github.com/Ado-rgb)
+- 🍁 Creador: [Ado](https://github.com/Ado-rgb)
 
 ![Foto del creador](https://github.com/Ado-rgb.png)
 
@@ -42,8 +42,6 @@ npm start
 ## 🎋 Adonix-API Free
 
 > **URL:** [myapiadonix.vercel.app](https://myapiadonix.vercel.app)
-
-![Adonix API](https://files.catbox.moe/8zf4yo.png)
 
 ---
 
