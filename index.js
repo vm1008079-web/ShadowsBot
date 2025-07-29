@@ -20,7 +20,7 @@ cfonts.say('✧ Michi Wa ✧', {
 })
 
 
-cfonts.say('Hecho por Ado :D', {
+cfonts.say('💎 made by Ado 📍', {
   font: 'console',     
   align: 'center',
   gradient: ['cyan', 'white'],
