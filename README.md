@@ -25,17 +25,19 @@ termux-setup-storage
 apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick
 ```
 
-# 3. Clonar el repositorio
+```bash
 git clone https://github.com/Ado-rgb/Michi-WaBot
+```
 
-# 4. Entrar a la carpeta del bot
+```bash
 cd Michi-WaBot
+```
 
-# 5. Instalar dependencias
+```bash
 npm install
+```
 
-
-# 6. Iniciar el bot
+```bash
 npm start
 ```
 
@@ -48,7 +50,7 @@ npm start
 ![Foto del creador](https://github.com/Ado-rgb.png)
 
 ---
-
+___
 
 > Visita mi api, te puede ser útil.
 ## 🎋 Adonix-API 
