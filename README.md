@@ -22,7 +22,7 @@ ___
 termux-setup-storage
 
 # 2. Actualizar paquetes e instalar dependencias
-apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick
+apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick build-essential libc++ libjpeg-turbo libpng libvips
 
 # 3. Clonar el repositorio
 git clone https://github.com/Ado-rgb/Michi-WaBot
@@ -33,8 +33,6 @@ cd Michi-WaBot
 # 5. Instalar dependencias
 npm install
 
-# 6. Instalar wa-sticker-formatter
-npm install wa-sticker-formatter
 
 # 6. Iniciar el bot
 npm start
