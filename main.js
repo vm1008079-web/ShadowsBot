@@ -1,6 +1,5 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 import fs from 'fs'
-import path from 'path'
 
 // Forzar carpeta temporal a ./tmp
 process.env.TMPDIR = path.join(process.cwd(), 'tmp')
