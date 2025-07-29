@@ -1,11 +1,17 @@
 # ⚜️ Michi-WaBot ⚜️
-![Michi-IA] (https://files.catbox.moe/8zf4yo.png)
-
+![Michi-IA](https://files.catbox.moe/8zf4yo.png)
 
 Un bot sencillo para WhatsApp hecho con cariño  
-Funciona rápido y busca ser útil para quien lo use  
+Pensado para ayudar sin complicaciones y funcionar rápido  
+Hecho para quienes buscan algo simple pero confiable  
 
 ---
+
+### Lo que puedes esperar »
+- Ligero y fácil de usar  
+- Funciona sin rodeos  
+- Hecho con dedicación y un toque personal
+___
 
 ## 🔥 Instalación en Termux
 
