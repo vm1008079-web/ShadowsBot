@@ -260,9 +260,8 @@ async function handleLogin() {
 
   let loginMethod = await question(
   chalk.green(
-    `🔐 ¿Cómo quieres iniciar sesión, mi rey?\n` +
-    `📷 Escribe "qr" pa escanear el código QR alv\n` +
-    `🔢 O escribe "code" si quieres usar un código de 8 dígitos\n` +
+    `🔱 Holas \n` +
+    `❇️ Escribe "code" para iniciar..\n` +
     `> `
   )
 );
