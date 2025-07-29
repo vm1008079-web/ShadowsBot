@@ -35,7 +35,7 @@ npm start
 
 - Creador: [Ado](https://github.com/Ado-rgb)
 
-![Foto del creador](https://avatars.githubusercontent.com/u/99152352?v=4)
+![Foto del creador](https://github.com/Ado-rgb.png)
 
 ---
 
