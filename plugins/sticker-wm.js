@@ -1,48 +1,47 @@
-import { addExif } from '../lib/sticker.js'
-import fetch from 'node-fetch'
-import axios from 'axios'
+import fs from 'fs'
+import path from 'path'
+import crypto from 'crypto'
+import { fileTypeFromBuffer } from 'file-type'
+import webp from 'node-webpmux'
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  const emoji = 'ꕥ'
-  const emoji2 = '✘'
-
-  if (!m.quoted) return conn.sendMessage(m.chat, {
-    text: `
-${emoji} Debes responder a un *sticker* para usar este comando.
-> ● *Ejemplo ›* ${usedPrefix + command} Cats-Pack • By Ado
-`.trim(),
-    ...global.rcanal
-  }, { quoted: m })
-
-  const stickerData = await m.quoted.download()
-  if (!stickerData) return conn.sendMessage(m.chat, {
-    text: `${emoji2} No se pudo descargar el sticker.`,
-    ...global.rcanal
-  }, { quoted: m })
-
-  const textoParts = (text || '').split(/[\u2022|]/).map(part => part.trim())
-  const userId = m.sender
-  let packstickers = global.db.data.users[userId] || {}
-
-  let texto1 = textoParts[0] || packstickers.text1 || global.packsticker || 'Mai Pack'
-  let texto2 = textoParts[1] || packstickers.text2 || global.packsticker2 || 'By Wirk'
-
-  try {
-    const exif = await addExif(stickerData, texto1, texto2)
-    await conn.sendMessage(m.chat, { sticker: exif, ...global.rcanal }, { quoted: m })
-    await m.react('✅')
-  } catch (e) {
-    console.error(e)
-    await conn.sendMessage(m.chat, {
-      text: `${emoji2} Error al agregar marca al sticker.`,
-      ...global.rcanal
-    }, { quoted: m })
+async function addExif(webpSticker, packname, author) {
+  const img = new webp.Image()
+  const stickerPackId = crypto.randomBytes(32).toString('hex')
+  const json = {
+    'sticker-pack-id': stickerPackId,
+    'sticker-pack-name': packname,
+    'sticker-pack-publisher': author,
+    emojis: ['✨', '❀', '💫']
   }
+  const exifAttr = Buffer.from([
+    0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00,
+    0x01, 0x00, 0x41, 0x57, 0x07, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x16, 0x00, 0x00, 0x00
+  ])
+  const jsonBuffer = Buffer.from(JSON.stringify(json), 'utf8')
+  const exif = Buffer.concat([exifAttr, jsonBuffer])
+  exif.writeUIntLE(jsonBuffer.length, 14, 4)
+  await img.load(webpSticker)
+  img.exif = exif
+  return await img.save(null)
+}
+
+let handler = async (m, { conn, text }) => {
+  let q = m.quoted ? m.quoted : m
+  let mime = (q.msg || q).mimetype || ''
+  if (!/webp/.test(mime)) return m.reply('✿ Responde a un sticker para cambiarle el WM')
+
+  let [packname, author] = text.split('|').map(v => v.trim())
+  if (!packname) packname = '✦ Michi - AI ✦'
+  if (!author) author = '© Made with Wirk ✧'
+
+  let media = await q.download()
+  let buffer = await addExif(media, packname, author)
+  await conn.sendMessage(m.chat, { sticker: buffer }, { quoted: m })
 }
 
 handler.help = ['wm']
 handler.tags = ['sticker']
-handler.command = ['take', 'robar', 'wm']
-handler.register = true
+handler.command = ['wm', 'take', 'robarsticker']
 
 export default handler
