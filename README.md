@@ -27,7 +27,7 @@ npm install
 
 # 6. Iniciar el bot
 npm start
-```bash
+```
 
 ---
 
