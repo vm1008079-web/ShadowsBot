@@ -48,7 +48,7 @@ async function handler(m, { conn, args, usedPrefix, command }) {
 
   const mensaje = `
 ✿ Transferiste *${moneda}${count.toLocaleString()} Yenes* a *${nombre}* ${mención}
-> Ahora tienes *${moneda}${totalEnBanco} Yenes* en tu banco.
+> Ahora tienes *${moneda}${totalEnBanco}* en tu banco.
 `.trim()
 
   return conn.sendMessage(m.chat, {
