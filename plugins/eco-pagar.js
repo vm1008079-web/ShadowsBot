@@ -34,7 +34,7 @@ async function handler(m, { conn, args, usedPrefix, command }) {
 
   if (user[bankType] < count) {
     return conn.sendMessage(m.chat, {
-      text: `${emoji2} No tienes suficientes ${moneda} en tu banco para transferir.`,
+      text: `${emoji2} No tienes suficientes ${moneda} en tu banco para transferir.\n> *TIP :* para que esto funcione tienes que tener tus ${moneda} en el banco.`,
       mentions: [m.sender]
     }, { quoted: m })
   }
