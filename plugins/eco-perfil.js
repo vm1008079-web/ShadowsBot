@@ -9,14 +9,11 @@ let handler = async (m, { conn }) => {
   const numero = PhoneNumber('+' + m.sender.replace(/[^0-9]/g, '')).getNumber('international')
   const fecha = moment().tz('America/Tegucigalpa')
   const sn = createHash('md5').update(m.sender).digest('hex').slice(0, 20)
+  const moneda = global.moneda || '💰'
 
   if (!user.registered) {
     return m.reply(`🔰 No estás registrado aún.\n➤ Usa: *.reg ${nombre}.18*`)
   }
-
-  const tiempoRoll = `2 minutos 14 segundos`
-  const tiempoClaim = `17 minutos 22 segundos`
-  const tiempoVote = `1 hora 11 minutos 56 segundos`
 
   const personajesReclamados = 4
   const valorTotal = 288
@@ -26,15 +23,9 @@ let handler = async (m, { conn }) => {
   const textoPerfil = `
 ╭─❍ *❀ Usuario \`${nombre}\`* ❍─╮
 │
-│ ⴵ *RollWaifu* » ${tiempoRoll}
-│ ⴵ *Claim* » ${tiempoClaim}
-│ ⴵ *Vote* » ${tiempoVote}
-│
-│ ♡ *Personajes reclamados* » ${personajesReclamados}
-│ ✰ *Valor total* » ${valorTotal}
-│
-│ ❏ *Personajes totales* » ${personajesTotales}
-│ ❏ *Series totales* » ${seriesTotales}
+│ ${moneda} *Monedas:* ${user.coin.toLocaleString()}
+│ ✨ *Exp:* ${user.exp.toLocaleString()}
+│ 📥 *Uniones:* ${user.joincount
 │
 │ 🏷 *Número:* ${numero}
 │ 🔖 *ID:* ${sn}
