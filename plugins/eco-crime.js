@@ -23,7 +23,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
   let maxAmount = 50
   let amountTaken = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount
 
-  const moneda = '💰' // reemplazá con el nombre de tu moneda si tenés una
+  const moneda = '💰'
 
   const frases = {
     exito: [
@@ -79,29 +79,34 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
   let randomOption = Math.floor(Math.random() * 3)
 
   switch (randomOption) {
-    case 0: // éxito total
+    case 0:
       users[senderId].coin += amountTaken
       users[randomUserId].coin -= amountTaken
       await conn.sendMessage(m.chat, {
         text: frases.exito[Math.floor(Math.random() * frases.exito.length)],
         contextInfo: {
-          mentionedJid: [randomUserId]
+          mentionedJid: [randomUserId],
+          ...global.rcanal
         }
       }, { quoted: m })
       break
-    case 1: // atrapado
+    case 1:
       let amountSubtracted = Math.min(Math.floor(Math.random() * (senderCoin - minAmount + 1)) + minAmount, maxAmount)
       users[senderId].coin -= amountSubtracted
-      await m.reply(frases.atrapado[Math.floor(Math.random() * frases.atrapado.length)])
+      await conn.sendMessage(m.chat, {
+        text: frases.atrapado[Math.floor(Math.random() * frases.atrapado.length)],
+        contextInfo: global.rcanal
+      }, { quoted: m })
       break
-    case 2: // semi exito
+    case 2:
       let smallAmountTaken = Math.min(Math.floor(Math.random() * (randomUserCoin / 2 - minAmount + 1)) + minAmount, maxAmount)
       users[senderId].coin += smallAmountTaken
       users[randomUserId].coin -= smallAmountTaken
       await conn.sendMessage(m.chat, {
         text: frases.semi[Math.floor(Math.random() * frases.semi.length)],
         contextInfo: {
-          mentionedJid: [randomUserId]
+          mentionedJid: [randomUserId],
+          ...global.rcanal
         }
       }, { quoted: m })
       break
