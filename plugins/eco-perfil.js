@@ -9,28 +9,22 @@ let handler = async (m, { conn }) => {
   const numero = PhoneNumber('+' + m.sender.replace(/[^0-9]/g, '')).getNumber('international')
   const fecha = moment().tz('America/Tegucigalpa')
   const sn = createHash('md5').update(m.sender).digest('hex').slice(0, 20)
-  const moneda = global.moneda || '💰'
+  const moneda = global.moneda || '¥'
 
   if (!user.registered) {
     return m.reply(`🔰 No estás registrado aún.\n➤ Usa: *.reg ${nombre}.18*`)
   }
 
-  const personajesReclamados = 4
-  const valorTotal = 288
-  const personajesTotales = 45353
-  const seriesTotales = 3784
-
   const textoPerfil = `
-╭─❍ *❀ Usuario \`${nombre}\`* ❍─╮
-│
-│ ${moneda} *Monedas:* ${user.coin.toLocaleString()}
-│ ✨ *Exp:* ${user.exp.toLocaleString()}
-│ 📥 *Uniones:* ${user.joincount
-│
-│ 🏷 *Número:* ${numero}
-│ 🔖 *ID:* ${sn}
-│ 📅 *Fecha:* ${fecha.format('DD/MM/YYYY')}
-╰────────────────────╯
+✿ Perfil de usuario *${nombre}* ✿
+
+${moneda} *Saldo actual:* *${user.coin.toLocaleString()} ${moneda} Yenes*
+✨ *Experiencia:* *${user.exp.toLocaleString()} XP*
+📥 *Veces unido:* *${user.joincount}*
+
+🧾 *Número:* ${numero}
+🆔 *ID único:* ${sn}
+📅 *Registrado el:* ${fecha.format('DD/MM/YYYY')}
 `.trim()
 
   await conn.sendMessage(m.chat, {
