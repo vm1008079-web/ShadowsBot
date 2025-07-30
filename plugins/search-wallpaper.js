@@ -101,7 +101,7 @@ async function createImageMsg(url, conn) {
 }
 
 handler.command = ['wallpaper']
-handler.help = ['wallpaper <término>']
+handler.help = ['wallpaper']
 handler.tags = ['search']
 handler.register = true
 
