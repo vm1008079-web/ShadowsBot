@@ -18,7 +18,7 @@ let handler = async (m, { conn }) => {
   const textoPerfil = `
 ✿ Perfil de usuario *${nombre}* ✿
 
-${moneda} : *${user.coin.toLocaleString()} ${moneda}
+${moneda} : *${user.coin.toLocaleString()} ${moneda}*
 ✨ *Exp:* *${user.exp.toLocaleString()} XP*
 
 🧾 *Número:* ${numero}
