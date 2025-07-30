@@ -18,9 +18,8 @@ let handler = async (m, { conn }) => {
   const textoPerfil = `
 ✿ Perfil de usuario *${nombre}* ✿
 
-${moneda} *Saldo actual:* *${user.coin.toLocaleString()} ${moneda} Yenes*
-✨ *Experiencia:* *${user.exp.toLocaleString()} XP*
-📥 *Veces unido:* *${user.joincount}*
+${moneda} : *${user.coin.toLocaleString()} ${moneda}
+✨ *Exp:* *${user.exp.toLocaleString()} XP*
 
 🧾 *Número:* ${numero}
 🆔 *ID único:* ${sn}
