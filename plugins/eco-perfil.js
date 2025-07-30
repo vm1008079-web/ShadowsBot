@@ -39,7 +39,7 @@ let handler = async (m, { conn }) => {
 │ 🏷 *Número:* ${numero}
 │ 🔖 *ID:* ${sn}
 │ 📅 *Fecha:* ${fecha.format('DD/MM/YYYY')}
-╰──────────────────────────╯
+╰────────────────────╯
 `.trim()
 
   await conn.sendMessage(m.chat, {
@@ -50,6 +50,6 @@ let handler = async (m, { conn }) => {
 }
 
 handler.help = ['perfil']
-handler.tags = ['info']
+handler.tags = ['eco']
 handler.command = ['perfil', 'yo', 'miperfil']
 export default handler
