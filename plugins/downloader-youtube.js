@@ -37,6 +37,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       if (search && search.title) videoInfo = search
     }
 
+    // ✂️ Validar duración
+    if (videoInfo.seconds > 3780) { // 63 minutos x 60 segundos
+      return m.reply(`⛔ El video dura más de *63 minutos*\n❌ No puedo descargarlo por ser muy largo`)
+    }
+
     let apiUrl = ''
     let isAudio = false
 
@@ -101,7 +106,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 }
 
-handler.help = ['play', 'ytmp3', 'play2', 'ytmp4'].map(v => v + '')
+handler.help = ['play', 'ytmp3', 'play2', 'ytmp4']
 handler.tags = ['downloader']
 handler.command = ['play', 'play2', 'ytmp3', 'ytmp4']
 
