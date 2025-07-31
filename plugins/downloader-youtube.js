@@ -32,13 +32,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       videoInfo = search.videos[0]
       url = videoInfo.url
     } else {
-      // Buscar info del video por enlace
       let id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
       let search = await yts({ videoId: id })
       if (search && search.title) videoInfo = search
     }
 
-    // ✂️ Validar duración
     if (videoInfo.seconds > 3780) {
       return m.reply(`⛔ El video dura más de *63 minutos*\n❌ No puedo descargarlo por ser muy largo`)
     }
@@ -55,14 +53,19 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       return m.reply('*ꕥ Comando no reconocido*')
     }
 
+    // 👉 Reacción mientras carga
+    await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
+
     let res = await fetch(apiUrl)
     if (!res.ok) throw new Error('No se pudo conectar a la API')
     let json = await res.json()
     if (!json.success) throw new Error('No se pudo obtener la información del video')
 
-    let { title, thumbnail, download } = json.data
+    let { title, download } = json.data
 
-    // Enviar archivo directamente sin mostrar detalles
+    // ✅ Reacción cuando ya está todo listo
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+
     if (isAudio) {
       await conn.sendMessage(m.chat, { 
         audio: { url: download }, 
@@ -80,6 +83,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
   } catch (e) {
     console.error(e)
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
     m.reply('*ꕥ Ocurrió un error al procesar tu solicitud*')
   }
 }
