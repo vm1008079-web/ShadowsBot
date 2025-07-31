@@ -1,4 +1,4 @@
-// Código hecho por github.com/Ado-rgb no quitar créditos 😎
+// Código hecho por github.com/Ado-rgb no quitar créditos.
 
 import fetch from 'node-fetch'
 import yts from 'yt-search'
