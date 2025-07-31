@@ -29,7 +29,7 @@ const handler = async (m, { conn }) => {
   const wsPing = conn?.ws?.ping?.last || 0
 
   await conn.sendMessage(m.chat, { 
-    text: `☁︎ *Ping:* ${realPing} ms\n📡 *Ping WS:* ${wsPing} ms\n> ${nombreBot}` 
+    text: `☁︎ *Ping:* ${realPing} ms\n> ${nombreBot}` 
   }, { quoted: sentMsg })
 }
 
