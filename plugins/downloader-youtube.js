@@ -9,7 +9,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!args[0]) return m.reply(`*ꕥ Uso correcto ›* ${usedPrefix + command} <enlace o nombre>`)
 
   try {
-    // Obtener nombre personalizado del subbot
+    
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
 
@@ -53,7 +53,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       return m.reply('*ꕥ Comando no reconocido*')
     }
 
-    // 👉 Reacción mientras carga
+   
     await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
     let res = await fetch(apiUrl)
@@ -63,9 +63,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     let { title, download } = json.data
 
-    // ✅ Reacción cuando ya está todo listo
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-
+    
     if (isAudio) {
       await conn.sendMessage(m.chat, { 
         audio: { url: download }, 
@@ -80,6 +78,9 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         fileName: `${title}.mp4`
       }, { quoted: m })
     }
+
+    
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
   } catch (e) {
     console.error(e)
