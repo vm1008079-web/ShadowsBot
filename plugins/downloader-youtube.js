@@ -1,4 +1,5 @@
-// github.com/Ado-rgb
+// Código hecho por github.com/Ado-rgb no quitar créditos 😎
+
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
@@ -38,7 +39,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     // ✂️ Validar duración
-    if (videoInfo.seconds > 3780) { // 63 minutos x 60 segundos
+    if (videoInfo.seconds > 3780) {
       return m.reply(`⛔ El video dura más de *63 minutos*\n❌ No puedo descargarlo por ser muy largo`)
     }
 
@@ -59,32 +60,9 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let json = await res.json()
     if (!json.success) throw new Error('No se pudo obtener la información del video')
 
-    let { title, thumbnail, quality, download } = json.data
-    let duration = videoInfo?.timestamp || 'N/A'
+    let { title, thumbnail, download } = json.data
 
-    // Mensaje con detalles decorados
-    let details = `› *${title}*
-» Duración › *${duration}*
-⚥ Calidad › *${quality}*
-⛁ Tipo › *${isAudio ? 'Audio' : 'Video'}*
-❒ Fuente › *YouTube*
-    `.trim()
-
-    await conn.sendMessage(m.chat, { 
-      text: details, 
-      contextInfo: { 
-        externalAdReply: { 
-          title: nombreBot, 
-          body: 'Un momento..',
-          thumbnailUrl: thumbnail,
-          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-          mediaType: 1,
-          renderLargerThumbnail: true
-        }
-      }
-    }, { quoted: m })
-
-    // Enviar archivo
+    // Enviar archivo directamente sin mostrar detalles
     if (isAudio) {
       await conn.sendMessage(m.chat, { 
         audio: { url: download }, 
