@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 const handler = async (m, { conn }) => {
-  const start = Date.now()
+  const start = performance.now()
 
   // Obtener el número del bot actual (la sesión activa)
   const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
@@ -19,12 +19,19 @@ const handler = async (m, { conn }) => {
     }
   }
 
-  const latency = Date.now() - start
+  // Esperamos un pequeño mensaje para medir ping real
+  const sentMsg = await conn.sendMessage(m.chat, { text: '🏓 Midiendo ping...' }, { quoted: m })
+
+  const end = performance.now()
+  const realPing = Math.round(end - start)
+
+  // Si Baileys tiene ping nativo lo mostramos también
+  const wsPing = conn?.ws?.ping?.last || 0
 
   await conn.sendMessage(m.chat, { 
-    text: `☁︎ *Ping:* ${latency} ms\n> ${nombreBot}` 
-  }, { quoted: m })
+    text: `☁︎ *Ping:* ${realPing} ms\n📡 *Ping WS:* ${wsPing} ms\n> ${nombreBot}` 
+  }, { quoted: sentMsg })
 }
 
-handler.command = ['p']
+handler.command = ['p', 'ping']
 export default handler
