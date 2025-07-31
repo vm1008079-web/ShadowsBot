@@ -45,7 +45,7 @@ var handler = async (m, { conn, text }) => {
 
 handler.tags = ['downloader']
 handler.help = ['apk', 'modapk', 'aptoide']
-handler.command = ['apk', 'modapk', 'aptoide']
+handler.command = ['apk']
 handler.group = true
 handler.register = true
 
