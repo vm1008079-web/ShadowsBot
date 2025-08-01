@@ -19,7 +19,7 @@ let handler = async (m, { conn, isPrems }) => {
 handler.help = ['work']
 handler.tags = ['eco']
 handler.command = ['w', 'work', 'chambear', 'chamba', 'trabajar']
-handler.group = true
+handler.group = false
 handler.register = true
 
 export default handler
