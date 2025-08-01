@@ -71,7 +71,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 handler.help = ['robar'];
 handler.tags = ['eco'];
 handler.command = ['robar', 'steal', 'rob'];
-handler.group = true;
+handler.group = false;
 handler.register = true;
 
 export default handler;
