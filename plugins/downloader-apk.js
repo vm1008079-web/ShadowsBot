@@ -44,9 +44,9 @@ var handler = async (m, { conn, text }) => {
 }
 
 handler.tags = ['downloader']
-handler.help = ['apk', 'modapk', 'aptoide']
+handler.help = ['apk']
 handler.command = ['apk']
-handler.group = true
+handler.group = false
 handler.register = true
 
 export default handler
