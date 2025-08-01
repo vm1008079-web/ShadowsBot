@@ -60,7 +60,7 @@ async function handler(m, { conn, args, usedPrefix, command }) {
 handler.help = ['pay']
 handler.tags = ['eco']
 handler.command = ['pay', 'transferir']
-handler.group = true
+handler.group = false
 handler.register = true
 
 export default handler
