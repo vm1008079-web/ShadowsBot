@@ -9,10 +9,10 @@ global.owner = [
 global.mods = []
 global.prems = []
 
-global.namebot = '❀ Michi - AI ❀'
-global.packname = '➪ Michi - AI ✦'
-global.author = 'ꕤ 𝖬𝖺𝖽𝖾 𝗐𝗂𝗍𝗁 𝖻𝗒 🫟 𝖠𝖽𝗈'
-global.moneda = '⛁ ¥ Mangos ¥'
+global.namebot = '🎋 𝖬𝗂𝖼𝗁𝗂 - 𝖠𝖨 🫑'
+global.packname = '🧩 ᴍɪᴄʜɪ ʙᴏᴛ 🌿'
+global.author = '🍁 𝖬𝖺𝖽𝖾 𝗐𝗂𝗍𝗁 𝖻𝗒 🐦‍🔥 𝖠𝖽𝗈'
+global.moneda = '˒˒⭐˓˓ 𝘔𝘢𝘯𝘨𝘰𝘴 🪼'
 
 global.libreria = 'Baileys'
 global.baileys = 'V 6.7.16'
@@ -21,7 +21,7 @@ global.sessions = 'Sessions'
 global.jadi = 'JadiBots'
 global.yukiJadibts = true
 
-global.namecanal = '❇️'
+global.namecanal = '❇️𝘪𝘱'
 global.idcanal = '120363403739366547@newsletter'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.canalreg = '120363402895449162@newsletter'
