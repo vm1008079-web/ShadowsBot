@@ -41,8 +41,8 @@ before: `
 *꒰ Menú de Comandos ꒱*
 %readmore`.trimStart(),
 
-header: '\n➮ *%category*',
-body: '✦ %cmd %islimit %isPremium',
+header: '\n*%category*',
+body: '✧ %cmd %islimit %isPremium',
 footer: '*. : ｡✿ *  ｡  * ﾟ  * . : ｡ ✿ *',
 after: '\n© mᥲძᥱ ᥕі𝗍һ ᑲᥡ 𝗪𝗶𝗿𝗸 ☁︎',
 }
