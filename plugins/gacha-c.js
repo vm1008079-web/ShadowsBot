@@ -94,6 +94,6 @@ let handler = async (m, { conn }) => {
 handler.help = ['c'];
 handler.tags = ['gacha'];
 handler.command = ['c', 'claim', 'reclamar'];
-handler.group = true;
+handler.group = false;
 handler.register = true;
 export default handler;
