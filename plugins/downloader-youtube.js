@@ -59,11 +59,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let duration = videoInfo?.timestamp || 'Desconocida'
 
     let details = `
-📌 Título: *${title}*
-📁 Duración: *${duration}*
-📥 Calidad: *${quality}*
-🎧 Tipo: *${isAudio ? 'Audio' : 'Video'}*
-🌐 Fuente: *YouTube*`.trim()
+📌 Título : *${title}*
+📁 Duración : *${duration}*
+📥 Calidad : *${quality}*
+🎧 Tipo : *${isAudio ? 'Audio' : 'Video'}*
+🌐 Fuente : *YouTube*`.trim()
 
     await conn.sendMessage(m.chat, {
       text: details,
