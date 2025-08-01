@@ -88,7 +88,7 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['harem']
 handler.tags = ['gacha']
 handler.command = ['harem', 'claims', 'waifus']
-handler.group = true
+handler.group = false
 handler.register = true
 
 export default handler
