@@ -3,7 +3,7 @@ import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
 const tags = {
-  serbot: '🌐 SISTEMA',
+  serbot: '🌐 SUBBOTS',
   eco: '💸 ECONOMÍA',
   downloader: '⬇️ DESCARGAS',
   tools: '🛠️ HERRAMIENTAS',
@@ -29,7 +29,7 @@ const defaultMenu = {
 > ⏳ Uptime: *%uptime*
 %readmore`.trimStart(),
 
-  header: '\n💚 *%category* 💚',
+  header: '\n*%category* 💚',
   body: '> 🫟 %cmd %islimit %isPremium',
   footer: '',
   after: '\n✨ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 𝖠𝖽𝗈.',
