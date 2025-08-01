@@ -5,7 +5,7 @@ import { createHash } from 'crypto'
 import fetch from 'node-fetch'
 import moment from 'moment-timezone'
 
-const Reg = /|?(.*)([.|] ?)([0-9])$/i
+const Reg = /(.*)[.|] ?([0-9]+)$/i
 
 let handler = async function (m, { conn, text, usedPrefix, command }) {
   const who = m.mentionedJid?.[0] || (m.fromMe ? conn.user.jid : m.sender)
@@ -34,7 +34,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ➤ Ejemplo: ${usedPrefix + command} ${name2}.18`)
   }
 
-  let [_, name, __, age] = text.match(Reg)
+  let [_, name, age] = text.match(Reg)
 
   if (!name) return m.reply('⚠️ Tu identidad no puede estar vacía')
   if (!age) return m.reply('⚠️ Edad requerida para iniciar el viaje')
