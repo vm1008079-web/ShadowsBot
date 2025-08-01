@@ -1,4 +1,4 @@
-// Código hecho por github.com/Ado-rgb no quitar créditos.
+// creado por Ado.
 
 import fetch from 'node-fetch'
 import yts from 'yt-search'
@@ -6,21 +6,18 @@ import fs from 'fs'
 import path from 'path'
 
 let handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!args[0]) return m.reply(`*ꕥ Uso correcto ›* ${usedPrefix + command} <enlace o nombre>`)
+  if (!args[0]) return m.reply(`✅ Uso correcto: ${usedPrefix + command} <enlace o nombre>`)
 
   try {
-    
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
 
-    let nombreBot = global.namebot || '✧ michi ✧'
+    let nombreBot = global.namebot || '⎯⎯⎯⎯⎯⎯ Bot Principal ⎯⎯⎯⎯⎯⎯'
     if (fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
         if (config.name) nombreBot = config.name
-      } catch (err) {
-        console.log('⚠️ No se pudo leer config del subbot:', err)
-      }
+      } catch {}
     }
 
     let url = args[0]
@@ -28,7 +25,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
-      if (!search.videos || search.videos.length === 0) return m.reply('*ꕥ No encontré resultados*')
+      if (!search.videos || search.videos.length === 0) return m.reply('No se encontraron resultados.')
       videoInfo = search.videos[0]
       url = videoInfo.url
     } else {
@@ -38,7 +35,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     if (videoInfo.seconds > 3780) {
-      return m.reply(`⛔ El video dura más de *63 minutos*\n❌ No puedo descargarlo por ser muy largo`)
+      return m.reply(`⛔ El video supera el límite de duración permitido (63 minutos).`)
     }
 
     let apiUrl = ''
@@ -50,42 +47,55 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     } else if (command == 'play2' || command == 'ytmp4') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
     } else {
-      return m.reply('*ꕥ Comando no reconocido*')
+      return m.reply('Comando no reconocido.')
     }
 
-   
-    await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
-
     let res = await fetch(apiUrl)
-    if (!res.ok) throw new Error('No se pudo conectar a la API')
+    if (!res.ok) throw new Error('Error al conectar con la API.')
     let json = await res.json()
-    if (!json.success) throw new Error('No se pudo obtener la información del video')
+    if (!json.success) throw new Error('No se pudo obtener información del video.')
 
-    let { title, download } = json.data
+    let { title, thumbnail, quality, download } = json.data
+    let duration = videoInfo?.timestamp || 'Desconocida'
 
-    
+    let details = `
+📌 Título: *${title}*
+📁 Duración: *${duration}*
+📥 Calidad: *${quality}*
+🎧 Tipo: *${isAudio ? 'Audio' : 'Video'}*
+🌐 Fuente: *YouTube*`.trim()
+
+    await conn.sendMessage(m.chat, {
+      text: details,
+      contextInfo: {
+        externalAdReply: {
+          title: nombreBot,
+          body: 'Procesando...',
+          thumbnailUrl: thumbnail,
+          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: m })
+
     if (isAudio) {
-      await conn.sendMessage(m.chat, { 
-        audio: { url: download }, 
+      await conn.sendMessage(m.chat, {
+        audio: { url: download },
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
         ptt: true
       }, { quoted: m })
     } else {
-      await conn.sendMessage(m.chat, { 
-        video: { url: download }, 
+      await conn.sendMessage(m.chat, {
+        video: { url: download },
         mimetype: 'video/mp4',
         fileName: `${title}.mp4`
       }, { quoted: m })
     }
 
-    
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-
-  } catch (e) {
-    console.error(e)
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('*ꕥ Ocurrió un error al procesar tu solicitud*')
+  } catch {
+    m.reply('❌ Se produjo un error al procesar la solicitud.')
   }
 }
 
