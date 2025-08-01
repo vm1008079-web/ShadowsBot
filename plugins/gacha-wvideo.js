@@ -87,6 +87,6 @@ let handler = async (m, { conn, command, args }) => {
 handler.help = ['wvideo']
 handler.tags = ['gacha']
 handler.command = ['charvideo', 'wvideo', 'waifuvideo']
-handler.group = true
+handler.register = true
 
 export default handler
