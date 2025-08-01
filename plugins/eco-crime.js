@@ -119,7 +119,7 @@ handler.tags = ['eco']
 handler.help = ['crime']
 handler.command = ['crimen', 'crime']
 handler.register = true
-handler.group = true
+handler.group = false
 
 export default handler
 
