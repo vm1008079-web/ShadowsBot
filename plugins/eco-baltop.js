@@ -20,7 +20,7 @@ let handler = async (m, { conn, args, participants }) => {
 handler.help = ['baltop'];
 handler.tags = ['rpg'];
 handler.command = ['baltop', 'eboard'];
-handler.group = true;
+handler.group = false;
 handler.register = true;
 handler.fail = null;
 handler.exp = 0;
