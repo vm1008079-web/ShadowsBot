@@ -21,7 +21,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> 🌟 *Hola, soy %botname* 🌟
+> 🌟 *Hola, soy %botname*  _%tipo_ 🌟
 
 > 👋 Hola *%name*, %greeting
 
@@ -72,8 +72,8 @@ if (fs.existsSync(configPath)) {
 }
 
 const tipo = botActual === '+50493059810'.replace(/\D/g, '')
-  ? 'Principal 🅥'
-  : 'Sub Bot 🅑'
+  ? 'Principal 🪴'
+  : 'Sub Bot 🍃'
 
 const menuConfig = conn.menu || defaultMenu
 
