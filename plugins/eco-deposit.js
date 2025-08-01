@@ -28,8 +28,8 @@ let handler = async (m, { args }) => {
 
 handler.help = ['depositar']
 handler.tags = ['eco']
-handler.command = ['deposit', 'depositar', 'd', 'aguardar']
-handler.group = true
+handler.command = ['deposit', 'depositar', 'dep', 'aguardar']
+handler.group = false
 handler.register = true
 
 export default handler
