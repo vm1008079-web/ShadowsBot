@@ -26,6 +26,6 @@ handler.help = ['bal']
 handler.tags = ['eco']
 handler.command = ['bal', 'balance', 'bank']
 handler.register = true
-handler.group = true
+handler.group = false 
 
 export default handler
