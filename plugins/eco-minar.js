@@ -53,7 +53,7 @@ handler.help = ['minar']
 handler.tags = ['eco']
 handler.command = ['minar', 'miming', 'mine']
 handler.register = true
-handler.group = true
+handler.group = false
 
 export default handler
 
