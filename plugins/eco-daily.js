@@ -32,7 +32,7 @@ var handler = async (m, { conn }) => {
 handler.help = ['daily', 'claim']
 handler.tags = ['rpg']
 handler.command = ['daily', 'diario']
-handler.group = true
+handler.group = false
 handler.register = true
 
 export default handler
