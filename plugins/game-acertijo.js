@@ -94,6 +94,6 @@ handler.help = ['acertijo']
 handler.tags = ['game']
 handler.command = ['acertijo', 'adivinanza']
 handler.register = true
-handler.group = true
+handler.group = false
 
 export default handler
