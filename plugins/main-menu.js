@@ -27,7 +27,7 @@ before: `
 > ⏳ Actividad total › *%uptime*
 > 📅 Fecha › *%date*
 
-➪ *Hola %name*, %greeting
+❏ *Hola %name*, %greeting
 
 ╭─〔 *Opciones* 〕
 > ⤿ .setname ← Cambiar nombre
@@ -37,14 +37,13 @@ before: `
 ➪ *OFC API*
 > ❀ https://myapiadonix.vercel.app
 
-❀───────────────❀
 
 *꒰ Menú de Comandos ꒱*
 %readmore`.trimStart(),
 
-header: '\n❀ *%category*',
-body: '➪ %cmd %islimit %isPremium',
-footer: '❀───────────────❀',
+header: '\n➮ *%category*',
+body: '✦ %cmd %islimit %isPremium',
+footer: '*. : ｡✿ *  ｡  * ﾟ  * . : ｡ ✿ *',
 after: '\n© mᥲძᥱ ᥕі𝗍һ ᑲᥡ 𝗪𝗶𝗿𝗸 ☁︎',
 }
 
