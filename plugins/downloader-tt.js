@@ -1,17 +1,17 @@
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) return m.reply(`¿Cómo usar?
-✎ ${usedPrefix + command} <link válido de TikTok>
+  if (!args[0]) return m.reply(
+    `📥 Uso correcto:
+${usedPrefix + command} <enlace válido de TikTok>
 
 Ejemplo:
-> ${usedPrefix + command} https://www.tiktok.com/@usuario/video/123456789`)
+${usedPrefix + command} https://www.tiktok.com/@usuario/video/123456789`
+  )
 
   try {
-    // Reaccionar mientras procesa
     await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key } })
 
-    // Llamar API
     let apiURL = `https://myapiadonix.vercel.app/api/tiktok?url=${encodeURIComponent(args[0])}`
     let response = await fetch(apiURL)
     let data = await response.json()
@@ -21,21 +21,16 @@ Ejemplo:
 
     let info = data.result
 
-
     let caption = `
-*✩ TikTokInfo (✿❛◡❛)*
-*❑ Título ›* ${info.title}
+📌 Título: *${info.title}*
+👤 Autor: *@${info.author.username || 'Desconocido'}*
+⏱️ Duración: *${info.duration || 'N/D'} segundos*
 
-✿ *Autor ›* @${info.author.username || 'Desconocido'}
-♡ *Duración ›* ${info.duration || 'N/D'} seg
-
-➭ *Estadísticas*
-› ♡ Likes › ${info.likes?.toLocaleString() || 0}
-› ꕥ Comentarios › ${info.comments?.toLocaleString() || 0}
-› ✎ Compartidos › ${info.shares?.toLocaleString() || 0}
-› ☁︎ Vistas › ${info.views?.toLocaleString() || 0}
-`.trim()
-
+📊 Estadísticas
+♥ Likes: *${info.likes?.toLocaleString() || 0}*
+💬 Comentarios: *${info.comments?.toLocaleString() || 0}*
+🔁 Compartidos: *${info.shares?.toLocaleString() || 0}*
+👁️ Vistas: *${info.views?.toLocaleString() || 0}*`.trim()
 
     await conn.sendMessage(m.chat, {
       video: { url: info.video },
@@ -54,13 +49,12 @@ Ejemplo:
       }
     }, { quoted: m })
 
-
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
   } catch (err) {
-    console.error('Error descargando TikTok:', err)
+    console.error(err)
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('✿ *Error:* No pude descargar el video, intenta otra vez más tarde.')
+    m.reply('❌ No se pudo procesar el video. Intenta nuevamente más tarde.')
   }
 }
 
