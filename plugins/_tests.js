@@ -192,7 +192,7 @@ const handler = async (m, { conn, args, command }) => {
     url = search.videos[0].url;
   }
 
-  let format = command === 'ytmp3' ? 'mp3' : '360';
+  let format = command === 'ytm' ? 'mp3' : '360';
 
   try {
     let res = await savetube.download(url, format);
