@@ -77,7 +77,7 @@ handler.tags = ['eco']
 handler.help = ['slut']
 handler.command = ['slut', 'protituirse']
 handler.register = true
-handler.group = true
+handler.group = false
 
 export default handler
 
