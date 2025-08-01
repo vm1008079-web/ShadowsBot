@@ -5,7 +5,7 @@ import { createHash } from 'crypto'
 import fetch from 'node-fetch'
 import moment from 'moment-timezone'
 
-const Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
+const Reg = /|?(.*)([.|] ?)([0-9])$/i
 
 let handler = async function (m, { conn, text, usedPrefix, command }) {
   const who = m.mentionedJid?.[0] || (m.fromMe ? conn.user.jid : m.sender)
@@ -16,38 +16,33 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const moneda = global.moneda || '💰'
   const reinoEspiritual = global.canalreg || null
 
-  // Asignar valores por defecto si no existen
   if (user.coin === undefined) user.coin = 0
   if (user.exp === undefined) user.exp = 0
   if (user.joincount === undefined) user.joincount = 0
 
   if (user.registered) {
-    return m.reply(
-      `🔒 Ya estás registrado
+    return m.reply(`🔒 Ya estás registrado
 
-¿Deseas reiniciar tu registro?
-➤ Usa: ${usedPrefix}unreg para eliminar tu registro actual`
-    )
+¿Deseas reiniciar tu energía vital?
+➤ Usa: ${usedPrefix}unreg para renacer en el sistema`)
   }
 
   if (!Reg.test(text)) {
-    return m.reply(
-      `❗ Formato incorrecto
+    return m.reply(`❗ Formato erróneo dimensional
 
 ➤ Usa: ${usedPrefix + command} nombre.edad
-➤ Ejemplo: ${usedPrefix + command} ${name2}.18`
-    )
+➤ Ejemplo: ${usedPrefix + command} ${name2}.18`)
   }
 
   let [_, name, __, age] = text.match(Reg)
 
-  if (!name) return m.reply('⚠️ El nombre no puede estar vacío')
-  if (!age) return m.reply('⚠️ La edad es obligatoria')
-  if (name.length >= 100) return m.reply('⚠️ El nombre es demasiado largo')
+  if (!name) return m.reply('⚠️ Tu identidad no puede estar vacía')
+  if (!age) return m.reply('⚠️ Edad requerida para iniciar el viaje')
+  if (name.length >= 100) return m.reply('⚠️ Nombre demasiado extenso para esta realidad')
 
   age = parseInt(age)
-  if (age > 1000) return m.reply('⚠️ Edad no válida')
-  if (age < 13) return m.reply('⚠️ Debes tener al menos 13 años para registrarte')
+  if (age > 1000) return m.reply('⚠️ Edad cósmica no permitida')
+  if (age < 13) return m.reply('⚠️ Debes tener al menos 13 lunas de existencia')
 
   user.name = name.trim()
   user.age = age
@@ -60,14 +55,12 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const sn = createHash('md5').update(m.sender).digest('hex').slice(0, 20)
 
   const certificadoPacto = `
-⢄⢁✧ --------- ✧⡈⡠
-*Registro exitoso* 
+🪪 ✦⟩ 𝖢𝖾𝗋𝗍𝗂𝖿𝗂𝖼𝖺𝖽𝗈  ✦⟨🪪
 
-⟩ Nombre: *${name}*
-⟩ Edad: *${age}*
-⟩ ID único: *${sn}*
-⟩ Fecha: *${fecha.toLocaleDateString()}*
-`.trim()
+🔮 Nombre: ${name}
+🕒 Edad: ${age}
+🧬 Código ID: ${sn}
+📅 Registro: ${fecha.toLocaleDateString()}`.trim()
 
   await m.react('✅')
 
@@ -78,15 +71,15 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   if (reinoEspiritual) {
     const mensajeNotificacion = `
-☄︎✦❀ 〘 *Nuevo Registro* 〙❀✦☄︎
+☄︎✦❀ 〘 Nuevo Registro Detectado 〙❀✦☄︎
 
-☄︎ Nombre: *${name}*
-☁︎ Edad: *${age}*
-✦ ID: *${sn}*
-✦ Fecha: *${moment().format('YYYY-MM-DD HH:mm:ss')}*
+🧝‍♂️ Nombre: ${name}
+🧸 Edad: ${age}
+🧿 ID: ${sn}
+⏳ Fecha: ${moment().format('YYYY-MM-DD HH:mm:ss')}
 
-❀ Recompensas ❀
-${moneda}: *+46*`.trim()
+✨ Recompensas iniciales ✨
+${moneda}: +46`.trim()
 
     try {
       if (global.conn?.sendMessage) {
@@ -96,7 +89,7 @@ ${moneda}: *+46*`.trim()
         })
       }
     } catch (e) {
-      console.error('❌ Error enviando notificación de registro:', e)
+      console.error('❌ Error en la transmisión espiritual:', e)
     }
   }
 }
