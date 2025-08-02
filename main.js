@@ -1,4 +1,4 @@
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+Process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 import fs from 'fs'
 
 // Forzar carpeta temporal a ./tmp
@@ -151,8 +151,15 @@ global.conn = makeWASocket(connectionOptions);
 
 global.conns = global.conns || [];
 
-// La importación de handler.js debe hacerse antes de que se use en reconnectSubBot
-let handler = await import('./handler.js'); // Asegúrate que esta línea esté aquí
+// Se importa el handler de forma segura y se almacena en una variable global.
+let handler;
+try {
+  const handlerModule = await import('./handler.js');
+  handler = handlerModule.handler; // Asignamos solo la función 'handler'
+} catch (e) {
+  console.error(chalk.red('[ERROR] No se pudo cargar el handler principal:'), e);
+  process.exit(1); // Si el handler no se carga, el bot no puede funcionar.
+}
 
 /**
  * Función para reconectar un sub-bot y asignarle un manejador de mensajes.
@@ -161,16 +168,13 @@ let handler = await import('./handler.js'); // Asegúrate que esta línea esté 
 async function reconnectSubBot(botPath) {
   console.log(chalk.yellow(`[DEBUG] Intentando reconectar sub-bot en: ${path.basename(botPath)}`));
   try {
-    console.log(chalk.yellow(`[DEBUG] Paso 1: Obteniendo estado de autenticación para ${path.basename(botPath)}`));
     const { state: subBotState, saveCreds: saveSubBotCreds } = await useMultiFileAuthState(botPath);
 
-    // Verifica si el sub-bot ya está registrado (tiene credenciales)
     if (!subBotState.creds.registered) {
       console.warn(chalk.yellow(`[DEBUG] Advertencia: El sub-bot en ${path.basename(botPath)} no está registrado. Salto la conexión.`));
-      return; // No intentes conectar si no está registrado
+      return;
     }
 
-    console.log(chalk.yellow(`[DEBUG] Paso 2: Creando conexión makeWASocket para ${path.basename(botPath)}`));
     const subBotConn = makeWASocket({
       version: version,
       logger,
@@ -190,13 +194,9 @@ async function reconnectSubBot(botPath) {
         patch: false,
         snapshot: false,
       },
-      getMessage: async (key) => {
-        const jid = jidNormalizedUser(key.remoteJid);
-        return '';
-      },
+      getMessage: async (key) => '',
     });
 
-    console.log(chalk.yellow(`[DEBUG] Paso 3: Configurando eventos de conexión para ${path.basename(botPath)}`));
     subBotConn.ev.on('connection.update', (update) => {
       const { connection, lastDisconnect } = update;
       if (connection === 'open') {
@@ -217,14 +217,10 @@ async function reconnectSubBot(botPath) {
     });
     subBotConn.ev.on('creds.update', saveSubBotCreds);
 
-    console.log(chalk.yellow(`[DEBUG] Paso 4: Asignando manejador de mensajes al sub-bot: ${path.basename(botPath)}`));
-    if (handler && handler.handler) {
-      subBotConn.handler = handler.handler.bind(subBotConn);
-      subBotConn.ev.on('messages.upsert', subBotConn.handler);
-      console.log(chalk.blue(`[DEBUG] Manejador asignado correctamente al sub-bot: ${path.basename(botPath)}`));
-    } else {
-      console.warn(chalk.yellow(`[DEBUG] Advertencia: No se encontró el manejador para asignar al sub-bot: ${path.basename(botPath)}. Asegúrate que handler.js exporte 'handler'.`));
-    }
+    // Asignación correcta del handler.
+    subBotConn.handler = handler.bind(subBotConn);
+    subBotConn.ev.on('messages.upsert', subBotConn.handler);
+    console.log(chalk.blue(`[DEBUG] Manejador asignado correctamente al sub-bot: ${path.basename(botPath)}`));
 
     if (!global.subBots) {
       global.subBots = {};
@@ -426,7 +422,8 @@ let isInit = true;
 global.reloadHandler = async function (restartConn) {
   try {
     const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
-    if (Handler && Object.keys(Handler).length) handler = Handler;
+    // Aseguramos que la variable 'handler' global se actualice correctamente
+    if (Handler && Handler.handler) handler = Handler.handler;
   } catch (e) {
     console.error(`[ERROR] Fallo al cargar handler.js: ${e}`);
   }
@@ -446,7 +443,7 @@ global.reloadHandler = async function (restartConn) {
     conn.ev.off('creds.update', conn.credsUpdate);
   }
 
-  conn.handler = handler.handler.bind(global.conn);
+  conn.handler = handler.bind(global.conn);
   conn.connectionUpdate = connectionUpdate.bind(global.conn);
   conn.credsUpdate = saveCreds.bind(global.conn, true);
 
