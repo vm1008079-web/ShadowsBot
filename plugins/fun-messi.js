@@ -17,7 +17,7 @@ let handler = async (m, { conn, text, command }) => {
         m.chat,
         {
             image: { url },
-            caption: "*Messi*\n\n📸 Responde con *Siguiente* para ver otra"
+            caption: "*Aquí tienes*"
         },
         { quoted: m }
     );
