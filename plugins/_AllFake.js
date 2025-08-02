@@ -21,20 +21,24 @@ export async function before(m, { conn }) {
       }
     }
 
+    // Escoger newsletterJid al azar
+    const canales = [global.idcanal, global.idcanal2]
+    const newsletterJidRandom = canales[Math.floor(Math.random() * canales.length)]
+
     // Crear rcanal global
     global.rcanal = {
       contextInfo: {
         isForwarded: true,
         forwardingScore: 1,
         forwardedNewsletterMessageInfo: {
-          newsletterJid: global.idcanal,
+          newsletterJid: newsletterJidRandom,
           serverMessageId: 100,
-          newsletterName: nombreBot, // Nombre personalizado
+          newsletterName: nombreBot,
         },
         externalAdReply: {
           title: nombreBot,
           body: global.author,
-          thumbnailUrl: bannerFinal, // Imagen personalizada o por defecto
+          thumbnailUrl: bannerFinal,
           sourceUrl: '',
           mediaType: 1,
           renderLargerThumbnail: false
