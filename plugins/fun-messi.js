@@ -16,7 +16,7 @@ let handler = async (m, { conn, text, command }) => {
         {
             image: { url },
             caption: "*Messi*\n\n📸 Responde con *Siguiente* para ver otra",
-            viewOnce: true
+            viewOnce: false
         },
         { quoted: m }
     );
