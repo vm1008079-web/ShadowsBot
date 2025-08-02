@@ -1,6 +1,4 @@
-let handler = async (m, { conn, text, isCreator }) => {
-  if (!isCreator) return m.reply('Este comando solo lo puede usar el *Creador del bot*.')
-
+let handler = async (m, { conn, text }) => {
   if (!text || !text.endsWith('@g.us')) {
     return m.reply('Debes escribir el ID del grupo, ejemplo:\n.delprimary 120363xxxxx@g.us')
   }
@@ -21,5 +19,6 @@ let handler = async (m, { conn, text, isCreator }) => {
 handler.help = ['delprimary <IDgrupoxxxx@g.us>']
 handler.tags = ['serbot']
 handler.command = ['delprimary']
+handler.admin = true // opcional: solo admins pueden usarlo
 
 export default handler
