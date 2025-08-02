@@ -21,8 +21,9 @@ global.sessions = 'Sessions'
 global.jadi = 'JadiBots'
 global.yukiJadibts = true
 
-global.namecanal = '❇️𝘪𝘱'
+global.namecanal = '❇️'
 global.idcanal = '120363403739366547@newsletter'
+global.idcanal2 = '120363402159669836@newsletter'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.canalreg = '120363402895449162@newsletter'
 
