@@ -19,6 +19,6 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['delprimary <IDgrupoxxxx@g.us>']
 handler.tags = ['serbot']
 handler.command = ['delprimary']
-handler.admin = true // opcional: solo admins pueden usarlo
+handler.admin = false // opcional: solo admins pueden usarlo
 
 export default handler
