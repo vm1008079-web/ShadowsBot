@@ -21,7 +21,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> 🌟 *Hola, soy %botname*   _%tipo_
+> 🌟 *Hola, soy %botname*\n> _%tipo_
 
 > 👋 Hola *%name*, %greeting
 
