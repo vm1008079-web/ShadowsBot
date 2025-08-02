@@ -1,31 +1,42 @@
 import axios from "axios";
 
-let handler = async (m, { conn, usedPrefix, command }) => {
-    let res = (await axios.get(`https://raw.githubusercontent.com/davidprospero123/api-anime/main/BOT-JSON/Messi.json`)).data;
+const MESSI_JSON_URL = `https://raw.githubusercontent.com/davidprospero123/api-anime/main/BOT-JSON/Messi.json`;
+
+let handler = async (m, { conn, text, command }) => {
+    let res = (await axios.get(MESSI_JSON_URL)).data;
     let url = res[Math.floor(Math.random() * res.length)];
 
-    const buttons = [
-        {
-            buttonId: `.messi`,
-            buttonText: { displayText: "⚽ Ver más" },
-            type: 1
-        }
-    ];
+    // Detectar si responde a una imagen del bot con "siguiente"
+    if (m.quoted && m.quoted.message && /Messi/i.test(m.quoted.text || '') && /siguiente/i.test(m.text)) {
+        await conn.sendMessage(
+            m.chat,
+            {
+                image: { url },
+                caption: "*Messi*\n\n📸 Responde con *Siguiente* para ver otra",
+                viewOnce: true
+            },
+            { quoted: m }
+        );
+        return;
+    }
 
-    await conn.sendMessage(
-        m.chat,
-        {
-            image: { url },
-            caption: "*Messi*",
-            buttons: buttons,
-            viewOnce: true
-        },
-        { quoted: m }
-    );
+    // Comando inicial .messi
+    if (command === 'messi') {
+        await conn.sendMessage(
+            m.chat,
+            {
+                image: { url },
+                caption: "*Messi*\n\n📸 Responde con *Siguiente* para ver otra",
+                viewOnce: true
+            },
+            { quoted: m }
+        );
+    }
 };
 
 handler.help = ['messi'];
 handler.tags = ['fun'];
-handler.command = /^(messi)$/i;
+handler.customPrefix = /^siguiente$/i; // Detecta si el texto es "siguiente"
+handler.command = /^messi$/i;
 
 export default handler;
