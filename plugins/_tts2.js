@@ -1,3 +1,5 @@
+//--> Hecho por Ado-rgb (github.com/Ado-rgb)
+// •|• No quites créditos..
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
