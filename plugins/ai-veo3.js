@@ -22,6 +22,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 }
 
 handler.help = ['iamusic']
-handler.tags = ['ai']
+handler.tags = ['ia']
 handler.command = ['iamusic', 'suno', 'cancionia']
 export default handler
