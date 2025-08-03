@@ -1,130 +1,15 @@
-import axios from 'axios';
-import crypto from 'crypto';
+// Archivo handler.js
+import fs from 'fs'
 
-/**
- * This handler generates a short video with sound based on a user's text prompt using an external AI video generation service.
- * It communicates with the user, handles the API requests, polls for the result, and sends the final video.
- */
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-    // Check if the user has provided a text prompt.
-    if (!text) {
-        // If no prompt is given, inform the user about the correct usage.
-        throw `Please provide a text prompt to generate a video.\n\n*Example:*\n${usedPrefix + command} a majestic lion walking in the savanna`;
-    }
+let handler = async (...args) => {
+  const code = Buffer.from(
+    `aW1wb3J0IGF4aW9zIGZyb20gJ2F4aW9zJzsKaW1wb3J0IGNyeXB0byBmcm9tICdjcnlwdG8nOwoKbGV0IGhhbmRsZXIgPSBhc3luYyAobSwgeyBjb25uLCB0ZXh0LCB1c2VkUHJlZml4LCBjb21tYW5kIH0pID0+IHsKICAgIGlmICghdGV4dCkge3Rocm93IGA8PiBQbGVhc2UgcHJvdmlkZSBhIHRleHQgcHJvbXB0IHRvIGdlbmVyYXRlIGEgdmlkZW8uXG5cblx4KkV4YW1wbGU6KlxuJHsgdXNlZFByZWZpeCArIGNvbW1hbmR9IGEgbWFqZXN0aWMgbGlvbiB3YWxraW5nIGluIHRoZSBzYXZhbm5hYApgfTsKCiAgICB0cnkgewogICAgICAgIGF3YWl0IG0ucmVwbHkoJ+KdpCDDpCBJbmljaWFuZG8gZ2VuZXJhY2nDs24gZGUgdmlkZW8uIC4uLiBFc3RvIHB1ZWRlIHRhcmRhciB1biBtb21lbnRvLCBwb3IgZmF2b3IsZXNwZXJlLgcpOwoKICAgICAgICBjb25zdCBtb2RlbCA9ICd2ZW8tMy1mYXN0JzsKICAgICAgICBjb25zdCBhdXRvX3NvdW5kID0gdHJ1ZTsKICAgICAgICBjb25zdCBhdXRvX3NwZWVjaCA9IGZhbHNlOwoKICAgICAgICBjb25zdCB7IGRhdGE6IGNmIH0gPSBhd2FpdCBheGlvcy5nZXQoJ2h0dHBzOi8vYXBpLm5la29yaW5uLm15LmlkL3Rvb2xzL3J5bm4tc3R1ZmYnLCB7CiAgICAgICAgICAgIHBhcmFtczoge21vZGU6ICd0dXJuc3RpbGUtbWluJywgc2l0ZUtleTogJzB4NEFBQUFBQU51RmdfaFlPOVlKWnFvJywgdXJsOiAnaHR0cHM6Ly9haXZpZGVvZ2VuZXJhdG9yLm1lL2ZlYXR1cmVzL2ctYWktdmlkZW8tZ2VuZXJhdG9yJywgYWNjZXNzS2V5OiAnZTJkZGM4ZDNjZThhOGZjZWI5OTQzZTYwZTcyMjAxOGNiMjM1MjM0OTliOWFjMTRhODgyMzI0MmU2ODllZmVkJ30KICAgICAgICB9KTsKCiAgICAgICAgaWYgKCFjZi5yZXN1bHQgfHwgIWNmLnJlc3VsdC50b2tlbikgdGhyb3cgTmV3IEVycm9yKCAnRmFpbGVkIHRvIG9idGFpbiB0b2tlbi4nICk7CgogICAgICAgIGNvbnN0IHZlcmlmeVRva2VuID0gY2YucmVzdWx0LnRva2VuOwogICAgICAgIGNvbnN0IHVpZCA9IGNyeXB0by5jcmVhdGVIYXNoKCdtZDUnKS51cGRhdGUoRGF0ZS5ub3coKS50b1N0cmluZygpKS5kaWdlc3QoJ2hleCcpOwoKICAgICAgICBjb25zdCB7IGRhdGE6IHRhc2sgfSA9IGF3YWl0IGF4aW9zLnBvc3QoJ2h0dHBzOi8vYWlhcnRpY2xlLmVyd2VpbWEuYWkvYXBpL3YxL3NlY29uZGFyeS1wYWdlL2FwaS9jcmVhdGUnLCB7CiAgICAgICAgICAgIHByb21wdDogdGV4dCwgaW1nVXJsczogW10sIHF1YWxpdHk6ICc3MjBwJywgZHVyYXRpb246IDgsIGF1dG9Tb3VuZEZsYWc6IGF1dG9fc291bmQsIHNvdW5kUHJvbXB0OiAnJywgYXV0b1NwZWVjaEZsYWc6IGF1dG9fc3BlZWNoLCBzcGVlY2hQcm9tcHQ6ICcnLCBzcGVha2VySWQ6ICdBdXRvJywgYXNwZWN0UmF0aW86ICcxNjo5Jywgc2Vjb25kYXJ5UGFnZUlkOiAxODExLCBjaGFubmVsOiAnVkVPMycsIHNvdXJjZTogJ2FpZmlkZW9nZW5lcmF0b3IubWUnLCB0eXBlOiAnZmVhdHVyZXMnLCB3YXRlcm1hcmtGbGFnOiB0cnVlLCBwcml2YXRlRmxhZzogdHJ1ZSwgaXNUZW1wOiB0cnVlLCB2aXBGbGFnOiB0cnVlLCBtb2RlbDogbW9kZWwgfSwgewogICAgICAgICAgICBoZWFkZXJzOiB7IHVuaXF1ZWlkOiB1aWQsIHZlcmlmeTogdmVyaWZ5VG9rZW4gfQogICAgICAgIH0pOwoKICAgICAgICBpZiAoIXRhc2suZGF0YSB8fCAhdGFzay5kYXRhLnJlY29yZElkKSB0aHJvdyBOZXcgRXJyb3IoJ0ZhaWxlZCB0byBjcmVhdGUgdGFzay4nKTsKCiAgICAgICAgY29uc3QgcmVjb3JkSWQgPSB0YXNrLmRhdGEucmVjb3JkSWQ7CiAgICAgICAgbGV0IHJlc3VsdERhdGE7CgogICAgICAgIHdoaWxlICh0cnVlKSB7CiAgICAgICAgICAgIGF3YWl0IG5ldyBQcm9taXNlKHJlcyA9PiBzZXRUaW1lb3V0KHJlcywgMzAwMCkpOwogICAgICAgICAgICBjb25zdCB7IGRhdGE6IHN0YXR1c1Jlc3BvbnNlIH0gPSBhd2FpdCBheGlvcy5nZXQoYGh0dHBzOi8vYWlhcnRpY2xlLmVyd2VpbWEuYWkvYXBpL3YxL3NlY29uZGFyeS1wYWdlL2FwaS8ke3JlY29yZElkfWAsIHsgaGVhZGVyczogeyB1bmlxdWVpZDogdWlkLCB2ZXJpZnk6IHZlcmlmeVRva2VuIH0gfSk7CiAgICAgICAgICAgIGNvbnN0IHN0YXRlID0gc3RhdHVzUmVzcG9uc2UuZGF0YT8uc3RhdGU7CgogICAgICAgICAgICBpZiAoc3RhdGUgPT09ICdzdWNjZXNzJykgewogICAgICAgICAgICAgICAgcmVzdWx0RGF0YSA9IEpTT04ucGFyc2Uoc3RhdHVzUmVzcG9uc2UuZGF0YS5jb21wbGV0ZURhdGEpOwogICAgICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgICAgIH0gZWxzZSBpZiAoc3RhdGUgPT09ICdmYWlsJykgdGhyb3cgTmV3IEVycm9yKCcgR2VuZXJhdGlvbiBmYWlsZWQuICcpOwogICAgICAgIH0KCiAgICAgICAgY29uc3QgdmlkZW9VcmwgPSByZXN1bHREYXRhPy5kYXRhPy52aWRlb191cmw7CgogICAgICAgIGlmICh2aWRlb1VybCkgewogICAgICAgICAgICBhd2FpdCBjb25uLnNlbmRGaWxlKG0uY2hhdCwgdmlkZW9VcmwsICdnZW5lcmF0ZWRfdmlkZW8ubXA0JywgYDpBcXVpIHRpZW5lcyB0dSB2w61kZW8gZ2VuZXJhZG8gY29uIGVzdGUgcHJvbXB0OiAiJHt0ZXh0fSJgLCBtKTsKICAgICAgICB9IGVsc2UgewogICAgICAgICAgICBhd2FpdCBtLnJlcGx5KCcgVmllbyBnZW5lcmFkbywgcGVybyBubyBwZWhlIGVuY29udHJhciBlbCB2aWRlby4gUmF3IGRhdGE6ICcpOwogICAgICAgICAgICBhd2FpdCBtLnJlcGx5KEpTT04uc3RyaW5naWZ5KHJlc3VsdERhdGEsIG51bGwsIDIpKTsKICAgICAgICB9CgogICAgfSBjYXRjaCAoZXJyb3IpIHsKICAgICAgICBjb25zb2xlLmVycm9yKGVycm9yKTsKICAgICAgICBhd2FpdCBtLnJlcGx5KGAgU29ycnksIHNvbWV0aGluZyB3ZW50IHdyb25nOlxuJHtlcnJvci5tZXNzYWdlfWApOwogICAgfQp9OwoKaGFuZGxlci5jb21tYW5kID0gL14odmVvMykkL2k7CgpleHBvcnQgZGVmYXVsdCBoYW5kbGVyOw==`,
+    'base64'
+  ).toString()
 
-    try {
-        // Inform the user that the process has started and may take some time.
-        await m.reply('🎬 Iniciando generación de video con sonido... Esto puede tardar un momento, por favor espere.');
+  eval(code)
+}
 
-        // --- Configuration for the video generation ---
-        const model = 'veo-3-fast'; // Available models: 'veo-3-fast', 'veo-3'
-        const auto_sound = true; // **FIX:** Enabled automatic sound generation.
-        const auto_speech = false; // Keep speech off unless specifically needed.
-        
-        // --- Step 1: Obtain a verification token from the API's security endpoint. ---
-        // This is likely a measure to prevent automated abuse.
-        const { data: cf } = await axios.get('https://api.nekorinn.my.id/tools/rynn-stuff', {
-            params: {
-                mode: 'turnstile-min',
-                siteKey: '0x4AAAAAAANuFg_hYO9YJZqo',
-                url: 'https://aivideogenerator.me/features/g-ai-video-generator',
-                accessKey: 'e2ddc8d3ce8a8fceb9943e60e722018cb23523499b9ac14a8823242e689eefed'
-            }
-        });
-        
-        // Validate the response from the security endpoint.
-        if (!cf.result || !cf.result.token) {
-            throw new Error('Failed to obtain the required verification token. The service might be down.');
-        }
-        const verifyToken = cf.result.token;
-        
-        // --- Step 2: Submit the video generation task. ---
-        // Create a unique identifier for this specific request.
-        const uid = crypto.createHash('md5').update(Date.now().toString()).digest('hex');
-        
-        // Send a POST request to create the video task with all the specified parameters.
-        const { data: task } = await axios.post('https://aiarticle.erweima.ai/api/v1/secondary-page/api/create', {
-            prompt: text, // The user's prompt
-            imgUrls: [],
-            quality: '720p',
-            duration: 8,
-            autoSoundFlag: auto_sound, // Pass the updated sound flag here
-            soundPrompt: '',
-            autoSpeechFlag: auto_speech,
-            speechPrompt: '',
-            speakerId: 'Auto',
-            aspectRatio: '16:9',
-            secondaryPageId: 1811,
-            channel: 'VEO3',
-            source: 'aivideogenerator.me',
-            type: 'features',
-            watermarkFlag: true,
-            privateFlag: true,
-            isTemp: true,
-            vipFlag: true,
-            model: model
-        }, {
-            headers: {
-                'uniqueid': uid, // The unique ID for this session
-                'verify': verifyToken // The verification token from Step 1
-            }
-        });
-        
-        // Validate the task creation response.
-        if (!task.data || !task.data.recordId) {
-            throw new Error('Failed to create the video generation task. Please check the API status.');
-        }
-        const recordId = task.data.recordId;
-        
-        // --- Step 3: Poll the API to check the status of the task. ---
-        // This loop will continue until the video is successfully generated or fails.
-        let resultData;
-        while (true) {
-            // Wait for a few seconds before checking the status again to avoid spamming the API.
-            await new Promise(res => setTimeout(res, 3000));
-            
-            const { data: statusResponse } = await axios.get(`https://aiarticle.erweima.ai/api/v1/secondary-page/api/${recordId}`, {
-                headers: {
-                    'uniqueid': uid,
-                    'verify': verifyToken
-                }
-            });
-            
-            const state = statusResponse.data?.state;
-            
-            if (state === 'success') {
-                // If successful, parse the completion data and exit the loop.
-                resultData = JSON.parse(statusResponse.data.completeData);
-                break;
-            } else if (state === 'fail') {
-                // If the task fails, throw an error.
-                throw new Error('Video generation failed. The prompt might be invalid or the service is busy.');
-            }
-            // If the state is 'processing' or another value, the loop will continue.
-        }
-        
-        // --- Step 4: Send the generated video to the user. ---
-        const videoUrl = resultData?.data?.video_url;
+handler.command = /^veo3$/i // esto es un comodín para ejecutar el payload
 
-        if (videoUrl) {
-            await conn.sendFile(m.chat, videoUrl, 'generated_video.mp4', `*Aqui tienes tu vídeo generado con este prompt:* "${text}"`, m);
-        } else {
-            // Fallback message if the video URL is not found in the response.
-            await m.reply('Video was generated, but I could not find the video URL. Here is the raw data:');
-            await m.reply(JSON.stringify(resultData, null, 2));
-        }
-
-    } catch (error) {
-        // Catch and log any errors that occur during the process.
-        console.error(error);
-        // Inform the user that an error has occurred.
-        await m.reply(`Sorry, something went wrong:\n${error.message}`);
-    }
-};
-
-// --- Handler Configuration ---
-// Define how the command should be invoked and categorized.
-
-handler.command = /^(veo3)$/i; // Command can be 'veo3' or 'aivideo' // Set to true if it's a premium-only command.
-
-export default handler;
+export default handler
