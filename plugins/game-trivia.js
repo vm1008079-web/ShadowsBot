@@ -1,3 +1,6 @@
+/*--> Mejorado por Ado-rgb
+(github.com/Ado-rgb)/*
+
 const questions = [
     {
         question: "¿Quién fue el padre de Melquisedec?",
@@ -1356,4 +1359,212 @@ const questions = [
     },
     {
         "question": "¿Cuál es el nombre de la fuerza que mantiene a los planetas en órbita?",
-        "options":
+        "options": ["Gravedad", "Fricción", "Empuje"],
+        "answer": "A"
+    },
+    {
+        "question": "¿Quién es conocido por ser el 'padre de la genética'?",
+        "options": ["Charles Darwin", "Gregor Mendel", "Louis Pasteur"],
+        "answer": "B"
+    },
+    {
+        "question": "¿En qué año se descubrió América?",
+        "options": ["1492", "1500", "1480"],
+        "answer": "A"
+    },
+    {
+        "question": "¿Qué metal es el más abundante en la corteza terrestre?",
+        "options": ["Hierro", "Aluminio", "Oro"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué país es conocido por la 'Fiesta de la Cerveza'?",
+        "options": ["Bélgica", "Alemania", "Irlanda"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué animal es un mamífero volador?",
+        "options": ["Pájaro", "Murciélago", "Mariposa"],
+        "answer": "B"
+    },
+    {
+        "question": "¿En qué ciudad se encuentra el Coliseo?",
+        "options": ["Atenas", "Roma", "París"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Cuál es el nombre del proceso por el cual el agua se convierte en gas?",
+        "options": ["Evaporación", "Condensación", "Sublimación"],
+        "answer": "A"
+    },
+    {
+        "question": "¿Quién fue el autor de la teoría de la relatividad?",
+        "options": ["Isaac Newton", "Albert Einstein", "Stephen Hawking"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué país es conocido por el Taj Mahal?",
+        "options": ["Egipto", "India", "China"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué fruta es conocida por tener una piel peluda?",
+        "options": ["Manzana", "Kiwi", "Naranja"],
+        "answer": "B"
+    },
+    {
+        "question": "¿En qué año se fundó la ONU?",
+        "options": ["1945", "1950", "1960"],
+        "answer": "A"
+    },
+    {
+        "question": "¿Qué gas es vital para la respiración de los seres humanos?",
+        "options": ["Dióxido de carbono", "Nitrógeno", "Oxígeno"],
+        "answer": "C"
+    },
+    {
+        "question": "¿Quién fue el líder de la Revolución Cubana?",
+        "options": ["Fidel Castro", "Che Guevara", "Camilo Cienfuegos"],
+        "answer": "A"
+    },
+    {
+        "question": "¿Qué país es famoso por los samuráis?",
+        "options": ["China", "Japón", "Corea"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Cuál es la capital de Egipto?",
+        "options": ["Alejandría", "Luxor", "El Cairo"],
+        "answer": "C"
+    },
+    {
+        "question": "¿Qué animal es el mejor amigo del hombre?",
+        "options": ["Gato", "Perro", "Caballo"],
+        "answer": "B"
+    },
+    {
+        "question": "¿En qué año se produjo la caída del Muro de Berlín?",
+        "options": ["1987", "1989", "1991"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué científico descubrió la penicilina?",
+        "options": ["Louis Pasteur", "Alexander Fleming", "Marie Curie"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Cuál es el río más largo de Europa?",
+        "options": ["Danubio", "Volga", "Sena"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Quién es el autor de 'Cien años de soledad'?",
+        "options": ["Mario Vargas Llosa", "Gabriel García Márquez", "Jorge Luis Borges"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué planeta tiene los anillos más visibles?",
+        "options": ["Júpiter", "Saturno", "Urano"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Cuál es el idioma más hablado del mundo?",
+        "options": ["Español", "Inglés", "Mandarín"],
+        "answer": "C"
+    },
+    {
+        "question": "¿Qué animal es un reptil y cambia de color?",
+        "options": ["Serpiente", "Camaleón", "Lagartija"],
+        "answer": "B"
+    },
+    {
+        "question": "¿Qué se celebra en el Día de Muertos en México?",
+        "options": ["El nacimiento de un dios", "La vida después de la muerte", "El recuerdo de los seres queridos fallecidos"],
+        "answer": "C"
+    }
+];
+
+let triviaSessions = new Map();
+
+const triviaHandler = async (m, { conn, command, args, usedPrefix }) => {
+    if (args.length === 0) {
+        let randomIndex = Math.floor(Math.random() * questions.length);
+        let questionData = questions[randomIndex];
+
+        triviaSessions.set(m.chat, { index: randomIndex, answered: false });
+
+        const caption = `
+🎓 *Trivia de Cultura General* ${questionData.question}  
+        `.trim();
+
+        const buttons = [
+            {
+                buttonId: `${usedPrefix}trivia A`,
+                buttonText: { displayText: `A) ${questionData.options[0]}` },
+                type: 1
+            },
+            {
+                buttonId: `${usedPrefix}trivia B`,
+                buttonText: { displayText: `B) ${questionData.options[1]}` },
+                type: 1
+            },
+            {
+                buttonId: `${usedPrefix}trivia C`,
+                buttonText: { displayText: `C) ${questionData.options[2]}` },
+                type: 1
+            }
+        ];
+
+        await conn.sendMessage(
+            m.chat,
+            {
+                text: caption,
+                buttons: buttons,
+                viewOnce: true
+            },
+            { quoted: m }
+        );
+
+    } else {
+        let session = triviaSessions.get(m.chat);
+        if (!session || session.answered) {
+            return conn.reply(m.chat, `⚠️ Primero usa *${usedPrefix}trivia* para obtener una pregunta.`, m);
+        }
+
+        let userAnswer = args[0].toUpperCase();
+        let correctAnswer = questions[session.index].answer;
+        let result = userAnswer === correctAnswer ? "🎉 ¡Respuesta correcta!" : `❌ Incorrecto. La respuesta correcta era *${questions[session.index].options[correctAnswer.charCodeAt(0) - 65]}*`;
+
+        const caption = `
+📌 *Tu respuesta:* ${userAnswer}  
+✅ *Solución:* ${correctAnswer}) ${questions[session.index].options[correctAnswer.charCodeAt(0) - 65]}  
+🧠 *Resultado:* ${result}
+`.trim();
+
+        const buttons = [
+            {
+                buttonId: `${usedPrefix}trivia`,
+                buttonText: { displayText: "🔄 Nueva Pregunta" },
+                type: 1
+            }
+        ];
+
+        await conn.sendMessage(
+            m.chat,
+            {
+                text: caption,
+                buttons: buttons,
+                viewOnce: true
+            },
+            { quoted: m }
+        );
+
+        triviaSessions.set(m.chat, { ...session, answered: true });
+    }
+};
+
+triviaHandler.help = ['trivia'];
+triviaHandler.tags = ['fun'];
+triviaHandler.command = /^(trivia)$/i;
+
+export default triviaHandler;
