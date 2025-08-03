@@ -144,8 +144,8 @@ handler.before = async (m, { conn }) => {
       const bienvenida = `
 ✿ *Bienvenid@* a *${groupMetadata.subject}*   
 ✰ ${userMention}, qué gusto :D 
-✦ Ahora somos *${groupSize}*    
->`.trim()
+✦ Ahora somos *${groupSize}*
+`.trim()
 
       await conn.sendMessage(m.chat, {
         image: { url: profilePic },
