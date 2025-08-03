@@ -564,14 +564,14 @@ global.dfail = (type, m, conn, usedPrefix, command) => { // 'conn' es el tercer 
     let verifyaleatorio = ['registrar', 'reg', 'verificar', 'verify', 'register'].getRandom()
 
     const msg = {
-    rowner: '🔐 Solo el Creador de la Bot puede usar este comando.',
+    rowner: '🔐 Solo el Creador del Bot puede usar este comando.',
     owner: '👑 Solo el Creador y Sub Bots pueden usar este comando.',
     mods: '🛡️ Solo los Moderadores pueden usar este comando.',
     premium: '💎 Solo usuarios Premium pueden usar este comando.',
     group: '「✧」 Este comando es sólo para grupos.',
     private: '🔒 Solo en Chat Privado puedes usar este comando.',
     admin: '⚔️ Solo los Admins del Grupo pueden usar este comando.',
-    botAdmin: '🤖 La Bot debe ser Admin para ejecutar esto.',
+    botAdmin: 'El bot debe ser Admin para ejecutar esto.',
     unreg: '> 🔰 Debes estar Registrado para usar este comando.\n\n Ejemplo : #reg Ado.55',
     restrict: '⛔ Esta función está deshabilitada.'
     }[type];
