@@ -10,7 +10,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     const buttons = [
         {
             buttonId: `${usedPrefix + command}`,
-            buttonText: { displayText: "⚜️ Ver más" },
+            buttonText: { displayText: "⚜️ Otro" },
             type: 1
         }
     ];
