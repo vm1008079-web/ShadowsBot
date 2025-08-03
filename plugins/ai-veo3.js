@@ -2,7 +2,7 @@ import axios from 'axios';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     let prompt = text;
-    let tags = 'pop, acoustic, happy';
+    let tags = 'cumbia, tropical, alegre, percusión';
     if (text.includes('|')) {
         const parts = text.split('|');
         prompt = parts[0].trim();
