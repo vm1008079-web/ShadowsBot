@@ -5,9 +5,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!text) return m.reply(`🎧 Ingresa un prompt pa generar música\n*Ejemplo:* ${usedPrefix + command} un rap triste sobre gatos`)
 
   try {
-    await conn.react(m.key, '🕓')
+    await m.react('🕓') 
 
-    
     const res = await fetch(`https://myapiadonix.vercel.app/api/AImusic?prompt=${encodeURIComponent(text)}`)
     if (!res.ok) return m.reply("⚠️ No se pudo generar la música, intenta más tarde")
 
