@@ -1,3 +1,5 @@
+//--> Hecho por Ado-rgb (github.com/Ado-rgb)
+// •|• No quites créditos..
 import fetch from 'node-fetch'
 
 let linkRegex = /chat\.whatsapp\.com\/[0-9A-Za-z]{20,24}/i
