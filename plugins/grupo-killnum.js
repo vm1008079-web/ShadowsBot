@@ -31,7 +31,7 @@ let handler = async (m, { conn, args }) => {
 
 handler.command = ['kicknum']
 handler.help = ['kicknum']
-handler.tags = ['grupos']
+handler.tags = ['group']
 handler.admin = true
 
 export default handler
