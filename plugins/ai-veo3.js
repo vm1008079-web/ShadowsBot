@@ -14,7 +14,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
     try {
         // Inform the user that the process has started and may take some time.
-        await m.reply('🎬 Starting video generation with sound... This might take a moment, please wait.');
+        await m.reply('🎬 Iniciando generación de video con sonido... Esto puede tardar un momento, por favor espere.');
 
         // --- Configuration for the video generation ---
         const model = 'veo-3-fast'; // Available models: 'veo-3-fast', 'veo-3'
@@ -107,7 +107,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         const videoUrl = resultData?.data?.video_url;
 
         if (videoUrl) {
-            await conn.sendFile(m.chat, videoUrl, 'generated_video.mp4', `*Here is your generated video for the prompt:* "${text}"`, m);
+            await conn.sendFile(m.chat, videoUrl, 'generated_video.mp4', `*Aqui tienes tu vídeo generado con este prompt:* "${text}"`, m);
         } else {
             // Fallback message if the video URL is not found in the response.
             await m.reply('Video was generated, but I could not find the video URL. Here is the raw data:');
