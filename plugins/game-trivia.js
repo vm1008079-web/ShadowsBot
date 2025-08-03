@@ -1,5 +1,5 @@
-*/--> Mejorado por Ado-rgb
-(github.com/Ado-rgb)*/
+//--> Mejorado por Ado-rgb
+(github.com/Ado-rgb)//
 
 const questions = [
     {
