@@ -8,16 +8,21 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       text: '⏳ *Generando tu video con IA, espera un toque...*' 
     }, { quoted: m });
 
-    let url = `https://api.nekorinn.my.id/ai-vid/videogpt?text=${encodeURIComponent(text)}`;
-    let res = await fetch(url);
+    
+    let apiURL = `https://myapiadonix.vercel.app/api/veo3?prompt=${encodeURIComponent(text)}&apikey=adonixveo3`;
+    
+    let res = await fetch(apiURL);
+    let json = await res.json();
 
-    if (!res.ok) throw new Error(`Error en API: ${res.status} ${res.statusText}`);
+    if (!json.success || !json.video_url) throw new Error(json.message || 'No se pudo generar el video');
 
-    let buffer = await res.buffer();
+    
+    let video = await fetch(json.video_url);
+    let buffer = await video.buffer();
 
     await conn.sendMessage(m.chat, { 
       video: buffer, 
-      caption: `🎬 *Video generado:* ${text}\n\n_Por ${globalThis.botname}_`, 
+      caption: `🎬 *Video generado:* ${json.prompt}\n\n_Por ${globalThis.botname}_`, 
       gifPlayback: false 
     }, { quoted: m });
 
