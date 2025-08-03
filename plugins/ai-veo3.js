@@ -1,9 +1,124 @@
-import { Buffer } from 'buffer'
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
+// plugin by noureddine ouafy
+// scrape by rynn-stuff
 
-const atob = str => Buffer.from(str, 'base64').toString('utf-8')
+import axios from 'axios';
+import crypto from 'crypto';
 
-const code = `Ci8vLS0tPiBDcmVhZG8gcG9yIEFkbyAmIE5PVVIg4pqhCgppbXBvcnQgYXhpb3MgZnJvbSAnYXhpb3MnOwppbXBvcnQgY3J5cHRvIGZyb20gJ2NyeXB0byc7CgovKioKICogVGhpcyBoYW5kbGVyIGdlbmVyYXRlcyBhIHNob3J0IHZpZGVvIHdpdGggc291bmQgYmFzZWQgb24gYSB1c2VyJ3MgdGV4dCBwcm9tcHQgdXNpbmcgYW4gZXh0ZXJuYWwgQUkgdmlkZW8gZ2VuZXJhdGlvbiBzZXJ2aWNlLgogKiBJdCBjb21tdW5pY2F0ZXMgd2l0aCB0aGUgdXNlciwgaGFuZGxlcyB0aGUgQVBJIHJlcXVlc3RzLCBwb2xscyBmb3IgdGhlIHJlc3VsdCwgYW5kIHNlbmRzIHRoZSBmaW5hbCB2aWRlby4KICovCmxldCBoYW5kbGVyID0gYXN5bmMgKG0sIHsgY29ubiwgdGV4dCwgdXNlZFByZWZpeCwgY29tbWFuZCB9KSA9PiB7CiAgICBpZiAoIXRleHQpIHsKICAgICAgICB0aHJvdyBgUHJvcG9yY2lvbmUgdW4gbWVuc2FqZSBkZSB0ZXh0byBwYXJhIGdlbmVyYXIgdW4gdmlkZW8uXFxuXFxuKkVqZW1wbG86KlxcbiR7dXNlZFByZWZpeCArIGNvbW1hbmR9IFVuIGdhdG8gZW4gdW5hIHJhbWEgcGVsZWFuZG8gY29uIG90cm9gOwogICAgfQoKICAgIHRyeSB7CiAgICAgICAgYXdhaXQgbS5yZXBseSgn8J+YqSBJbmljaWFuZG8gZ2VuZXJhY2nDs24gZGUgdm1kZW8gY29uIHNvbm1kby4uLiBFc3RvIHB1ZWRIIHRhcmRhciB1biBtb21lbnRvLCBwb3IgZmF2b3IsIGVzcGVyZS4uLicpOwoKICAgICAgICBjb25zdCBtb2RlbCA9ICd2ZW8tMy1mYXN0JzsKICAgICAgICBjb25zdCBhdXRvX3NvdW5kID0gdHJ1ZTsKICAgICAgICBjb25zdCBhdXRvX3NwZWVjaCA9IGZhbHNlOwoKICAgICAgICBjb25zdCB7IGRhdGE6IGNmIH0gPSBhd2FpdCBheGlvcy5nZXQoJ2h0dHBzOi8vYXBpLm5la29yaW5uLm15LmlkL3Rvb2xzL3J5bm4tc3R1ZmYnLCB7CiAgICAgICAgICAgIHBhcmFtczoge30KICAgICAgICB9KTsKCiAgICAgICAgaWYgKCFjZi5yZXN1bHQgfHwgIWNmLnJlc3VsdC50b2tlbikgewogICAgICAgICAgICB0aHJvdyBuZXcgRXJyb3IoJ0ZhaWxlZCB0byBvYnRhaW4gdGhlIHJlcXVpcmVkIHZlcmlmaWNhdGlvbiB0b2tlbi4nKTsKICAgICAgICB9CiAgICAgICAgY29uc3QgdmVyaWZ5VG9rZW4gPSBjZi5yZXN1bHQudG9rZW47CiAgICAgICAgY29uc3QgdWlkID0gY3J5cHRvLmNyZWF0ZUhhc2goJ21kNScpLnVwZGF0ZShEYXRlLm5vdygpLnRvU3RyaW5nKCkpLmRpZ2VzdCgnaGV4Jyk7CgogICAgICAgIGNvbnN0IHsgZGF0YTogdGFzayB9ID0gYXdhaXQgYXhpb3MucG9zdCgnaHR0cHM6Ly9haWFydGljbGUuZXJ3ZWltYS5haS9hcGkvdjEvc2Vjb25kYXJ5LXBhZ2UvYXBpL2NyZWF0ZScsIHsgcHJvbXB0OiB0ZXh0LCBpbWdVcmxzOiBbXSwgcXVhbGl0eTogJzcyMHB...
+/**
+ * This handler generates a short video with sound based on a user's text prompt,
+ * using the Luna AI video service endpoint.
+ */
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    // Check if the user has provided a text prompt.
+    if (!text) {
+        throw `Please provide a text prompt to generate a video.\n\n*Example:*\n${usedPrefix + command} a futuristic city with flying cars`;
+    }
 
-eval(atob(code))
+    try {
+        // Inform the user that the process has started.
+        await m.reply('🎬 Starting Luna AI video generation... This may take a moment, please wait.');
+
+        // --- Configuration for the video generation ---
+        const model = 'veo-3-fast'; // Model used by this endpoint
+        const auto_sound = true;    // Generate with sound by default
+        const auto_speech = false;
+
+        // --- Step 1: Obtain a verification token from the API's security endpoint. ---
+        // This uses the new keys and URLs for the lunaai.video source.
+        const { data: cf } = await axios.get('https://api.nekorinn.my.id/tools/rynn-stuff', {
+            params: {
+                mode: 'turnstile-min',
+                siteKey: '0x4AAAAAAAdJZmNxW54o-Gvd',
+                url: 'https://lunaai.video/features/v3-fast',
+                accessKey: '5238b8ad01dd627169d9ac2a6c843613d6225e6d77a6753c75dc5d3f23813653'
+            }
+        });
+
+        // Validate the response from the security endpoint.
+        if (!cf.result || !cf.result.token) {
+            throw new Error('Failed to obtain the required verification token. The service might be down.');
+        }
+        const verifyToken = cf.result.token;
+
+        // --- Step 2: Submit the video generation task. ---
+        // Create a unique identifier for this specific request.
+        const uid = crypto.createHash('md5').update(Date.now().toString()).digest('hex');
+
+        // Send a POST request to create the video task. Note the 'source' is now 'lunaai.video'.
+        const { data: task } = await axios.post('https://aiarticle.erweima.ai/api/v1/secondary-page/api/create', {
+            prompt: text, // The user's prompt
+            imgUrls: [],
+            quality: '720p',
+            duration: 8,
+            autoSoundFlag: auto_sound,
+            soundPrompt: '',
+            autoSpeechFlag: auto_speech,
+            speechPrompt: '',
+            speakerId: 'Auto',
+            aspectRatio: '16:9',
+            secondaryPageId: 1811,
+            channel: 'VEO3',
+            source: 'lunaai.video', // The new source for this plugin
+            type: 'features',
+            watermarkFlag: true,
+            privateFlag: true,
+            isTemp: true,
+            vipFlag: true,
+            model: model
+        }, {
+            headers: {
+                'uniqueid': uid,
+                'verify': verifyToken
+            }
+        });
+
+        // Validate the task creation response.
+        if (!task.data || !task.data.recordId) {
+            throw new Error('Failed to create the video generation task. Please check the API status.');
+        }
+        const recordId = task.data.recordId;
+
+        // --- Step 3: Poll the API to check the status of the task. ---
+        let resultData;
+        while (true) {
+            await new Promise(res => setTimeout(res, 3000));
+
+            const { data: statusResponse } = await axios.get(`https://aiarticle.erweima.ai/api/v1/secondary-page/api/${recordId}`, {
+                headers: {
+                    'uniqueid': uid,
+                    'verify': verifyToken
+                }
+            });
+
+            const state = statusResponse.data?.state;
+
+            if (state === 'success') {
+                resultData = JSON.parse(statusResponse.data.completeData);
+                break;
+            } else if (state === 'fail') {
+                throw new Error('Video generation failed. The prompt might be invalid or the service is busy.');
+            }
+        }
+
+        // --- Step 4: Send the generated video to the user. ---
+        const videoUrl = resultData?.data?.video_url;
+
+        if (videoUrl) {
+            await conn.sendFile(m.chat, videoUrl, 'generated_video.mp4', `*Generated with Luna AI for prompt:* "${text}"`, m);
+        } else {
+            await m.reply('Video was generated, but I could not find the video URL. Here is the raw data:');
+            await m.reply(JSON.stringify(resultData, null, 2));
+        }
+
+    } catch (error) {
+        console.error(error);
+        await m.reply(`Sorry, something went wrong:\n${error.message}`);
+    }
+};
+
+// --- Handler Configuration ---
+
+handler.command = /^(aivideo2)$/i;
+
+
+export default handler;
