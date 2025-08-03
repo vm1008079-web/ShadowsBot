@@ -124,8 +124,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 // --- Handler Configuration ---
 // Define how the command should be invoked and categorized.
-handler.help = ['veo3'];
-handler.command = /^(veo3)$/i; // Command can be 'veo3' or 'aivideo'
-handler.tags = ['ai']; // Set to true if it's a premium-only command.
+
+handler.command = /^(veo3)$/i; // Command can be 'veo3' or 'aivideo' // Set to true if it's a premium-only command.
 
 export default handler;
