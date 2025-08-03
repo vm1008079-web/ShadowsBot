@@ -1494,23 +1494,23 @@ const triviaHandler = async (m, { conn, command, args, usedPrefix }) => {
         triviaSessions.set(m.chat, { index: randomIndex, answered: false });
 
         const caption = `
-🎓 *Trivia de Cultura General* ${questionData.question}  
+🎓 *Trivia* ${questionData.question}  
         `.trim();
 
         const buttons = [
             {
                 buttonId: `${usedPrefix}trivia A`,
-                buttonText: { displayText: `A) ${questionData.options[0]}` },
+                buttonText: { displayText: `A: ${questionData.options[0]}` },
                 type: 1
             },
             {
                 buttonId: `${usedPrefix}trivia B`,
-                buttonText: { displayText: `B) ${questionData.options[1]}` },
+                buttonText: { displayText: `B: ${questionData.options[1]}` },
                 type: 1
             },
             {
                 buttonId: `${usedPrefix}trivia C`,
-                buttonText: { displayText: `C) ${questionData.options[2]}` },
+                buttonText: { displayText: `C: ${questionData.options[2]}` },
                 type: 1
             }
         ];
@@ -1536,9 +1536,9 @@ const triviaHandler = async (m, { conn, command, args, usedPrefix }) => {
         let result = userAnswer === correctAnswer ? "🎉 ¡Respuesta correcta!" : `❌ Incorrecto. La respuesta correcta era *${questions[session.index].options[correctAnswer.charCodeAt(0) - 65]}*`;
 
         const caption = `
-📌 *Tu respuesta:* ${userAnswer}  
+⚜️ *Tu respuesta:* ${userAnswer}  
 ✅ *Solución:* ${correctAnswer}) ${questions[session.index].options[correctAnswer.charCodeAt(0) - 65]}  
-🧠 *Resultado:* ${result}
+> 🧠 *Resultado:* ${result}
 `.trim();
 
         const buttons = [
