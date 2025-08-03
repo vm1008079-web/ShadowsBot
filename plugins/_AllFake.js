@@ -3,11 +3,11 @@ import path from 'path'
 
 export async function before(m, { conn }) {
   try {
-    // Datos base
+   
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = 'https://files.catbox.moe/epbfv9.jpg'
 
-    // Obtener datos del subbot
+    
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
 
@@ -21,11 +21,11 @@ export async function before(m, { conn }) {
       }
     }
 
-    // Escoger newsletterJid al azar
+    
     const canales = [global.idcanal, global.idcanal2]
     const newsletterJidRandom = canales[Math.floor(Math.random() * canales.length)]
 
-    // Crear rcanal global
+    
     global.rcanal = {
       contextInfo: {
         isForwarded: true,
