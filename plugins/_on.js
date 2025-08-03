@@ -22,8 +22,8 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
   const type = (args[0] || '').toLowerCase()
   const enable = command === 'on'
 
-  if (!['antilink', 'welcome', 'antiarabe'].includes(type)) {
-    return m.reply(`✳️ Usa:\n*.on antilink* / *.off antilink*\n*.on welcome* / *.off welcome*\n*.on antiarabe* / *.off antiarabe*`)
+  if (!['antilink', 'welcome', 'antiarabe', 'modoadmin'].includes(type)) {
+    return m.reply(`✳️ Usa:\n*.on antilink* / *.off antilink*\n*.on welcome* / *.off welcome*\n*.on antiarabe* / *.off antiarabe*\n*.on modoadmin* / *.off modoadmin*`)
   }
 
   if (!(isAdmin || isOwner)) return m.reply('❌ Solo admins pueden activar o desactivar funciones.')
@@ -42,18 +42,30 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
     chat.antiarabe = enable
     return m.reply(`✅ Antiarabe ${enable ? 'activado' : 'desactivado'}.`)
   }
+
+  if (type === 'modoadmin') {
+    chat.modoadmin = enable
+    return m.reply(`✅ Modo Admin ${enable ? 'activado' : 'desactivado'}.`)
+  }
 }
 
 handler.command = ['on', 'off']
 handler.group = true
 handler.register = true
 handler.tags = ['group']
-handler.help = ['on welcome', 'off welcome', 'on antilink', 'off antilink']
+handler.help = ['on welcome', 'off welcome', 'on antilink', 'off antilink', 'on modoadmin', 'off modoadmin']
 
 handler.before = async (m, { conn }) => {
   if (!m.isGroup) return
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
   const chat = global.db.data.chats[m.chat]
+
+  // MODO ADMIN
+  if (chat.modoadmin) {
+    const groupMetadata = await conn.groupMetadata(m.chat)
+    const isUserAdmin = groupMetadata.participants.find(p => p.id === m.sender)?.admin
+    if (!isUserAdmin && !m.fromMe) return // Ignora si no es admin ni owner
+  }
 
   // ANTIARABE
   if (chat.antiarabe && m.messageStubType === 27) {
