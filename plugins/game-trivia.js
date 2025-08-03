@@ -1564,7 +1564,7 @@ const triviaHandler = async (m, { conn, command, args, usedPrefix }) => {
 };
 
 triviaHandler.help = ['trivia'];
-triviaHandler.tags = ['fun'];
+triviaHandler.tags = ['game'];
 triviaHandler.command = /^(trivia)$/i;
 
 export default triviaHandler;
