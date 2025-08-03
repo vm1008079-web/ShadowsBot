@@ -34,17 +34,7 @@ global.ch = {
 global.multiplier = 69
 global.maxwarn = '2'
 
-global.rcanal = {
-  contextInfo: {
-    isForwarded: true,
-    forwardingScore: 200,
-    forwardedNewsletterMessageInfo: {
-      newsletterJid: global.idcanal,
-      serverMessageId: 100,
-      newsletterName: global.namecanal
-    }
-  }
-}
+
 
 let file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
