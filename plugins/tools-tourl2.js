@@ -12,7 +12,7 @@ let handler = async (m, { conn }) => {
     }
 
     try {
-        await conn.reply(m.chat, 'Subiendo el archivo al CDN...', m);
+        await conn.reply(m.chat, 'Subiendo el archivo al CDN....', m);
         
         const buffer = await q.download();
         const originalFilename = q.msg?.fileName || 'file';
