@@ -21,11 +21,13 @@ let handler = async (m, { conn }) => {
   } catch (err) {
     console.error(err);
     await m.react('❌');
-    await conn.reply(m.chat, `🚫 Hubo un error al subir el archivo a WirksiBox. Intenta de nuevo más tarde.`, m, rcanal);
+    await conn.reply(m.chat, `🚫 Hubo un error al subir el archivo a Files de Adonix. Intenta de nuevo más tarde.`, m, rcanal);
   }
 };
 
-handler.command = ['wirksibox'];
+handler.command = ['tourl'];
+handler.help = ['tourl'];
+handler.tags = ['tools'];
 export default handler;
 
 // --- Funciones auxiliares ---
@@ -40,7 +42,7 @@ async function maybox(content, mime) {
     method: 'POST',
     body: form,
     headers: {
-      'User-Agent': 'AnyaForger',
+      'User-Agent': 'Michi-WaBot',
     }
   });
 
