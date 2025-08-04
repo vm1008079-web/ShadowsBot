@@ -24,10 +24,10 @@ await m.react("✅")
 } catch {
 await m.react("✖️")
 }}
-handler.help = ['tourl']
-handler.tags = ['transformador']
+handler.help = ['tourl2']
+handler.tags = ['tools']
 handler.register = true
-handler.command = ['tourl', 'upload']
+handler.command = ['tourl2', 'upload']
 
 export default handler
 
