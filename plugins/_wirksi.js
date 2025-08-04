@@ -1,5 +1,3 @@
-// Código ofc de Anya ⚔️
-//Creditos para SoyMaycol y Wirk
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { FormData, Blob } from "formdata-node";
@@ -18,15 +16,7 @@ let handler = async (m, { conn }) => {
 
     if (!linkData?.data?.url) throw '❌ No se pudo subir el archivo';
 
-    let info = linkData.data;
-    let txt = `*🍫 Wirksi Box 🍫*\n\n`;
-    txt += `*📄 Archivo:* ${info.originalName}\n`;
-    txt += `*📦 Tamaño:* ${formatBytes(info.size)}\n`;
-    txt += `*📅 Subido:* ${formatDate(info.uploadedAt)}\n`;
-    txt += `*🔗 Enlace:* ${info.url}\n\n`;
-    txt += `> 🌐 *Servicio proporcionado por Wirk*`;
-
-    await conn.sendFile(m.chat, media, info.fileName, txt, m, rcanal);
+    await conn.reply(m.chat, linkData.data.url, m, rcanal);
     await m.react('✅');
   } catch (err) {
     console.error(err);
@@ -35,22 +25,10 @@ let handler = async (m, { conn }) => {
   }
 };
 
-
 handler.command = ['wirksibox'];
 export default handler;
 
 // --- Funciones auxiliares ---
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 B';
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
-}
-
-function formatDate(date) {
-  return new Date(date).toLocaleString('es-ES', { timeZone: 'America/Tegucigalpa' });
-}
-
 async function maybox(content, mime) {
   const { ext } = (await fileTypeFromBuffer(content)) || { ext: 'bin' };
   const blob = new Blob([content.toArrayBuffer()], { type: mime });
