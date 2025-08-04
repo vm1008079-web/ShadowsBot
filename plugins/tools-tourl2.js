@@ -1,46 +1,49 @@
-import uploadFile from '../lib/uploadFile.js'
-import uploadImage from '../lib/uploadImage.js'
-import fetch from 'node-fetch'
+import FormData from 'form-data';
+import crypto from 'crypto';
+import path from 'path';
 
-let handler = async (m) => {
-  let q = m.quoted ? m.quoted : m
-  let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, `Responda a una *Imagen* o *Vídeo.*`, m)
-  await m.react("🕓")
-  try {
-  let media = await q.download()
-  let isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime)
-  let link = await (isTele ? uploadImage : uploadFile)(media)
-  let img = await (await fetch(`${link}`)).buffer()
-  let txt = `🌵 *LINK*\n\n`
-      txt += `*Enlace* : ${link}\n`
-      txt += `*Acortado* : ${await shortUrl(link)}\n`
-      txt += `*Tamaño* : ${formatBytes(media.length)}\n`
-      txt += `*Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`
-      txt += `> *${author}*`
+let handler = async (m, { conn }) => {
+    // Check if message contains media or is quoted media
+    let q = m.quoted ? m.quoted : m;
+    let mime = (q.msg || q).mimetype || '';
+    
+    if (!mime) {
+        return conn.reply(m.chat, 'Por favor enviar o citar un archivo para cargar', m);
+    }
 
-await conn.sendFile(m.chat, img, 'thumbnail.jpg', txt, m, rcanal)
-await m.react("✅")
-} catch {
-await m.react("✖️")
-}}
-handler.help = ['tourl2']
-handler.tags = ['tools']
-handler.register = true
-handler.command = ['tourl2', 'upload']
+    try {
+        await conn.reply(m.chat, 'Subiendo el archivo al CDN...', m);
+        
+        const buffer = await q.download();
+        const originalFilename = q.msg?.fileName || 'file';
+        
+        // Upload to CDN
+        const ext = path.extname(originalFilename);
+        const randomFilename = crypto.randomBytes(8).toString('hex') + ext;
+        const form = new FormData();
+        form.append('file', buffer, { filename: randomFilename });
 
-export default handler
+        const response = await Por favor enviar o citar un archivo para cargarfetch('https://upload.cifumo.xyz/api/upload', {
+            method: 'POST',
+            body: form,
+            headers: form.getHeaders()
+        });
 
-function formatBytes(bytes) {
-  if (bytes === 0) {
-    return '0 B';
-  }
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+        const result = await response.json();
+        
+        if (!result.url) {
+            return conn.reply(m.chat, 'Failed to upload file to CDN', m);
+        }
+
+        await conn.reply(m.chat, `✅ Archivo cargado exitosamente!\n🔗 URL: ${result.url}`, m);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        conn.reply(m.chat, 'An error occurred while uploading the file', m);
+    }
 }
 
-async function shortUrl(url) {
-        let res = await fetch(`https://tinyurl.com/api-create.php?url=${url}`)
-        return await res.text()
-}
+handler.help = ['tourl2'];
+handler.command = ['tourl2'];
+handler.tags = ['tools'];
+export default handler;
