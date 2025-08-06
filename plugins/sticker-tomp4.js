@@ -3,7 +3,7 @@ import {ffmpeg} from '../lib/converter.js';
 
 const handler = async (m, {conn, usedPrefix, command}) => {
   if (!m.quoted) {
-    return conn.reply(m.chat, `${emoji} Responda A Un Sticker Que Desee Convertir En Video.`, m);
+    return conn.reply(m.chat, `⚜️ Responda A Un Sticker Que Desee Convertir En Video.`, m);
   }
   
   const mime = m.quoted.mimetype || '';
