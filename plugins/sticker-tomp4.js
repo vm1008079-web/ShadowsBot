@@ -14,7 +14,7 @@ const handler = async (m, {conn, usedPrefix, command}) => {
   const media = await m.quoted.download();
   let out = Buffer.alloc(0);
   
-  conn.reply(m.chat, `Aguardan un momento...`, m);
+  conn.reply(m.chat, `Aguarde un momento...`, m);
 
   if (/webp/.test(mime)) {
     out = await webp2mp4(media);
