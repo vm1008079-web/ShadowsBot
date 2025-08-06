@@ -16,8 +16,6 @@ const handler = async (m, {conn, isOwner, command, text, usedPrefix, args, isROw
     if (stderr.trim()) m.reply(stderr);
   }
 };
-handler.help = ['🦞']
-handler.tags = ['owner']
 handler.customPrefix = ['🦞']
 handler.command = new RegExp
 handler.rowner = true
