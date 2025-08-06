@@ -1,76 +1,79 @@
 import fs from 'fs'
 import path from 'path'
 import { spawn } from 'child_process'
-import fetch from 'node-fetch'
-import { fileTypeFromBuffer } from 'file-type'
 
-const tmp = path.join(process.cwd(), 'tmp')
-if (!fs.existsSync(tmp)) fs.mkdirSync(tmp)
+// Carpeta temporal
+const tmpDir = path.join('./tmp')
+if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 
-// Conversión de webp a mp4 usando ffmpeg
-async function webpToMp4(webpBuffer) {
-    const tmpFile = path.join(tmp, `${Date.now()}.webp`)
-    const outFile = tmpFile.replace('.webp', '.mp4')
-
-    await fs.promises.writeFile(tmpFile, webpBuffer)
-
-    await new Promise((resolve, reject) => {
-        spawn('ffmpeg', [
-            '-y',
-            '-i', tmpFile,
-            '-movflags', 'faststart',
-            '-pix_fmt', 'yuv420p',
-            outFile
-        ])
-            .on('error', reject)
-            .on('close', code => code === 0 ? resolve() : reject(new Error('Error en ffmpeg')))
+// Ejecutar ffmpeg
+function ffmpegRun(args) {
+    return new Promise((resolve, reject) => {
+        const ff = spawn('ffmpeg', args)
+        ff.on('error', reject)
+        ff.on('close', code => {
+            if (code === 0) resolve()
+            else reject(new Error(`FFmpeg cerró con código ${code}`))
+        })
     })
-
-    const mp4Buffer = await fs.promises.readFile(outFile)
-    fs.unlinkSync(tmpFile)
-    fs.unlinkSync(outFile)
-    return mp4Buffer
 }
 
-// Conversión de audio a mp4 (con fondo de color)
+// WebP → MP4
+async function webpToMp4(webpBuffer) {
+    const inPath = path.join(tmpDir, `${Date.now()}.webp`)
+    const outPath = path.join(tmpDir, `${Date.now()}.mp4`)
+
+    await fs.promises.writeFile(inPath, webpBuffer)
+
+    await ffmpegRun([
+        '-y',
+        '-i', inPath,
+        '-vf', 'scale=512:512:force_original_aspect_ratio=decrease',
+        '-pix_fmt', 'yuv420p',
+        outPath
+    ])
+
+    const buffer = await fs.promises.readFile(outPath)
+    fs.unlinkSync(inPath)
+    fs.unlinkSync(outPath)
+    return buffer
+}
+
+// Audio → MP4 con fondo negro
 async function audioToMp4(audioBuffer) {
-    const tmpAudio = path.join(tmp, `${Date.now()}.mp3`)
-    const tmpVideo = tmpAudio.replace('.mp3', '.mp4')
+    const inPath = path.join(tmpDir, `${Date.now()}.ogg`)
+    const outPath = path.join(tmpDir, `${Date.now()}.mp4`)
 
-    await fs.promises.writeFile(tmpAudio, audioBuffer)
+    await fs.promises.writeFile(inPath, audioBuffer)
 
-    await new Promise((resolve, reject) => {
-        spawn('ffmpeg', [
-            '-y',
-            '-loop', '1',
-            '-f', 'lavfi',
-            '-i', 'color=size=512x512:color=black',
-            '-i', tmpAudio,
-            '-c:v', 'libx264',
-            '-c:a', 'aac',
-            '-shortest',
-            tmpVideo
-        ])
-            .on('error', reject)
-            .on('close', code => code === 0 ? resolve() : reject(new Error('Error en ffmpeg')))
-    })
+    await ffmpegRun([
+        '-y',
+        '-loop', '1',
+        '-f', 'lavfi',
+        '-i', 'color=size=512x512:color=black',
+        '-i', inPath,
+        '-c:v', 'libx264',
+        '-c:a', 'aac',
+        '-shortest',
+        outPath
+    ])
 
-    const videoBuffer = await fs.promises.readFile(tmpVideo)
-    fs.unlinkSync(tmpAudio)
-    fs.unlinkSync(tmpVideo)
-    return videoBuffer
+    const buffer = await fs.promises.readFile(outPath)
+    fs.unlinkSync(inPath)
+    fs.unlinkSync(outPath)
+    return buffer
 }
 
 const handler = async (m, { conn, usedPrefix, command }) => {
-    if (!m.quoted) throw `📌 Responde a un *sticker* o *audio* para convertirlo en video`
+    if (!m.quoted) throw `📌 Responde a un *sticker* o *audio* para convertirlo en video\nEjemplo: ${usedPrefix + command}`
 
-    let mime = m.quoted.mimetype || ''
-    if (!/webp|audio/.test(mime)) throw `❌ Solo stickers webp o audios son soportados`
+    const mime = m.quoted.mimetype || ''
+    if (!/webp|audio/.test(mime)) throw `❌ Solo stickers (webp) o audios son soportados`
 
     await m.react('🕒')
-    let media = await m.quoted.download()
-    let result
+    const media = await m.quoted.download()
 
+    let result
     if (/webp/.test(mime)) {
         result = await webpToMp4(media)
     } else if (/audio/.test(mime)) {
@@ -81,9 +84,8 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     await m.react('✅')
 }
 
-handler.help = ['tovideo']
+handler.help = ['tovideo', 'tomp4']
 handler.tags = ['sticker']
 handler.command = ['tovideo', 'tomp4']
-handler.register = true
 
 export default handler
