@@ -3,7 +3,7 @@ let partidas = {}
 const handler = async (m, { conn, args }) => {
     const niveles = ['facil', 'medio', 'dificil', 'extremo']
 
-    // Iniciar partida
+    
     if (!partidas[m.sender] && args[0] && niveles.includes(args[0].toLowerCase())) {
         let nivel = args[0].toLowerCase()
         let num1, num2, operador, emoji, nombreOperacion, respuesta
@@ -51,7 +51,7 @@ const handler = async (m, { conn, args }) => {
         }, { quoted: m })
     }
 
-    // Si está jugando
+    
     if (partidas[m.sender]) {
         if (!args[0]) return m.reply("📌 Escribe tu respuesta después de `.matematicas`")
         let intento = Number(args[0])
@@ -79,12 +79,12 @@ const handler = async (m, { conn, args }) => {
         }
     }
 
-    // Si no hay nada válido
+    
     return m.reply(`📚 Usa:\n\`.matematicas [nivel]\`\n\n*Niveles disponibles:*\n- fácil\n- medio\n- difícil\n- extremo\n\nEjemplo: \`.matematicas facil\``)
 }
 
-handler.help = ['matematicas [nivel]']
-handler.tags = ['juegos']
+handler.help = ['matematicas']
+handler.tags = ['game']
 handler.command = /^matematicas$/i
 
 export default handler
