@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
-import { spawn } from 'child_process'
 import fluent_ffmpeg from 'fluent-ffmpeg'
 import fetch from 'node-fetch'
 import { fileTypeFromBuffer } from 'file-type'
@@ -11,7 +10,7 @@ import axios from 'axios'
 const tmp = path.join(process.cwd(), 'tmp')
 if (!fs.existsSync(tmp)) fs.mkdirSync(tmp)
 
-// Función para agregar exif al webp
+
 async function addExif(webpSticker, packname, author, categories = [''], extra = {}) {
   const img = new webp.Image()
   const stickerPackId = crypto.randomBytes(32).toString('hex')
@@ -35,7 +34,7 @@ async function addExif(webpSticker, packname, author, categories = [''], extra =
   return await img.save(null)
 }
 
-// Función para convertir imagen o video en sticker
+
 async function sticker(img, url, packname, author) {
   if (url) {
     let res = await fetch(url)
@@ -89,14 +88,26 @@ const handler = async (m, { conn, args }) => {
   let nombre = m.quoted ? m.quoted.name : m.name
   let fotoPerfil = await conn.profilePictureUrl(quien, 'image').catch(_ => 'https://telegra.ph/file/320b066dc81928b782c7b.png')
 
+  // Detectar si es subbot y leer nombre desde config.json
+  let nombrePack = global.packname || '✦ Michi - AI ✦'
+  try {
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = path.join('./JadiBots', botActual, 'config.json')
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+      if (config.name) nombrePack = config.name
+    }
+  } catch (err) {
+    console.log('⚠️ No se pudo leer config del subbot:', err)
+  }
+
   await m.react('🕒')
 
   try {
-    // Datos para API
     const datos = {
       "type": "quote",
       "format": "png",
-      "backgroundColor": "#000000", // negro (puedes cambiar a blanco)
+      "backgroundColor": "#000000",
       "width": 512,
       "height": 768,
       "scale": 2,
@@ -106,26 +117,19 @@ const handler = async (m, { conn, args }) => {
         "from": {
           "id": 1,
           "name": nombre,
-          "photo": {
-            "url": fotoPerfil
-          }
+          "photo": { "url": fotoPerfil }
         },
         "text": texto,
         "replyMessage": {}
       }]
     }
 
-    // Petición a API
     const res = await axios.post('https://qc.botcahx.eu.org/generate', datos, {
       headers: { 'Content-Type': 'application/json' }
     })
 
     const imgBuffer = Buffer.from(res.data.result.image, 'base64')
-
-    // Crear sticker
-    const packname = global.packname || '✦ Michi - AI ✦'
-    const author = global.author || '© Made with ☁︎ Wirk ✧'
-    const stiker = await sticker(imgBuffer, false, packname, author)
+    const stiker = await sticker(imgBuffer, false, nombrePack, global.author || '© Made with ☁︎ Wirk ✧')
 
     await conn.sendMessage(m.chat, { sticker: stiker, ...global.rcanal }, { quoted: m })
     await m.react('✅')
