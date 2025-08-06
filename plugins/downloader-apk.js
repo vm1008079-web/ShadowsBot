@@ -31,8 +31,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       let data = await aptoide.download(dt.data[text - 1].id)
 
       let caption = `
-📱 Nombre: ${data.appname}
-👨‍💻 Desarrollador: ${data.developer}
+📱 *Nombre:* ${data.appname}
+👨‍💻 *Desarrollador:* ${data.developer}
 `.trim()
 
       await conn.sendMessage(
