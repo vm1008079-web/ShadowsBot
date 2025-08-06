@@ -1,12 +1,12 @@
-let partidas = {} // Guardamos partidas activas
+let partidas = {}
 
-const handler = async (m, { conn, args, command }) => {
+const handler = async (m, { conn, args }) => {
     const niveles = ['facil', 'medio', 'dificil', 'extremo']
 
-    // Si no hay partida y pone nivel -> inicia
+    // Si no hay partida activa y puso nivel válido -> iniciar
     if (!partidas[m.sender] && args[0] && niveles.includes(args[0].toLowerCase())) {
         let nivel = args[0].toLowerCase()
-        let num1, num2, operador, respuesta
+        let num1, num2, operador, emoji, nombreOperacion, respuesta
 
         switch (nivel) {
             case 'facil':
@@ -36,16 +36,21 @@ const handler = async (m, { conn, args, command }) => {
             num1 = num1 * num2
         }
 
+        // Asignar emoji y nombre
+        if (operador === '+') { emoji = '➕'; nombreOperacion = 'Suma' }
+        if (operador === '-') { emoji = '➖'; nombreOperacion = 'Resta' }
+        if (operador === '*') { emoji = '✖️'; nombreOperacion = 'Multiplicación' }
+        if (operador === '/') { emoji = '➗'; nombreOperacion = 'División' }
+
         respuesta = eval(`${num1} ${operador} ${num2}`)
 
         partidas[m.sender] = {
             respuesta,
-            nivel,
             jugador: m.sender
         }
 
         return conn.sendMessage(m.chat, { 
-            text: `🎯 *Reto Matemático (${nivel.toUpperCase()})*\n\n¿Cuál es el resultado de?\n\`${num1} ${operador} ${num2}\`\n\nResponde con:\n\`.matematicas [tu respuesta]\`\n\n⚠️ Solo ${m.pushName} puede responder`
+            text: `🎯 *Reto Matemático (${nivel.toUpperCase()})*\n\n${emoji} *${nombreOperacion}*\n\`${num1} ${operador} ${num2}\`\n\n✏️ Responde con:\n\`.matematicas [tu respuesta]\`\n\n⚠️ Solo ${m.pushName} puede responder`
         }, { quoted: m })
     }
 
