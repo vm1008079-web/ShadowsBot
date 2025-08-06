@@ -5,7 +5,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   try {
     let wait = await conn.sendMessage(m.chat, { 
-      text: '⏳ *Generando tu video con IA, espera un toque...*' 
+      text: '🗣️ *Generando tu video con IA, espera un toque...*' 
     }, { quoted: m });
 
     
