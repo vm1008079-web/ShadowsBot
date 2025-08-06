@@ -80,7 +80,7 @@ ${i + 1}. ${v.name}
       })
       .join("\n\n");
 
-    let header = `💡 Para descargar, responde con: *${usedPrefix + command} 1*\n\n` +
+    let header = `> 💡 Para descargar, responde con: *${usedPrefix + command} y el número.*\n\n` +
                  `Ejemplo:\n${usedPrefix + command} 1\n\n`;
 
     m.reply(header + caption);
