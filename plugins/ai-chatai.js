@@ -41,7 +41,7 @@ async function consultarIA(pregunta, modeloElegido) {
     )
 
     if (data?.text) {
-      return `Modelo: ${modeloElegido}\nPregunta: ${pregunta}\n\n${data.text}`
+      return `🔰 Modelo: ${modeloElegido}\n🎋 Pregunta: ${pregunta}\n\n${data.text}`
     }
 
     return '⚠️ No se obtuvo respuesta de la IA.'
