@@ -3,7 +3,7 @@ let partidas = {}
 const handler = async (m, { conn, args }) => {
     const niveles = ['facil', 'medio', 'dificil', 'extremo']
 
-    // Si no hay partida activa y puso nivel válido -> iniciar
+    // Iniciar partida
     if (!partidas[m.sender] && args[0] && niveles.includes(args[0].toLowerCase())) {
         let nivel = args[0].toLowerCase()
         let num1, num2, operador, emoji, nombreOperacion, respuesta
@@ -31,12 +31,8 @@ const handler = async (m, { conn, args }) => {
                 break
         }
 
-        // Evitar división con decimales
-        if (operador === '/') {
-            num1 = num1 * num2
-        }
+        if (operador === '/') num1 = num1 * num2
 
-        // Asignar emoji y nombre
         if (operador === '+') { emoji = '➕'; nombreOperacion = 'Suma' }
         if (operador === '-') { emoji = '➖'; nombreOperacion = 'Resta' }
         if (operador === '*') { emoji = '✖️'; nombreOperacion = 'Multiplicación' }
@@ -46,35 +42,49 @@ const handler = async (m, { conn, args }) => {
 
         partidas[m.sender] = {
             respuesta,
-            jugador: m.sender
+            jugador: m.sender,
+            intentos: 0
         }
 
         return conn.sendMessage(m.chat, { 
-            text: `🎯 *Reto Matemático (${nivel.toUpperCase()})*\n\n${emoji} *${nombreOperacion}*\n\`${num1} ${operador} ${num2}\`\n\n✏️ Responde con:\n\`.matematicas [tu respuesta]\`\n\n⚠️ Solo ${m.pushName} puede responder`
+            text: `🎯 *Reto Matemático (${nivel.toUpperCase()})*\n\n${emoji} *${nombreOperacion}*\n\`${num1} ${operador} ${num2}\`\n\n✏️ Responde con:\n\`.matematicas [tu respuesta]\`\n\n⚠️ Solo ${m.pushName} puede responder\n📌 Tienes *3 oportunidades*`
         }, { quoted: m })
     }
 
-    // Si hay partida y pone respuesta
+    // Si está jugando
     if (partidas[m.sender]) {
         if (!args[0]) return m.reply("📌 Escribe tu respuesta después de `.matematicas`")
         let intento = Number(args[0])
         if (isNaN(intento)) return m.reply("❌ Ingresa un número válido")
 
         let partida = partidas[m.sender]
+        partida.intentos++
+
         if (intento === partida.respuesta) {
             delete partidas[m.sender]
             return m.reply(`✅ Correcto ${m.pushName}! Era ${partida.respuesta}`)
         } else {
-            delete partidas[m.sender]
-            return m.reply(`❌ Incorrecto ${m.pushName}! La respuesta era ${partida.respuesta}`)
+            if (partida.intentos >= 3) {
+                delete partidas[m.sender]
+                return conn.sendMessage(m.chat, {
+                    text: `❌ Fallaste las 3 oportunidades ${m.pushName}!\n💡 La respuesta correcta era: *${partida.respuesta}*`,
+                    buttons: [
+                        { buttonId: `.matematicas facil`, buttonText: { displayText: "🔄 Volver a jugar" }, type: 1 }
+                    ],
+                    headerType: 1
+                }, { quoted: m })
+            } else {
+                return m.reply(`⚠️ Incorrecto ${m.pushName}! Te quedan *${3 - partida.intentos}* intentos`)
+            }
         }
     }
 
-    // Si no pone nada válido
+    // Si no hay nada válido
     return m.reply(`📚 Usa:\n\`.matematicas [nivel]\`\n\n*Niveles disponibles:*\n- fácil\n- medio\n- difícil\n- extremo\n\nEjemplo: \`.matematicas facil\``)
 }
 
-
+handler.help = ['matematicas [nivel]']
+handler.tags = ['juegos']
 handler.command = /^matematicas$/i
 
 export default handler
