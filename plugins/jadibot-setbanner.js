@@ -10,7 +10,7 @@ const handler = async (m, { text, usedPrefix, command }) => {
   const urlRegex = /(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.webp))/i
   const match = text.match(urlRegex)
   if (!match) {
-    return m.reply(`> 📸 Usa así:\n*${usedPrefix + command} https://example.com/banner.jpg*, osea sube la imagen a un hosting de imágenes como catbox.moe, o simplemente utiliza .catbox respondiendo a la imagen q quieres de banner.`)
+    return m.reply(`> 📸 Usa así:\n*${usedPrefix + command} https://example.com/banner.jpg*, osea sube la imagen a un hosting de imágenes como catbox.moe, o simplemente utiliza .tourl respondiendo a la imagen q quieres de banner.`)
   }
 
   if (!fs.existsSync(botPath)) {
