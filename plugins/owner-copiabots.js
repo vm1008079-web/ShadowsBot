@@ -5,11 +5,11 @@
  * 🚫 No quitar créditos
  * 
  * Funcionalidad:
- * 📂 Envía todos los archivos dentro de ./JadiBots (incluyendo subcarpetas) sin comprimir
+ * 📦 Comprime la carpeta ./JadiBots y la envía como un archivo ZIP
  */
 
 import fs from 'fs'
-import path from 'path'
+import archiver from 'archiver'
 
 let handler = async (m, { conn }) => {
   try {
@@ -21,46 +21,35 @@ let handler = async (m, { conn }) => {
 
     await m.react('⏳')
 
-    // Función recursiva para obtener todos los archivos
-    function obtenerArchivos(dir) {
-      let resultados = []
-      let lista = fs.readdirSync(dir)
-      lista.forEach((archivo) => {
-        let rutaCompleta = path.join(dir, archivo)
-        let stat = fs.statSync(rutaCompleta)
-        if (stat && stat.isDirectory()) {
-          resultados = resultados.concat(obtenerArchivos(rutaCompleta))
-        } else {
-          resultados.push(rutaCompleta)
-        }
-      })
-      return resultados
-    }
+    // Comprimir en memoria
+    let buffer = await new Promise((resolve, reject) => {
+      const chunks = []
+      const archive = archiver('zip', { zlib: { level: 9 } })
 
-    let archivos = obtenerArchivos(carpeta)
+      archive.on('data', chunk => chunks.push(chunk))
+      archive.on('end', () => resolve(Buffer.concat(chunks)))
+      archive.on('error', reject)
 
-    if (!archivos.length) {
-      return conn.sendMessage(m.chat, { text: '⚠️ La carpeta ./JadiBots está vacía', ...global.rcanal }, { quoted: m })
-    }
+      archive.directory(carpeta, false)
+      archive.finalize()
+    })
 
-    for (let ruta of archivos) {
-      await conn.sendMessage(
-        m.chat,
-        {
-          document: fs.readFileSync(ruta),
-          fileName: path.relative(carpeta, ruta),
-          mimetype: 'application/octet-stream',
-          ...global.rcanal
-        },
-        { quoted: m }
-      )
-    }
+    await conn.sendMessage(
+      m.chat,
+      {
+        document: buffer,
+        fileName: 'JadiBots.zip',
+        mimetype: 'application/zip',
+        ...global.rcanal
+      },
+      { quoted: m }
+    )
 
     await m.react('✅')
   } catch (err) {
     console.error(err)
     await m.react('❌')
-    conn.sendMessage(m.chat, { text: '❌ Error al enviar los archivos de ./JadiBots', ...global.rcanal }, { quoted: m })
+    conn.sendMessage(m.chat, { text: '❌ Error al comprimir o enviar la carpeta', ...global.rcanal }, { quoted: m })
   }
 }
 
