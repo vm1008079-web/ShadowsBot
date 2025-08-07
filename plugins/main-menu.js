@@ -21,7 +21,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> 🦞 *Hola, soy %botname*\n> _%tipo_
+> 🦞 *Hola, soy %botname*\n> %tipo
 
 > 👋 Hola *%name*, %greeting
 
@@ -73,8 +73,8 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     
     const tipo = conn.user.jid === global.conn.user.jid
-      ? 'Principal 🆅'
-      : 'SubBot 🅱'
+      ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅'
+      : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
 
     const menuConfig = conn.menu || defaultMenu
 
