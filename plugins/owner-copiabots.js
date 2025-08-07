@@ -5,7 +5,7 @@
  * 🚫 No quitar créditos
  * 
  * Funcionalidad:
- * 📦 Comprime la carpeta ./JadiBots y la envía como un archivo ZIP
+ * 📦 Comprime la carpeta ./JadiBots y la envía como archivo ZIP
  */
 
 import fs from 'fs'
@@ -30,6 +30,7 @@ let handler = async (m, { conn }) => {
       archive.on('end', () => resolve(Buffer.concat(chunks)))
       archive.on('error', reject)
 
+      // Incluye todo el contenido dentro de JadiBots
       archive.directory(carpeta, false)
       archive.finalize()
     })
