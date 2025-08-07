@@ -5,40 +5,36 @@
  * 🚫 No quitar créditos
  * 
  * Funcionalidad:
- * 📦 Comprime la carpeta ./JadiBots y la envía como archivo ZIP
+ * 📦 Comprime la carpeta ./JadiBots usando el comando zip del sistema y la envía
  */
 
+import { exec } from 'child_process'
 import fs from 'fs'
-import archiver from 'archiver'
 
 let handler = async (m, { conn }) => {
   try {
     const carpeta = './JadiBots'
+    const archivoZip = './JadiBots.zip'
 
     if (!fs.existsSync(carpeta)) {
       return conn.sendMessage(m.chat, { text: '❌ No se encontró la carpeta ./JadiBots', ...global.rcanal }, { quoted: m })
     }
 
-    await m.react('⚜️')
+    await m.react('⏳')
 
-    // Comprimir en memoria
-    let buffer = await new Promise((resolve, reject) => {
-      const chunks = []
-      const archive = archiver('zip', { zlib: { level: 9 } })
-
-      archive.on('data', chunk => chunks.push(chunk))
-      archive.on('end', () => resolve(Buffer.concat(chunks)))
-      archive.on('error', reject)
-
-      // Incluye todo el contenido dentro de JadiBots
-      archive.directory(carpeta, false)
-      archive.finalize()
+    // Comprimir usando el comando zip del sistema
+    await new Promise((resolve, reject) => {
+      exec(`zip -r ${archivoZip} JadiBots`, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
     })
 
+    // Enviar el archivo ZIP
     await conn.sendMessage(
       m.chat,
       {
-        document: buffer,
+        document: fs.readFileSync(archivoZip),
         fileName: 'JadiBots.zip',
         mimetype: 'application/zip',
         ...global.rcanal
@@ -47,6 +43,10 @@ let handler = async (m, { conn }) => {
     )
 
     await m.react('✅')
+
+    // Eliminar el archivo temporal
+    fs.unlinkSync(archivoZip)
+
   } catch (err) {
     console.error(err)
     await m.react('❌')
