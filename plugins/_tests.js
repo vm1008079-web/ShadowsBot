@@ -1,15 +1,30 @@
-let handler = async (m, { conn, text }) => {
-    if (!text) return m.reply('Pon el texto que quieres enviar efímero\nEj: .efimero Hola mundo')
+import fs from 'fs'
+import path from 'path'
+import { pathToFileURL } from 'url'
 
-    await conn.sendMessage(m.chat, {
-        text: text,
-        ephemeralExpiration: 60 // segundos (1 min)
-    }, { quoted: m })
+let handler = async (m, { conn }) => {
+    const pluginsPath = './plugins'
+    let report = []
+    let files = fs.readdirSync(pluginsPath).filter(f => f.endsWith('.js'))
 
-    m.reply('✅ Mensaje efímero enviado (1 min)')
+    for (let file of files) {
+        try {
+            // Intentar importar el plugin como módulo ES
+            await import(pathToFileURL(path.join(pluginsPath, file)).href)
+            report.push(`✅ ${file} → Sin errores`)
+        } catch (err) {
+            report.push(`❌ ${file} → ${err.message}`)
+        }
+    }
+
+    if (!report.length) return m.reply('📂 No se encontraron plugins para revisar.')
+
+    m.reply(`📋 **Revisión de plugins:**\n\n${report.join('\n')}`)
 }
 
-handler.command = /^efimero$/i
-
+handler.command = /^checkplugins$/i
+handler.help = ['checkplugins']
+handler.tags = ['owner']
+handler.rowner = true // solo owner
 
 export default handler
