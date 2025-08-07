@@ -21,7 +21,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> 🌟 *Hola, soy %botname*\n> _%tipo_
+> 🦞 *Hola, soy %botname*\n> _%tipo_
 
 > 👋 Hola *%name*, %greeting
 
@@ -30,7 +30,7 @@ const defaultMenu = {
 %readmore`.trimStart(),
 
   header: '\n*%category* 💚',
-  body: '> 🫟 %cmd %islimit %isPremium',
+  body: '> 🌤 %cmd %islimit %isPremium',
   footer: '',
   after: '\n✨ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 𝖠𝖽𝗈.',
 }
@@ -73,8 +73,8 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     
     const tipo = conn.user.jid === global.conn.user.jid
-      ? 'Principal 🪴'
-      : 'Sub Bot 🍃'
+      ? 'Principal 🆅'
+      : 'SubBot 🅱'
 
     const menuConfig = conn.menu || defaultMenu
 
