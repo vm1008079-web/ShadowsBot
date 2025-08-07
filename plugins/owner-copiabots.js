@@ -19,7 +19,7 @@ let handler = async (m, { conn }) => {
       return conn.sendMessage(m.chat, { text: '❌ No se encontró la carpeta ./JadiBots', ...global.rcanal }, { quoted: m })
     }
 
-    await m.react('⏳')
+    await m.react('⚜️')
 
     // Comprimir en memoria
     let buffer = await new Promise((resolve, reject) => {
