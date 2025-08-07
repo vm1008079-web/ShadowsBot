@@ -1,21 +1,10 @@
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+/* eslint-disable */
 import fs from 'fs'
-
-// Forzar carpeta temporal a ./tmp
-process.env.TMPDIR = path.join(process.cwd(), 'tmp')
-
-// Crear la carpeta si no existe
-if (!fs.existsSync(process.env.TMPDIR)) {
-  fs.mkdirSync(process.env.TMPDIR, { recursive: true })
-}
-
-import './config.js';
-import { createRequire } from 'module';
 import path, { join } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
 import * as ws from 'ws';
-import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, watch, mkdirSync } from 'fs';
+import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, watch, mkdirSync, rmSync } from 'fs'; // Added rmSync
 import yargs from 'yargs';
 import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
@@ -30,6 +19,17 @@ import readline from 'readline';
 import NodeCache from 'node-cache';
 import qrcode from 'qrcode-terminal';
 import { spawn } from 'child_process';
+import { setInterval } from 'timers'; // Import setInterval for explicit garbage collection
+
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+process.env.TMPDIR = path.join(process.cwd(), 'tmp');
+
+if (!fs.existsSync(process.env.TMPDIR)) {
+  fs.mkdirSync(process.env.TMPDIR, { recursive: true });
+}
+
+import './config.js';
+import { createRequire } from 'module';
 
 const { proto } = (await import('@whiskeysockets/baileys')).default;
 const {
@@ -151,14 +151,13 @@ global.conn = makeWASocket(connectionOptions);
 
 global.conns = global.conns || [];
 
-// Se importa el handler de forma segura y se almacena en una variable global.
 let handler;
 try {
   const handlerModule = await import('./handler.js');
-  handler = handlerModule.handler; // Asignamos solo la función 'handler'
+  handler = handlerModule.handler;
 } catch (e) {
   console.error(chalk.red('[ERROR] No se pudo cargar el handler principal:'), e);
-  process.exit(1); // Si el handler no se carga, el bot no puede funcionar.
+  process.exit(1);
 }
 
 /**
@@ -209,15 +208,25 @@ async function reconnectSubBot(botPath) {
       } else if (connection === 'close') {
         const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
         console.error(chalk.red(`[DEBUG] Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
-        if (reason === 401) {
+        
+        // --- INICIO DE CAMBIO IMPORTANTE: Manejo de desconexión permanente ---
+        if (reason === DisconnectReason.loggedOut || reason === 401) {
+          console.log(chalk.red(`❌ [DEBUG] Desconexión permanente detectada. Eliminando sesión del sub-bot en ${path.basename(botPath)}.`));
+          // Eliminar de global.conns
           global.conns = global.conns.filter(conn => conn.user?.jid !== subBotConn.user?.jid);
-          console.log(chalk.red(`❌ [DEBUG] Sub-bot removido de global.conns: ${subBotConn.user?.jid}`));
+          // Eliminar carpeta de sesión del filesystem
+          try {
+            rmSync(botPath, { recursive: true, force: true });
+            console.log(chalk.red(`✅ [DEBUG] Carpeta de sesión eliminada correctamente: ${botPath}`));
+          } catch (e) {
+            console.error(chalk.red(`❌ [ERROR] No se pudo eliminar la carpeta de sesión ${botPath}: ${e}`));
+          }
         }
+        // --- FIN DE CAMBIO IMPORTANTE ---
       }
     });
     subBotConn.ev.on('creds.update', saveSubBotCreds);
 
-    // Asignación correcta del handler.
     subBotConn.handler = handler.bind(subBotConn);
     subBotConn.ev.on('messages.upsert', subBotConn.handler);
     console.log(chalk.blue(`[DEBUG] Manejador asignado correctamente al sub-bot: ${path.basename(botPath)}`));
@@ -270,7 +279,6 @@ async function startSubBots() {
   }
 }
 
-// Llama a la función para iniciar los sub-bots ANTES de conectar el bot principal.
 await startSubBots();
 
 async function handleLogin() {
@@ -359,6 +367,18 @@ setInterval(() => {
   clearTmp();
 }, 180000);
 
+// --- INICIO DE CAMBIO: Optimización de memoria ---
+// Ejecutar el recolector de basura de Node.js a intervalos
+if (typeof global.gc === 'function') {
+  setInterval(() => {
+    console.log(chalk.gray(`[DEBUG] Ejecutando recolección de basura...`));
+    global.gc();
+  }, 300000); // Cada 5 minutos (300000 ms)
+} else {
+  console.log(chalk.yellow(`[WARN] La recolección de basura no está disponible. Para habilitarla, ejecuta Node.js con la bandera --expose-gc.`));
+}
+// --- FIN DE CAMBIO ---
+
 async function connectionUpdate(update) {
   const { connection, lastDisconnect, isNewLogin } = update;
   global.stopped = connection;
@@ -422,7 +442,6 @@ let isInit = true;
 global.reloadHandler = async function (restartConn) {
   try {
     const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
-    // Aseguramos que la variable 'handler' global se actualice correctamente
     if (Handler && Handler.handler) handler = Handler.handler;
   } catch (e) {
     console.error(`[ERROR] Fallo al cargar handler.js: ${e}`);
