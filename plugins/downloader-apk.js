@@ -50,41 +50,33 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     return
   }
 
-  // Buscar
+  // Buscar apps
   let results = await aptoide.search(text)
   if (!results.length) {
     return conn.sendMessage(m.chat, { text: "⚠️ No se encontraron resultados para tu búsqueda.", ...global.rcanal }, { quoted: m })
   }
 
-  // Guardar temporalmente
   conn.apk[m.sender] = {
     data: results,
     download: false,
     time: setTimeout(() => delete conn.apk[m.sender], 10 * 60 * 1000)
   }
 
-  // Lista interactiva
-  let sections = [
-    {
-      title: "📲 Resultados de búsqueda",
-      rows: results.slice(0, 20).map((v, i) => ({
-        title: `${i + 1}. ${v.name}`,
-        description: `📦 ${v.size} | 🆚 ${v.version} | ⬇️ ${v.download}`,
-        rowId: `${usedPrefix + command} ${i + 1}`
-      }))
-    }
-  ]
+  // Mostrar botones con primeros 3 resultados
+  const top3 = results.slice(0, 3)
+  const buttons = top3.map((v, i) => ({
+    buttonId: `${usedPrefix + command} ${i + 1}`,
+    buttonText: { displayText: `${i + 1}. ${v.name}` },
+    type: 1
+  }))
 
-  let listMessage = {
+  await conn.sendMessage(m.chat, {
     text: `🔍 Resultados para: *${text}*\n\nSelecciona una app para descargar el APK:`,
-    footer: `📦 Total encontrados: ${results.length}`,
-    title: "🧩 Aptoide APK Downloader",
-    buttonText: "📥 Ver resultados",
-    sections,
+    footer: `📦 Mostrando top 3 de ${results.length} resultados`,
+    buttons,
+    headerType: 1,
     ...global.rcanal
-  }
-
-  await conn.sendMessage(m.chat, listMessage, { quoted: m })
+  }, { quoted: m })
 }
 
 handler.help = ["apk"]
