@@ -1,4 +1,4 @@
-import { generateWAMessageFromContent } from '@adiwajshing/baileys'
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 
 let handler = async (m, { text, conn }) => {
   if (!text) return m.reply('📎 Por favor proporciona el enlace.')
@@ -14,6 +14,5 @@ let handler = async (m, { text, conn }) => {
 
 handler.help = handler.command = ['channel-id']
 handler.tags = ['tools']
-handler.limit = true
 
 export default handler
