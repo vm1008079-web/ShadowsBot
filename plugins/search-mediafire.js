@@ -14,41 +14,62 @@ function shuffle(arr) {
 async function mfsearch(query) {
   if (!query) throw new Error('❗ Se necesita una búsqueda.')
 
-  const { data: html } = await axios.get(`https://mediafiretrend.com/?q=${encodeURIComponent(query)}&search=Search`)
+  let html
+  try {
+    const resp = await axios.get(`https://mediafiretrend.com/?q=${encodeURIComponent(query)}&search=Search`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      }
+    })
+    html = resp.data
+  } catch (err) {
+    throw new Error('🚫 MediafireTrend no responde (Error 503)')
+  }
+
   const $ = cheerio.load(html)
   const links = shuffle(
     $('tbody tr a[href*="/f/"]').map((_, el) => $(el).attr('href')).get()
   ).slice(0, 10)
 
-  const result = await Promise.all(links.map(async (link) => {
-    const { data } = await axios.get(`https://mediafiretrend.com${link}`)
-    const $ = cheerio.load(data)
-    const raw = $('div.info tbody tr:nth-child(4) td:nth-child(2) script').text()
-    const match = raw.match(/unescape\(['"`]([^'"`]+)['"`]\)/)
-    const decoded = cheerio.load(decodeURIComponent(match?.[1] || ''))
+  if (!links.length) throw new Error('❌ No se encontraron resultados.')
 
-    return {
-      filename: $('tr:nth-child(2) td:nth-child(2) b').text().trim(),
-      filesize: $('tr:nth-child(3) td:nth-child(2)').text().trim(),
-      url: decoded('a').attr('href'),
-      source_url: $('tr:nth-child(5) td:nth-child(2)').text().trim(),
-      source_title: $('tr:nth-child(6) td:nth-child(2)').text().trim()
+  const result = await Promise.all(links.map(async (link) => {
+    try {
+      const { data } = await axios.get(`https://mediafiretrend.com${link}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0'
+        }
+      })
+      const $ = cheerio.load(data)
+      const raw = $('div.info tbody tr:nth-child(4) td:nth-child(2) script').text()
+      const match = raw.match(/unescape\(['"`]([^'"`]+)['"`]\)/)
+      const decoded = cheerio.load(decodeURIComponent(match?.[1] || ''))
+
+      return {
+        filename: $('tr:nth-child(2) td:nth-child(2) b').text().trim(),
+        filesize: $('tr:nth-child(3) td:nth-child(2)').text().trim(),
+        url: decoded('a').attr('href'),
+        source_url: $('tr:nth-child(5) td:nth-child(2)').text().trim(),
+        source_title: $('tr:nth-child(6) td:nth-child(2)').text().trim()
+      }
+    } catch {
+      return null
     }
   }))
 
-  return result.filter(v => v.url)
+  return result.filter(v => v && v.url)
 }
 
 // Handler para el comando
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply('🧩 *Ejemplo:* .mediafiresearch config ff')
+  if (!text) return m.reply('📌 *Ejemplo:* .mediafiresearch config ff')
 
   await m.reply('🔍 Buscando archivos en *Mediafire*...')
 
   try {
     let results = await mfsearch(text)
 
-    if (!results.length) return m.reply('❌ No se encontraron resultados bro')
+    if (!results.length) return m.reply('❌ No se encontraron resultados.')
 
     conn.mfsearch = conn.mfsearch || {}
     conn.mfsearch[m.sender] = {
@@ -63,17 +84,15 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }))
 
     let listMessage = {
-      text: `📁 Resultados de búsqueda para: *${text}*`,
-      footer: '✨ Selecciona uno para descargar vía .mediafire',
-      title: '🧭 Mediafire Downloader',
-      buttonText: '🗂️ Ver resultados',
-      sections: [
-        {
-          title: '📄 Archivos encontrados:',
-          rows
-        }
-      ],
-      ...global.rcanal
+      text: `🔍 Resultados para: *${text}*`,
+      footer: '📁 Selecciona un archivo para descargar',
+      title: '📦 Mediafire Downloader',
+      buttonText: '🗂 Ver archivos encontrados',
+      sections: [{
+        title: '📄 Archivos encontrados:',
+        rows
+      }],
+      ...global.rcanal // solo si usás plantillas globales
     }
 
     await conn.sendMessage(m.chat, listMessage, { quoted: m })
