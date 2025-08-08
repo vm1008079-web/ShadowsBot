@@ -71,7 +71,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   }))
 
   await conn.sendMessage(m.chat, {
-    text: `🔍 Resultados para: *${text}*\n\nSelecciona una app para descargar el APK:`,
+    text: `> 🦞 Resultados para: *${text}*\n\nSelecciona una app para descargar el APK:`,
     footer: `📦 Mostrando top 3 de ${results.length} resultados`,
     buttons,
     headerType: 1,
