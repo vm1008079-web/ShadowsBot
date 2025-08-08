@@ -2,27 +2,25 @@ import axios from 'axios'
 
 let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('📎 *Por favor ingresa un enlace de Mediafire*')
-  if (!text.includes('http')) return m.reply('❗ Ingresa un enlace válido que contenga "http"')
+  if (!/^https?:\/\/.*mediafire\.com/.test(text)) return m.reply('❗ Ingresa un enlace válido de *Mediafire*')
 
   try {
-    const resmf = await axios.get('https://api.siputzx.my.id/api/d/mediafire?url=' + encodeURIComponent(text))
-    m.react('🕓') // ← Aquí el cambio
+    // Reacciona con el reloj mientras procesa
+    await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
-    const data = resmf.data.data
-    const fileName = data.fileName
-    const fileSize = data.fileSize
-    const downloadLink = data.downloadLink
+    const res = await axios.get(`https://api.siputzx.my.id/api/d/mediafire?url=${encodeURIComponent(text)}`)
+    const { fileName, fileSize, downloadLink } = res.data.data
 
     await conn.sendFile(
       m.chat,
       downloadLink,
-      downloadLink.split('/').pop(),
+      fileName,
       `✅ *Nombre:* ${fileName}\n📦 *Tamaño:* ${fileSize}\n📄 *Tipo:* ${downloadLink.split('.').pop()}`,
       m
     )
-  } catch (error) {
-    console.error(error)
-    m.reply('❌ Ocurrió un error al procesar el enlace')
+  } catch (err) {
+    console.error(err)
+    m.reply('❌ Ocurrió un error al procesar el enlace o la API está caída.')
   }
 }
 
