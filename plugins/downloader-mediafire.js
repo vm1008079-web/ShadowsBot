@@ -6,7 +6,7 @@ let handler = async (m, { conn, text }) => {
 
   try {
     const resmf = await axios.get('https://api.siputzx.my.id/api/d/mediafire?url=' + encodeURIComponent(text))
-    m.reply('🕓') // ← Aquí el cambio
+    m.react('🕓') // ← Aquí el cambio
 
     const data = resmf.data.data
     const fileName = data.fileName
