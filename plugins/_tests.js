@@ -3,7 +3,7 @@ import FormData from 'form-data';
 
 let handler = async (m, { conn, args, command }) => {
   let url = args[0];
-  let quality = args[1] || '720';
+  let quality = args[1] || '1080';
 
   if (!url) return m.reply(`❗ من فضلك أدخل رابط YouTube.\nمثال:\n*.ytdl https://youtu.be/dQw4w9WgXcQ*`);
   if (!isValidYouTubeUrl(url)) return m.reply(`❌ الرابط غير صالح، يجب أن يكون رابط YouTube.`);
