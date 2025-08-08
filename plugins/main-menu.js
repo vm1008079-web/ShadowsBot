@@ -11,6 +11,7 @@ const tags = {
   info: 'ℹ️ INFORMACIÓN',
   game: '🎮 JUEGOS',
   gacha: '🎲 GACHA ANIME',
+  reacciones: '💕 ANIME REACCIONES',
   group: '👥 GRUPOS',
   search: '🔎 BUSCADORES',
   sticker: '📌 STICKERS',
@@ -21,18 +22,19 @@ const tags = {
 
 const defaultMenu = {
   before: `
-> 🦞 *Hola, soy %botname*\n> %tipo
+ꕥ🌤 *Hola, soy %botname* ꕥ🐥
+> %tipo
 
-> 👋 Hola *%name*, %greeting
+> 👋 Hola *%name*, %greeting*
 
 > 📅 Fecha: *%date*
-> ⏳ Uptime: *%uptime*
+> ⏳ Tiempo activo: *%uptime*
 %readmore`.trimStart(),
 
   header: '\n*%category* 💚',
-  body: '> 🌤 %cmd %islimit %isPremium',
+  body: '> ꕥ %cmd %islimit %isPremium',
   footer: '',
-  after: '\n✨ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 𝖠𝖽𝗈.',
+  after: '\n🌤 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 𝖠𝖽𝗈 ꕥ',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -71,7 +73,6 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       }
     }
 
-    
     const tipo = conn.user.jid === global.conn.user.jid
       ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅'
       : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
