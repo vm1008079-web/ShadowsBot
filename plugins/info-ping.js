@@ -1,37 +1,17 @@
-import fs from 'fs'
-import path from 'path'
+import speed from "performance-now";
+import { spawn, exec, execSync } from "child_process";
 
-const handler = async (m, { conn }) => {
-  const start = performance.now()
+let handler = async (m, { conn }) => {
+  let timestamp = speed();
+  let latensi = speed() - timestamp;
+  exec(`neofetch --stdout`, (error, stdout, stderr) => {
+    let child = stdout.toString("utf-8");
+    let ssd = child.replace(/Memory:/, "Ram:");
+    m.reply(`${ssd}乂  *Speed* : ${latensi.toFixed(4)} _ms_`);
+  });
+};
+handler.help = ["ping"];
+handler.tags = ["info"];
+handler.command = ["ping", "speed"];
 
-  // Obtener el número del bot actual (la sesión activa)
-  const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
-  const configPath = path.join('./JadiBots', botActual, 'config.json')
-
-  let nombreBot = global.namebot || '✧ ʏᴜʀᴜ ʏᴜʀɪ ✧'
-
-  if (fs.existsSync(configPath)) {
-    try {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-      if (config.name) nombreBot = config.name
-    } catch (err) {
-      console.log('⚠️ No se pudo leer config del subbot:', err)
-    }
-  }
-
-  // Esperamos un pequeño mensaje para medir ping real
-  const sentMsg = await conn.sendMessage(m.chat, { text: '🏓 Midiendo ping...' }, { quoted: m })
-
-  const end = performance.now()
-  const realPing = Math.round(end - start)
-
-  // Si Baileys tiene ping nativo lo mostramos también
-  const wsPing = conn?.ws?.ping?.last || 0
-
-  await conn.sendMessage(m.chat, { 
-    text: `☁︎ *Ping:* ${realPing} ms\n> ${nombreBot}` 
-  }, { quoted: sentMsg })
-}
-
-handler.command = ['p', 'ping']
-export default handler
+export default handler;
