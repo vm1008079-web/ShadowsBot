@@ -1,17 +1,3 @@
-// Esto va en tu archivo principal o donde manejes mensajes
-async function onMessage(m, conn) {
-  if (!m.isGroup) return
-  const chatId = m.chat
-  const userId = m.sender
-
-  if (!global.db.data.chats[chatId]) global.db.data.chats[chatId] = {}
-  if (!global.db.data.chats[chatId].msgCount) global.db.data.chats[chatId].msgCount = {}
-
-  if (!global.db.data.chats[chatId].msgCount[userId]) global.db.data.chats[chatId].msgCount[userId] = 0
-  global.db.data.chats[chatId].msgCount[userId] += 1
-}
-
-// Comando para mostrar conteo de mensajes
 let handler = async (m, { conn }) => {
   if (!m.isGroup) return conn.reply(m.chat, '⚠️ Este comando solo funciona en grupos.', m)
 
@@ -46,7 +32,4 @@ handler.tags = ['grupo']
 handler.admin = true
 handler.group = true
 
-export default {
-  onMessage,
-  handler
-}
+export default handler
