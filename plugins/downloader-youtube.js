@@ -1,5 +1,3 @@
-// creado por Ado.
-
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
@@ -25,7 +23,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
-      if (!search.videos || search.videos.length === 0) return m.reply('No se encontraron resultados.')
+      if (!search.videos || search.videos.length === 0) return m.reply('⚠️ No se encontraron resultados.')
       videoInfo = search.videos[0]
       url = videoInfo.url
     } else {
@@ -47,7 +45,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     } else if (command == 'play2' || command == 'ytmp4') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
     } else {
-      return m.reply('Comando no reconocido.')
+      return m.reply('❌ Comando no reconocido.')
     }
 
     let res = await fetch(apiUrl)
@@ -59,24 +57,23 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let duration = videoInfo?.timestamp || 'Desconocida'
 
     let details = `
-📌 Título : *${title}*
-📁 Duración : *${duration}*
-📥 Calidad : *${quality}*
-🎧 Tipo : *${isAudio ? 'Audio' : 'Video'}*
-🌐 Fuente : *YouTube*`.trim()
+📌 Título: *${title}*
+📁 Duración: *${duration}*
+📥 Calidad: *${quality}*
+🎧 Tipo: *${isAudio ? 'Audio' : 'Video'}*
+🌐 Fuente: *YouTube*`.trim()
 
     await conn.sendMessage(m.chat, {
       text: details,
-      contextInfo: {
-        externalAdReply: {
-          title: nombreBot,
-          body: 'Procesando...',
-          thumbnailUrl: thumbnail,
-          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-          mediaType: 1,
-          renderLargerThumbnail: true
-        }
-      }
+      contextInfo: global.rcanal ? { ...global.rcanal, externalAdReply: {
+        ...global.rcanal.externalAdReply,
+        title: nombreBot,
+        body: 'Procesando...',
+        thumbnailUrl: thumbnail,
+        sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+        mediaType: 1,
+        renderLargerThumbnail: true
+      }} : undefined
     }, { quoted: m })
 
     if (isAudio) {
@@ -84,16 +81,17 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         audio: { url: download },
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
-        ptt: false
+        ptt: false,
+        contextInfo: global.rcanal
       }, { quoted: m })
     } else {
       await conn.sendMessage(m.chat, {
         video: { url: download },
         mimetype: 'video/mp4',
-        fileName: `${title}.mp4`
+        fileName: `${title}.mp4`,
+        contextInfo: global.rcanal
       }, { quoted: m })
     }
-
   } catch {
     m.reply('❌ Se produjo un error al procesar la solicitud.')
   }
