@@ -29,10 +29,10 @@ ${usedPrefix + command} https://www.facebook.com/watch/?v=1234567890`
       let caption = `
 📹 *Facebook Video Downloader*
 
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 🔰 *Resolución:* ${item.resolution}
 📁 *Archivo:* ${item.url.endsWith('.mp4') ? item.url.split('/').pop() : 'Descarga disponible'}
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 ⏬ *Enlace original:* 
 ${args[0]}
       `.trim()
