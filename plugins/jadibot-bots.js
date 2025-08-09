@@ -1,28 +1,17 @@
-import fs from 'fs'
 import ws from 'ws'
-
-// 📁 Archivo donde guardamos la hora de inicio
-const startFile = './serverStart.json'
-
-// Si no existe el archivo, lo creamos con la fecha actual
-if (!fs.existsSync(startFile)) {
-  fs.writeFileSync(startFile, JSON.stringify({ startTime: Date.now() }, null, 2))
-}
-
-// Leer la hora guardada
-let { startTime } = JSON.parse(fs.readFileSync(startFile))
 
 let handler = async (m, { conn }) => {
   let uniqueUsers = new Map()
 
   if (!global.conns || !Array.isArray(global.conns)) global.conns = []
 
-  // Agrega los subs activos
+  // 📌 Agregar subs activos al mapa
   for (const connSub of global.conns) {
     if (connSub.user && connSub.ws?.socket?.readyState !== ws.CLOSED) {
       const jid = connSub.user.jid
       const numero = jid?.split('@')[0]
 
+      // 📌 Obtener nombre real
       let nombre = connSub.user.name
       if (!nombre && typeof conn.getName === 'function') {
         try {
@@ -36,25 +25,30 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  // ⏳ Tiempo desde que el server (contenedor) se encendió
-  const uptime = Date.now() - startTime
+  // ⏳ Tiempo de actividad desde que se encendió el server/bot
+  const uptime = process.uptime() * 1000
   const formatUptime = clockString(uptime)
   const totalUsers = uniqueUsers.size
 
-  let txt = `❀ *Subs Activos* ✦\n\n`
-  txt += `> ✦ *Actividad del server:* ${formatUptime}\n`
-  txt += `> ✦ *Subs conectados:* ${totalUsers}\n`
+  // 🎨 Diseño bonito y ordenado
+  let txt = ` *📡 Subs Activos* 〕\n\n`
+  txt += `💠 *Actividad Total:* \`${formatUptime}\`\n`
+  txt += `💠 *Subs Conectados:* \`${totalUsers}\`\n`
 
   if (totalUsers > 0) {
-    txt += `\n❀ *Lista de Subs Activos* ✦\n\n`
+    txt += `\n╭━〔 *📜 Lista de Subs* 〕━╮\n\n`
     let i = 1
     for (const [jid, nombre] of uniqueUsers) {
       const numero = jid.split('@')[0]
-      txt += `✦ *${i++}.* ${nombre}\n> ❀ wa.me/${numero}\n\n`
+      txt += `🔹 *${i++}.* ${nombre}\n`
+      txt += `   🔗 wa.me/${numero}\n\n`
     }
+    txt += `╰━━━━━━━━━━━━━━━━━━╯`
   } else {
-    txt += `\n> ❀ No hay subbots conectados por ahora.`
+    txt += `\n⚠️ *No hay subbots conectados por ahora.*`
   }
+
+  txt += `\n╰━━━━━━━━━━━━╯`
 
   await conn.reply(m.chat, txt.trim(), m, global.rcanal)
 }
