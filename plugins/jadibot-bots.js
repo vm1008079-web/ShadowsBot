@@ -1,5 +1,16 @@
-import os from 'os'
+import fs from 'fs'
 import ws from 'ws'
+
+// 📁 Archivo donde guardamos la hora de inicio
+const startFile = './serverStart.json'
+
+// Si no existe el archivo, lo creamos con la fecha actual
+if (!fs.existsSync(startFile)) {
+  fs.writeFileSync(startFile, JSON.stringify({ startTime: Date.now() }, null, 2))
+}
+
+// Leer la hora guardada
+let { startTime } = JSON.parse(fs.readFileSync(startFile))
 
 let handler = async (m, { conn }) => {
   let uniqueUsers = new Map()
@@ -25,9 +36,9 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  // ⏳ Tiempo de actividad real del servidor
-  const serverUptime = os.uptime() * 1000 // os.uptime() devuelve segundos
-  const formatUptime = clockString(serverUptime)
+  // ⏳ Tiempo desde que el server (contenedor) se encendió
+  const uptime = Date.now() - startTime
+  const formatUptime = clockString(uptime)
   const totalUsers = uniqueUsers.size
 
   let txt = `❀ *Subs Activos* ✦\n\n`
