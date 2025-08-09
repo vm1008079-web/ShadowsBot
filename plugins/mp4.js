@@ -1,32 +1,146 @@
-import axios from 'axios'
+import fetch from 'node-fetch'
+import yts from 'yt-search'
+import fs from 'fs'
+import fsp from 'fs/promises'
+import path from 'path'
+import { Readable } from 'stream'
+import { pipeline } from 'stream/promises'
 
-let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('Pásame el link de YouTube')
+const TMP_DIR = path.resolve('./tmp')
+
+function ensureTmpDir() {
+  if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
+}
+
+function sanitizeFilename(name = '') {
+  return (name || 'video')
+    .replace(/[/\\?%*:|"<>]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200)
+}
+
+async function uniquePath(basePath) {
+  const dir = path.dirname(basePath)
+  const ext = path.extname(basePath)
+  const name = path.basename(basePath, ext)
+  let i = 1
+  let candidate = basePath
+  while (fs.existsSync(candidate)) {
+    candidate = path.join(dir, `${name} (${i})${ext}`)
+    i++
+  }
+  return candidate
+}
+
+async function downloadFile(url, destPath) {
+  const res = await fetch(url)
+  if (!res.ok || !res.body) throw new Error('No se pudo descargar el archivo desde la API.')
+  const ws = fs.createWriteStream(destPath)
+  const body = res.body
+  const nodeStream = body.getReader ? Readable.fromWeb(body) : body
+  await pipeline(nodeStream, ws)
+}
+
+let handler = async (m, { conn, args, command, usedPrefix }) => {
+  if (!args[0]) return m.reply(`✅ Uso: ${usedPrefix + command} <enlace de YouTube o nombre>`)
 
   try {
-    // Llamada a tu API
-    const apiUrl = `https://myapiadonix.vercel.app/api/hd?url=${encodeURIComponent(text)}`
-    const res = await axios.get(apiUrl)
+    ensureTmpDir()
 
-    if (!res.data || !res.data.success) {
-      return m.reply('No se pudo obtener el video o la API falló')
+    // Cargar nombre del bot (igual que tu código original)
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = path.join('./JadiBots', botActual || '', 'config.json')
+
+    let nombreBot = global.namebot || '⎯⎯⎯⎯⎯⎯ Bot Principal ⎯⎯⎯⎯⎯⎯'
+    if (botActual && fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+        if (config.name) nombreBot = config.name
+      } catch {}
     }
 
-    const { title, download } = res.data.data
+    // Resolver URL de YouTube desde búsqueda si fue necesario
+    let url = args[0]
+    let videoInfo = null
 
-    // Enviar video directo
+    if (!/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url)) {
+      const search = await yts(args.join(' '))
+      if (!search.videos || search.videos.length === 0) return m.reply('No se encontraron resultados.')
+      videoInfo = search.videos[0]
+      url = videoInfo.url
+    } else {
+      const id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
+      const search = await yts({ videoId: id })
+      if (search && search.title) videoInfo = search
+    }
+
+    // SIN límite de duración: permitimos videos largos
+
+    // Siempre la misma API (endpoint de video)
+    const apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
+
+    const res = await fetch(apiUrl)
+    if (!res.ok) throw new Error('Error al conectar con la API.')
+    const json = await res.json()
+    if (!json.success) throw new Error('No se pudo obtener información del video.')
+
+    const { title, thumbnail, quality, download } = json.data
+    const duration = videoInfo?.timestamp || 'Desconocida'
+
+    // Anunciar procesamiento
+    const details = `
+📌 Título : *${title}*
+📁 Duración : *${duration}*
+📥 Calidad : *${quality || 'Desconocida'}*
+📄 Envío : *Documento (MP4)*
+📂 Temp : *./tmp*
+🌐 Fuente : *YouTube*`.trim()
+
     await conn.sendMessage(m.chat, {
-      video: { url: download },
-      caption: `🎬 *${title}*`,
-      mimetype: 'video/mp4'
+      text: details,
+      contextInfo: {
+        externalAdReply: {
+          title: nombreBot,
+          body: 'Descargando y preparando el archivo…',
+          thumbnailUrl: thumbnail,
+          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
     }, { quoted: m })
 
-  } catch (error) {
-    console.error(error)
-    m.reply('Error al obtener o enviar el video, intenta luego')
+    // Guardar en ./tmp
+    const safeTitle = sanitizeFilename(title)
+    const outPath = await uniquePath(path.join(TMP_DIR, `${safeTitle}.mp4`))
+
+    await downloadFile(download, outPath)
+
+    // Tamaño final (opcional)
+    const stat = await fsp.stat(outPath).catch(() => null)
+    const sizeTxt = stat ? `${(stat.size / (1024 ** 2)).toFixed(1)} MB` : 'Desconocido'
+
+    // Enviar como documento (no como "video" nativo)
+    await conn.sendMessage(m.chat, {
+      document: { url: outPath },
+      mimetype: 'video/mp4',
+      fileName: path.basename(outPath),
+      caption: `✅ Listo\n📌 ${title}\n📥 ${quality || '—'}\n💾 ${sizeTxt}`
+    }, { quoted: m })
+
+    // Limpieza diferida
+    setTimeout(() => {
+      fsp.unlink(outPath).catch(() => {})
+    }, 10_000)
+
+  } catch (e) {
+    console.error('YT DOC error:', e?.message || e)
+    m.reply('❌ Ocurrió un error al procesar o descargar el video.')
   }
 }
 
-handler.command = /^mp4$/i
+// Ayuda y comandos: SOLO video, enviado como 
+handler.command = ['ytvideo']
 
 export default handler
