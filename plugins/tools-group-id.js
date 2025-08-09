@@ -1,17 +1,12 @@
-
-
-let handler = async (m, { conn, groupMetadata }) => {
-    try {
-        const groupId = await groupMetadata.id
-        await conn.reply(m.chat, `🆔 ID del grupo:\n${groupId}`, m)
-    } catch (error) {
-        console.error('❌ Error al obtener el ID del grupo:', error)
-        await conn.reply(m.chat, '⚠️ No se pudo obtener el ID del grupo.', m)
-    }
+let handler = async (m, {
+    conn,
+    groupMetadata
+}) => {
+    conn.reply(m.chat, `${await groupMetadata.id}`, m)
 }
-
 handler.help = ['group-id']
-handler.tags = ['tools']
+handler.tags = ['owner']
 handler.command = /^(group-id|idgc|gcid)$/i
-
+handler.group = true
+handler.owner = true
 export default handler
