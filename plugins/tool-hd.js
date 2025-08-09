@@ -1,3 +1,5 @@
+//--> Hecho por Ado-rgb (github.com/Ado-rgb)
+// •|• No quites créditos..
 import fetch from 'node-fetch'
 import FormData from 'form-data'
 
