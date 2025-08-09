@@ -51,7 +51,7 @@ Verifique que el enlace sea válido e inténtelo nuevamente.
   }
 };
 
-handler.command = ['tools'];
+handler.command = ['html'];
 handler.help = ['html <enlace>'];
 handler.tags = ['tools'];
 handler.register = true;
