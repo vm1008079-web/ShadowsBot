@@ -7,6 +7,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   if (!args[0]) return m.reply(`✅ Uso correcto: ${usedPrefix + command} <enlace o nombre>`)
 
   try {
+    await m.react('🕓')
+
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
 
@@ -23,7 +25,13 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
-      if (!search.videos || search.videos.length === 0) return m.reply('⚠️ No se encontraron resultados.')
+      if (!search.videos || search.videos.length === 0) {
+        await conn.sendMessage(m.chat, {
+          text: '⚠️ No se encontraron resultados.',
+          ...global.rcanal
+        }, { quoted: m })
+        return
+      }
       videoInfo = search.videos[0]
       url = videoInfo.url
     } else {
@@ -33,7 +41,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     if (videoInfo.seconds > 3780) {
-      return m.reply(`⛔ El video supera el límite de duración permitido (63 minutos).`)
+      await conn.sendMessage(m.chat, {
+        text: '⛔ El video supera el límite de duración permitido (63 minutos).',
+        ...global.rcanal
+      }, { quoted: m })
+      return
     }
 
     let apiUrl = ''
@@ -45,7 +57,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     } else if (command == 'play2' || command == 'ytmp4') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
     } else {
-      return m.reply('❌ Comando no reconocido.')
+      await conn.sendMessage(m.chat, {
+        text: '❌ Comando no reconocido.',
+        ...global.rcanal
+      }, { quoted: m })
+      return
     }
 
     let res = await fetch(apiUrl)
@@ -65,15 +81,17 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     await conn.sendMessage(m.chat, {
       text: details,
-      contextInfo: global.rcanal ? { ...global.rcanal, externalAdReply: {
-        ...global.rcanal.externalAdReply,
-        title: nombreBot,
-        body: 'Procesando...',
-        thumbnailUrl: thumbnail,
-        sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-        mediaType: 1,
-        renderLargerThumbnail: true
-      }} : undefined
+      ...global.rcanal,
+      contextInfo: {
+        externalAdReply: {
+          title: nombreBot,
+          body: 'Procesando...',
+          thumbnailUrl: thumbnail,
+          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
     }, { quoted: m })
 
     if (isAudio) {
@@ -82,18 +100,25 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
         ptt: false,
-        contextInfo: global.rcanal
+        ...global.rcanal
       }, { quoted: m })
     } else {
       await conn.sendMessage(m.chat, {
         video: { url: download },
         mimetype: 'video/mp4',
         fileName: `${title}.mp4`,
-        contextInfo: global.rcanal
+        ...global.rcanal
       }, { quoted: m })
     }
-  } catch {
-    m.reply('❌ Se produjo un error al procesar la solicitud.')
+
+    await m.react('✅')
+  } catch (e) {
+    console.error(e)
+    await m.react('❌')
+    await conn.sendMessage(m.chat, {
+      text: '❌ Se produjo un error al procesar la solicitud.',
+      ...global.rcanal
+    }, { quoted: m })
   }
 }
 
