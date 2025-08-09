@@ -1,5 +1,10 @@
 import ws from 'ws'
 
+// Guarda la hora de inicio globalmente al encender el bot
+if (!global.botStartTime) {
+  global.botStartTime = Date.now()
+}
+
 let handler = async (m, { conn }) => {
   let uniqueUsers = new Map()
 
@@ -25,7 +30,8 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  const uptime = process.uptime() * 1000
+  // Tiempo real desde que el bot se encendió
+  const uptime = Date.now() - global.botStartTime
   const formatUptime = clockString(uptime)
   const totalUsers = uniqueUsers.size
 
@@ -54,8 +60,9 @@ handler.register = true
 export default handler
 
 function clockString(ms) {
-  const h = Math.floor(ms / 3600000)
-  const m = Math.floor((ms % 3600000) / 60000)
-  const s = Math.floor((ms % 60000) / 1000)
-  return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
+  const d = Math.floor(ms / 86400000) // días
+  const h = Math.floor(ms / 3600000) % 24
+  const m = Math.floor(ms / 60000) % 60
+  const s = Math.floor(ms / 1000) % 60
+  return `${d}d ${h}h ${m}m ${s}s`
 }
