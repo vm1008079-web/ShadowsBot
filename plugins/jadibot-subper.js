@@ -5,7 +5,6 @@ const handler = async (m, { conn }) => {
   const jadiPath = './JadiBots'
   let listaSubs = []
 
-  // ✦ Verifica si existe la carpeta de subbots
   if (fs.existsSync(jadiPath)) {
     const carpetas = fs.readdirSync(jadiPath).filter(f => fs.statSync(path.join(jadiPath, f)).isDirectory())
 
@@ -14,38 +13,31 @@ const handler = async (m, { conn }) => {
       if (fs.existsSync(configPath)) {
         try {
           const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-          const nombre = config.name || '❀ Sin nombre personalizado'
+          const nombre = config.name || '✨ Sin nombre personalizado'
           const numero = carpeta
           listaSubs.push({ numero, nombre })
-        } catch (e) {
-          console.log(`✘ Error leyendo config en sub: ${carpeta}`)
-        }
+        } catch {}
       }
     }
   }
 
-  // ✦ Si no hay subs activos
   if (!listaSubs.length) {
     return conn.reply(m.chat, `
-❀ *Subs Personalizados* 
+🌟 *SUBS PERSONALIZADOS* 🌟
 
-➪ ✦ *No hay subs personalizados activos*
-➪ ❀ Usa *.setname* para crear uno
+⚠️ No hay subs personalizados activos
+📝 Usa *.setname* para crear uno
 `.trim(), m)
   }
 
-  // ✦ Si hay subs activos
-  let msg = `
-*Subs Personalizados Activos*\n
-`
+  let msg = `🌟 *SUBS PERSONALIZADOS ACTIVOS* 🌟\n\n`
 
   listaSubs.forEach((s, i) => {
-    msg += `➪ ✦ *${i + 1}.* ${s.nombre}\n`
-    msg += `   ⤷ ❀ *Número:* wa.me/${s.numero}\n\n`
+    msg += `💎 *${i + 1}.* ${s.nombre}\n`
+    msg += `🔗 https://wa.me/${s.numero}\n\n`
   })
 
-  msg += `➪ ✦ ❀ *Total:* ${listaSubs.length}\n`
-  msg += `╰────────❀────────╯`
+  msg += `📊 *Total:* ${listaSubs.length}`
 
   await conn.reply(m.chat, msg.trim(), m)
 }
