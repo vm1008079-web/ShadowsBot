@@ -28,7 +28,7 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
     return m.reply(`✳️ Usa:\n*.on antilink* / *.off antilink*\n*.on welcome* / *.off welcome*\n*.on antiarabe* / *.off antiarabe*\n*.on modoadmin* / *.off modoadmin*`)
   }
 
-  if (!(isAdmin || isOwner)) return m.reply('❌ Solo admins pueden activar o desactivar funciones.')
+  if (!isAdmin) return m.reply('❌ Solo admins (no owner) pueden activar o desactivar funciones.')
 
   if (type === 'antilink') {
     chat.antilink = enable
