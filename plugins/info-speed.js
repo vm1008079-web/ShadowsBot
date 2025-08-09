@@ -1,79 +1,53 @@
+import { totalmem, freemem } from 'os'
 import os from 'os'
-import process from 'process'
+import util from 'util'
+import osu from 'node-os-utils'
+import { performance } from 'perf_hooks'
+import { sizeFormatter } from 'human-readable'
+import speed from 'performance-now'
+import { spawn, exec, execSync } from 'child_process'
+const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
 
-let handler = async (m, { conn }) => {
-  let start = Date.now()
-  await m.reply('🔄 Obteniendo estadísticas, espera un momento...')
+var handler = async (m, { conn }) => {
 
-  let ping = Date.now() - start
+let timestamp = speed()
+let latensi = speed() - timestamp
 
-  // Memoria RAM
-  let totalMem = os.totalmem() / 1024 / 1024
-  let freeMem = os.freemem() / 1024 / 1024
-  let usedMem = totalMem - freeMem
-  let memPercent = (usedMem / totalMem) * 100
+let _muptime = process.uptime() * 1000
+let muptime = clockString(_muptime)
 
-  // CPU
-  let cpus = os.cpus()
-  let cpuModel = cpus[0].model
-  let cpuCores = cpus.length
-  let cpuSpeed = cpus[0].speed
-  let loadAvg = os.loadavg()
+let chats = Object.entries(conn.chats).filter(([id, data]) => id && data.isChats)
+let groups = Object.entries(conn.chats).filter(([jid, chat]) => jid.endsWith('@g.us') && chat.isChats && !chat.metadata?.read_only && !chat.metadata?.announce).map(v => v[0])
 
-  // Tiempos
-  let uptime = process.uptime()
-  let systemUptime = os.uptime()
 
-  const formatTime = (s) => {
-    const h = Math.floor(s / 3600)
-    const m = Math.floor((s % 3600) / 60)
-    const sec = Math.floor(s % 60)
-    return `${h ? h + 'h ' : ''}${m ? m + 'min ' : ''}${sec}s`
-  }
+let texto = `${emoji} *${packname}*
+🚀 *Velocidad:*
+→ ${latensi.toFixed(4)}
 
-  // Info del sistema
-  let platform = os.platform()
-  let release = os.release()
-  let arch = os.arch()
-  let hostname = os.hostname()
+🕒 *Activo Durante:*
+→ ${muptime}
 
-  // Node info
-  let nodeVersion = process.version
-  let pid = process.pid
-  let cwd = process.cwd()
+💫 *Chats:*
+→ ${chats.length} *Chats privados*
+→ ${groups.length} *Grupos*
 
-  // Mensaje formateado
-  let text = `
-「 *📊 Estado del Bot y Sistema* 
+🏆 *Servidor:*
+➤ *Ram ⪼* ${format(totalmem() - freemem())} / ${format(totalmem())}`.trim()
 
-🔁 *Respuesta:* ${ping} ms
-🧠 *RAM:* ${usedMem.toFixed(2)} MB / ${totalMem.toFixed(2)} MB (${memPercent.toFixed(2)}%)
-🖥️ *CPU:* ${cpuModel}
-⚙️ *Núcleos:* ${cpuCores} @ ${cpuSpeed} MHz
-📉 *Carga Promedio:* ${loadAvg.map(n => n.toFixed(2)).join(', ')}
+m.react('✈️')
 
-⏳ *Uptime Bot:* ${formatTime(uptime)}
-🕒 *Uptime Sistema:* ${formatTime(systemUptime)}
+conn.reply(m.chat, texto, m, )
 
-💻 *Sistema:*
-• Plataforma: ${platform}
-• Versión: ${release}
-• Arquitectura: ${arch}
-• Hostname: ${hostname}
-
-🧩 *NodeJS:*
-• Versión: ${nodeVersion}
-• PID: ${pid}
-• Directorio: ${cwd}
-
-*✨ Bot activo sin miedo al éxito UwU ✨*
-`.trim()
-
-  await conn.sendMessage(m.chat, { text, ...global.rcanal }, { quoted: m })
 }
-
-handler.command = ['speed', 'status']
 handler.help = ['speed']
 handler.tags = ['info']
+handler.command = ['speed']
+handler.register = true
 
 export default handler
+
+function clockString(ms) {
+let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')}
