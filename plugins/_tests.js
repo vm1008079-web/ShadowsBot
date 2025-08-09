@@ -85,7 +85,7 @@ async function convertirYoutubeMp3(url) {
   }
 }
 
-async function descargarVideo(url, calidad = "720") {
+async function descargarVideo(url, calidad = "320") {
   try {
     const calidadesPermitidas = {
       "480": 480,
