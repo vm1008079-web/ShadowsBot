@@ -3,8 +3,6 @@ import yts from 'yt-search'
 import fs from 'fs'
 import fsp from 'fs/promises'
 import path from 'path'
-import { Readable } from 'stream'
-import { pipeline } from 'stream/promises'
 
 const TMP_DIR = path.resolve('./tmp')
 
@@ -36,10 +34,12 @@ async function uniquePath(basePath) {
 async function downloadFile(url, destPath) {
   const res = await fetch(url)
   if (!res.ok || !res.body) throw new Error('No se pudo descargar el archivo desde la API.')
-  const ws = fs.createWriteStream(destPath)
-  const body = res.body
-  const nodeStream = body.getReader ? Readable.fromWeb(body) : body
-  await pipeline(nodeStream, ws)
+  const fileStream = fs.createWriteStream(destPath)
+  await new Promise((resolve, reject) => {
+    res.body.pipe(fileStream)
+    res.body.on('error', reject)
+    fileStream.on('finish', resolve)
+  })
 }
 
 let handler = async (m, { conn, args, command, usedPrefix }) => {
@@ -48,7 +48,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   try {
     ensureTmpDir()
 
-    // Cargar nombre del bot (igual que tu código original)
+    // Cargar nombre del bot
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual || '', 'config.json')
 
@@ -75,11 +75,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       if (search && search.title) videoInfo = search
     }
 
-    // SIN límite de duración: permitimos videos largos
-
-    // Siempre la misma API (endpoint de video)
+    // Usar API de video
     const apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
-
     const res = await fetch(apiUrl)
     if (!res.ok) throw new Error('Error al conectar con la API.')
     const json = await res.json()
@@ -117,19 +114,19 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     await downloadFile(download, outPath)
 
-    // Tamaño final (opcional)
+    // Tamaño final
     const stat = await fsp.stat(outPath).catch(() => null)
     const sizeTxt = stat ? `${(stat.size / (1024 ** 2)).toFixed(1)} MB` : 'Desconocido'
 
-    // Enviar como documento (no como "video" nativo)
+    // ✅ Enviar como documento usando stream local
     await conn.sendMessage(m.chat, {
-      document: { url: outPath },
+      document: fs.readFileSync(outPath),
       mimetype: 'video/mp4',
       fileName: path.basename(outPath),
       caption: `✅ Listo\n📌 ${title}\n📥 ${quality || '—'}\n💾 ${sizeTxt}`
     }, { quoted: m })
 
-    // Limpieza diferida
+    // Limpieza
     setTimeout(() => {
       fsp.unlink(outPath).catch(() => {})
     }, 10_000)
@@ -140,7 +137,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 }
 
-// Ayuda y comandos: SOLO video, enviado como 
+
 handler.command = ['ytvideo']
 
 export default handler
