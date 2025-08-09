@@ -73,11 +73,11 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let duration = videoInfo?.timestamp || 'Desconocida'
 
     let details = `
-📌 Título: *${title}*
-📁 Duración: *${duration}*
-📥 Calidad: *${quality}*
-🎧 Tipo: *${isAudio ? 'Audio' : 'Video'}*
-🌐 Fuente: *YouTube*`.trim()
+> *${title}*
+🍋‍🟩 Duración : *${duration}*
+🐛 Calidad : *${quality}*
+🐥 Tipo : *${isAudio ? 'Audio' : 'Video'}*
+🍁 Fuente : *YouTube*`.trim()
 
     await conn.sendMessage(m.chat, {
       text: details,
@@ -85,7 +85,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       contextInfo: {
         externalAdReply: {
           title: nombreBot,
-          body: 'Procesando...',
+          body: '❤️‍🔥 Procesando...',
           thumbnailUrl: thumbnail,
           sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
           mediaType: 1,
