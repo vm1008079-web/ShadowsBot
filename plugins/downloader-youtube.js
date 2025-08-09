@@ -1,3 +1,5 @@
+//--> Hecho por Ado-rgb (github.com/Ado-rgb)
+// •|• No quites créditos..
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 import fs from 'fs'
