@@ -29,11 +29,11 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 ┃ 👤 *Autor:* ${author.name}
 ┃ 🔗 *Enlace:* ${url}
 
-🎋 *Reacciona para descargar:*
-❤️ ⟩ Audio MP3
-🦞 ⟩ Video MP4
-👾 ⟩ Audio como Documento
-⚡ ⟩ Video como Documento
+✏️ *Responde a este mensaje con:*
+• \`audio\` → Audio MP3
+• \`audio doc\` → Audio como Documento
+• \`video\` → Video MP4
+• \`video doc\` → Video como Documento
 `.trim()
 
   // enviar preview
@@ -43,9 +43,8 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     { quoted: m }
   )
 
-  // guardamos usando stanzaId que es el real para reacciones
-  let jobKey = preview.key.id
-  pendingJobs[jobKey] = {
+  // guardamos usando stanzaId
+  pendingJobs[preview.key.id] = {
     chatId: m.chat,
     videoUrl: url,
     title,
@@ -53,30 +52,25 @@ let handler = async (m, { conn, text, usedPrefix }) => {
   }
 
   await m.react('✅')
+}
 
-  // listener único para reacciones
-  if (!conn._play8ReactionListener) {
-    conn._play8ReactionListener = true
-    conn.ev.on("messages.upsert", async ev => {
-      for (let rx of ev.messages) {
-        if (rx.message?.reactionMessage) {
-          let emoji = rx.message.reactionMessage.text
-          let reactedId = rx.message.reactionMessage.key.id
-          let job = pendingJobs[reactedId]
-          if (job) {
-            if (emoji === "❤️") {
-              await downloadAudio(conn, job, false, job.cmdMsg)
-            } else if (emoji === "🦞") {
-              await downloadVideo(conn, job, false, job.cmdMsg)
-            } else if (emoji === "👾") {
-              await downloadAudio(conn, job, true, job.cmdMsg)
-            } else if (emoji === "⚡") {
-              await downloadVideo(conn, job, true, job.cmdMsg)
-            }
-          }
-        }
-      }
-    })
+// Listener para respuestas
+handler.before = async function (m, { conn }) {
+  if (!m.quoted) return
+  let job = pendingJobs[m.quoted.id]
+  if (!job) return
+
+  let msg = m.text?.trim().toLowerCase()
+  if (!msg) return
+
+  if (msg === 'audio') {
+    await downloadAudio(conn, job, false, m)
+  } else if (msg === 'audio doc') {
+    await downloadAudio(conn, job, true, m)
+  } else if (msg === 'video') {
+    await downloadVideo(conn, job, false, m)
+  } else if (msg === 'video doc') {
+    await downloadVideo(conn, job, true, m)
   }
 }
 
