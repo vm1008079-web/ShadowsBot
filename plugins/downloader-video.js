@@ -29,11 +29,11 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 ┃ 👤 *Autor:* ${author.name}
 ┃ 🔗 *Enlace:* ${url}
 
-📥 *Reacciona para descargar:*
-❤️ → Audio MP3
-🦞 → Video MP4
-👾 → Audio como Documento
-⚡ → Video como Documento
+🎋 *Reacciona para descargar:*
+❤️ ⟩ Audio MP3
+🦞 ⟩ Video MP4
+👾 ⟩ Audio como Documento
+⚡ ⟩ Video como Documento
 `.trim()
 
   // enviar preview
@@ -80,7 +80,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 async function downloadAudio(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🎶 Procesando audio...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `> 🌤 Procesando audio...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
@@ -100,7 +100,7 @@ async function downloadAudio(conn, job, asDoc, quoted) {
 
 async function downloadVideo(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🎥 Procesando video...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `> 🦖 Procesando video...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
