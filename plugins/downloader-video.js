@@ -8,7 +8,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     return m.reply(`🛠 *Uso correcto:*\n${usedPrefix}play <nombre o enlace>\n\n💡 Ejemplo:\n${usedPrefix}play despacito`)
   }
 
-  await m.react('⏳')
+  await m.react('🕓')
 
   // búsqueda de video
   let search = await yts(text)
@@ -22,7 +22,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
   // mensaje decorado
   let caption = `
- 〔🎵 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐘𝐓 🎥〕
+ 〔🎵 𝗣𝗟𝗔𝗬𝟴 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 🎥〕
 ┃ 📌 *Título:* ${title}
 ┃ ⏱ *Duración:* ${duration}
 ┃ 👀 *Vistas:* ${viewsFmt}
@@ -30,10 +30,10 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 ┃ 🔗 *Enlace:* ${url}
 
 📥 *Reacciona para descargar:*
-👍 → Audio MP3
-❤️ → Video MP4
-📄 → Audio como Documento
-📁 → Video como Documento
+❤️ → Audio MP3
+🦞 → Video MP4
+👾 → Audio como Documento
+⚡ → Video como Documento
 `.trim()
 
   // enviar preview
@@ -58,13 +58,13 @@ let handler = async (m, { conn, text, usedPrefix }) => {
           let { key, text: emoji } = rx.message.reactionMessage
           let job = pendingJobs[key.id]
           if (job) {
-            if (emoji === "👍") {
+            if (emoji === "❤️") {
               await downloadAudio(conn, job, false, job.cmdMsg)
-            } else if (emoji === "❤️") {
+            } else if (emoji === "🦞") {
               await downloadVideo(conn, job, false, job.cmdMsg)
-            } else if (emoji === "📄") {
+            } else if (emoji === "👾") {
               await downloadAudio(conn, job, true, job.cmdMsg)
-            } else if (emoji === "📁") {
+            } else if (emoji === "⚡") {
               await downloadVideo(conn, job, true, job.cmdMsg)
             }
           }
@@ -76,7 +76,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 async function downloadAudio(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🎶 Descargando audio...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `🦞 Procesando, aguarda unos segundos...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
@@ -95,7 +95,7 @@ async function downloadAudio(conn, job, asDoc, quoted) {
 
 async function downloadVideo(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🎥 Descargando video...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `🍁 Procesando, aguarda unos segundos...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
@@ -105,7 +105,7 @@ async function downloadVideo(conn, job, asDoc, quoted) {
       [asDoc ? "document" : "video"]: { url: download },
       mimetype: "video/mp4",
       fileName: `${title}.mp4`,
-      caption: asDoc ? null : `🎬 *Aquí tienes tu video*`
+      caption: asDoc ? null : `*Aquí tienes tu video.*`
     }, { quoted })
   } catch (e) {
     await conn.sendMessage(job.chatId, { text: '❌ Error al descargar video.' }, { quoted })
