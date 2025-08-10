@@ -8,14 +8,15 @@ let handler = async (m, { conn, text }) => {
     // Reacciona con el reloj mientras procesa
     await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
-    const res = await axios.get(`https://api.siputzx.my.id/api/d/mediafire?url=${encodeURIComponent(text)}`)
-    const { fileName, fileSize, downloadLink } = res.data.data
+    const apiUrl = `https://delirius-apiofc.vercel.app/download/mediafire?url=${encodeURIComponent(text)}`
+    const res = await axios.get(apiUrl)
+    const { filename, size, extension, link } = res.data.data
 
     await conn.sendFile(
       m.chat,
-      downloadLink,
-      fileName,
-      `✅ *Nombre:* ${fileName}\n📦 *Tamaño:* ${fileSize}\n📄 *Tipo:* ${downloadLink.split('.').pop()}`,
+      link,
+      filename,
+      `✅ *Nombre:* ${filename}\n📦 *Tamaño:* ${size}\n📄 *Tipo:* ${extension || 'desconocido'}`,
       m
     )
   } catch (err) {
