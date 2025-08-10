@@ -5,7 +5,7 @@ const pendingJobs = {}
 
 let handler = async (m, { conn, text, usedPrefix }) => {
   if (!text) {
-    return m.reply(`🛠 *Uso correcto:*\n${usedPrefix}play <nombre o enlace>\n\n💡 Ejemplo:\n${usedPrefix}play despacito`)
+    return m.reply(`🛠 *Uso correcto:*\n${usedPrefix}play8 <nombre o enlace>\n\n💡 Ejemplo:\n${usedPrefix}play8 despacito`)
   }
 
   await m.react('🕓')
@@ -22,7 +22,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
   // mensaje decorado
   let caption = `
- 〔🎵 𝗣𝗟𝗔𝗬𝟴 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 🎥〕
+〔🎵 𝗣𝗟𝗔𝗬𝟴 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 🎥〕
 ┃ 📌 *Título:* ${title}
 ┃ ⏱ *Duración:* ${duration}
 ┃ 👀 *Vistas:* ${viewsFmt}
@@ -37,7 +37,11 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 `.trim()
 
   // enviar preview
-  let preview = await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption }, { quoted: m })
+  let preview = await conn.sendMessage(
+    m.chat,
+    { image: { url: thumbnail }, caption },
+    { quoted: m }
+  )
 
   // guardar trabajo pendiente
   pendingJobs[preview.key.id] = {
@@ -49,9 +53,9 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
   await m.react('✅')
 
-  // listener único solo para reacciones
-  if (!conn._playReactionListener) {
-    conn._playReactionListener = true
+  // listener único para reacciones
+  if (!conn._play8ReactionListener) {
+    conn._play8ReactionListener = true
     conn.ev.on("messages.upsert", async ev => {
       for (let rx of ev.messages) {
         if (rx.message?.reactionMessage) {
@@ -76,17 +80,18 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 async function downloadAudio(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🦞 Procesando, aguarda unos segundos...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `🎶 Procesando audio...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
-    if (!json.success) return conn.sendMessage(job.chatId, { text: '❌ No se pudo obtener el audio.' }, { quoted })
+    if (!json.success) {
+      return conn.sendMessage(job.chatId, { text: '❌ No se pudo obtener el audio.' }, { quoted })
+    }
     let { title, download } = json.data
     await conn.sendMessage(job.chatId, {
       [asDoc ? "document" : "audio"]: { url: download },
       mimetype: "audio/mpeg",
-      fileName: `${title}.mp3`,
-      ptt: !asDoc
+      fileName: `${title}.mp3`
     }, { quoted })
   } catch (e) {
     await conn.sendMessage(job.chatId, { text: '❌ Error al descargar audio.' }, { quoted })
@@ -95,11 +100,13 @@ async function downloadAudio(conn, job, asDoc, quoted) {
 
 async function downloadVideo(conn, job, asDoc, quoted) {
   try {
-    await conn.sendMessage(job.chatId, { text: `🍁 Procesando, aguarda unos segundos...` }, { quoted })
+    await conn.sendMessage(job.chatId, { text: `🎥 Procesando video...` }, { quoted })
     let api = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(job.videoUrl)}`
     let res = await fetch(api)
     let json = await res.json()
-    if (!json.success) return conn.sendMessage(job.chatId, { text: '❌ No se pudo obtener el video.' }, { quoted })
+    if (!json.success) {
+      return conn.sendMessage(job.chatId, { text: '❌ No se pudo obtener el video.' }, { quoted })
+    }
     let { title, download } = json.data
     await conn.sendMessage(job.chatId, {
       [asDoc ? "document" : "video"]: { url: download },
