@@ -43,8 +43,9 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     { quoted: m }
   )
 
-  // guardar trabajo pendiente usando remoteJid + id para evitar confusiones
-  pendingJobs[`${preview.key.remoteJid}:${preview.key.id}`] = {
+  // guardamos usando stanzaId que es el real para reacciones
+  let jobKey = preview.key.id
+  pendingJobs[jobKey] = {
     chatId: m.chat,
     videoUrl: url,
     title,
@@ -59,9 +60,9 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     conn.ev.on("messages.upsert", async ev => {
       for (let rx of ev.messages) {
         if (rx.message?.reactionMessage) {
-          let { key, text: emoji } = rx.message.reactionMessage
-          let jobKey = `${key.remoteJid}:${key.id}`
-          let job = pendingJobs[jobKey]
+          let emoji = rx.message.reactionMessage.text
+          let reactedId = rx.message.reactionMessage.key.id
+          let job = pendingJobs[reactedId]
           if (job) {
             if (emoji === "❤️") {
               await downloadAudio(conn, job, false, job.cmdMsg)
