@@ -1,10 +1,9 @@
-/* eslint-disable */
 import fs from 'fs'
 import path, { join } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
 import * as ws from 'ws';
-import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, watch, mkdirSync, rmSync } from 'fs'; // Added rmSync
+import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, watch, mkdirSync, rmSync } from 'fs';
 import yargs from 'yargs';
 import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
@@ -19,7 +18,7 @@ import readline from 'readline';
 import NodeCache from 'node-cache';
 import qrcode from 'qrcode-terminal';
 import { spawn } from 'child_process';
-import { setInterval } from 'timers'; // Import setInterval for explicit garbage collection
+import { setInterval } from 'timers';
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 process.env.TMPDIR = path.join(process.cwd(), 'tmp');
@@ -82,6 +81,15 @@ global.prefix = new RegExp(
 
 global.db = new Low(new JSONFile(`storage/databases/database.json`));
 
+// --- INICIO DE CAMBIO PARA OPTIMIZACIÓN ---
+// Variable para rastrear si la base de datos ha sido modificada.
+global.isDatabaseModified = false;
+// Función para marcar la base de datos como modificada.
+global.markDatabaseModified = () => {
+  global.isDatabaseModified = true;
+};
+// --- FIN DE CAMBIO PARA OPTIMIZACIÓN ---
+
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ)
@@ -107,6 +115,17 @@ global.loadDatabase = async function loadDatabase() {
     ...(global.db.data || {}),
   };
   global.db.chain = lodash.chain(global.db.data);
+
+  // --- INICIO DE CAMBIO PARA OPTIMIZACIÓN ---
+  // Sobrescribir los métodos de la base de datos para que marquen los cambios.
+  const originalSet = global.db.chain.set.bind(global.db.chain);
+  global.db.chain.set = (...args) => {
+    const result = originalSet(...args);
+    global.markDatabaseModified();
+    return result;
+  };
+  // También se pueden envolver otras operaciones de escritura si es necesario.
+  // --- FIN DE CAMBIO PARA OPTIMIZACIÓN ---
 };
 
 global.authFile = `sessions`;
@@ -208,7 +227,7 @@ async function reconnectSubBot(botPath) {
       } else if (connection === 'close') {
         const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
         console.error(chalk.red(`[DEBUG] Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
-        
+
         // --- INICIO DE CAMBIO IMPORTANTE: Manejo de desconexión permanente ---
         if (reason === DisconnectReason.loggedOut || reason === 401) {
           console.log(chalk.red(`❌ [DEBUG] Desconexión permanente detectada. Eliminando sesión del sub-bot en ${path.basename(botPath)}.`));
@@ -339,15 +358,21 @@ conn.well = false;
 
 if (!opts['test']) {
   if (global.db) {
+    // --- INICIO DE CAMBIO PARA OPTIMIZACIÓN DE BASE DE DATOS ---
+    // Optimización de la base de datos: solo escribe si hay cambios.
     setInterval(async () => {
-      if (global.db.data) await global.db.write();
+      if (global.db.data && global.isDatabaseModified) {
+        await global.db.write();
+        global.isDatabaseModified = false; // Resetear la bandera
+      }
       if (opts['autocleartmp']) {
         const tmp = [tmpdir(), 'tmp', 'serbot'];
         tmp.forEach((filename) => {
           spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']);
         });
       }
-    }, 30 * 1000);
+    }, 30 * 1000); // Se mantiene el intervalo de 30 segundos, pero ahora es más eficiente.
+    // --- FIN DE CAMBIO PARA OPTIMIZACIÓN DE BASE DE DATOS ---
   }
 }
 
@@ -357,23 +382,26 @@ function clearTmp() {
   tmp.forEach((dirname) => readdirSync(dirname).forEach((file) => filename.push(join(dirname, file))));
   return filename.map((file) => {
     const stats = statSync(file);
-    if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 3) return unlinkSync(file);
+    if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 1) return unlinkSync(file); // Más agresivo, elimina archivos de 1 minuto
     return false;
   });
 }
 
+// --- INICIO DE CAMBIO PARA OPTIMIZACIÓN DE TEMPORALES ---
+// Limpiar la carpeta temporal con más frecuencia (cada 3 minutos).
 setInterval(() => {
   if (global.stopped === 'close' || !conn || !conn.user) return;
   clearTmp();
-}, 180000);
+}, 180000); // 180000 ms = 3 minutos
+// --- FIN DE CAMBIO PARA OPTIMIZACIÓN DE TEMPORALES ---
 
 // --- INICIO DE CAMBIO: Optimización de memoria ---
-// Ejecutar el recolector de basura de Node.js a intervalos
+// Ejecutar el recolector de basura de Node.js a intervalos más frecuentes.
 if (typeof global.gc === 'function') {
   setInterval(() => {
     console.log(chalk.gray(`[DEBUG] Ejecutando recolección de basura...`));
     global.gc();
-  }, 300000); // Cada 5 minutos (300000 ms)
+  }, 180000); // Cada 3 minutos (180000 ms), más frecuente para baja memoria.
 } else {
   console.log(chalk.yellow(`[WARN] La recolección de basura no está disponible. Para habilitarla, ejecuta Node.js con la bandera --expose-gc.`));
 }
