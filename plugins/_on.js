@@ -32,6 +32,8 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
 
   if (type === 'antilink') {
     chat.antilink = enable
+    if(!chat.antilinkWarns) chat.antilinkWarns = {}
+    if(!enable) chat.antilinkWarns = {} // resetea advertencias si se apaga antilink
     return m.reply(`✅ Antilink ${enable ? 'activado' : 'desactivado'}.`)
   }
 
@@ -98,28 +100,61 @@ handler.before = async (m, { conn }) => {
         if (text.includes(ownGroupLink)) return
       } catch { }
 
-      try {
-        await conn.sendMessage(m.chat, {
-          text: `🚫 Hey ${userTag}, no se permiten links aquí.`,
-          mentions: [m.sender]
-        }, { quoted: m })
+      if (!chat.antilinkWarns) chat.antilinkWarns = {}
+      if (!chat.antilinkWarns[m.sender]) chat.antilinkWarns[m.sender] = 0
 
-        await conn.sendMessage(m.chat, {
-          delete: {
-            remoteJid: m.chat,
-            fromMe: false,
-            id: msgID,
-            participant: delet
-          }
-        })
+      chat.antilinkWarns[m.sender]++
 
-        await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
-      } catch {
-        await conn.sendMessage(m.chat, {
-          text: `⚠️ No pude eliminar ni expulsar a ${userTag}. Puede que no tenga permisos.`,
-          mentions: [m.sender]
-        }, { quoted: m })
+      if (chat.antilinkWarns[m.sender] < 3) {
+        // solo elimina el mensaje con link y manda advertencia
+        try {
+          await conn.sendMessage(m.chat, {
+            text: `🚫 Hey ${userTag}, no se permiten links aquí. Esta es tu advertencia ${chat.antilinkWarns[m.sender]}/3.`,
+            mentions: [m.sender]
+          }, { quoted: m })
+
+          await conn.sendMessage(m.chat, {
+            delete: {
+              remoteJid: m.chat,
+              fromMe: false,
+              id: msgID,
+              participant: delet
+            }
+          })
+        } catch {
+          await conn.sendMessage(m.chat, {
+            text: `⚠️ No pude eliminar el mensaje de ${userTag}.`,
+            mentions: [m.sender]
+          }, { quoted: m })
+        }
+      } else {
+        // tercera advertencia: elimina y expulsa
+        try {
+          await conn.sendMessage(m.chat, {
+            text: `🚫 ${userTag} alcanzó 3 advertencias por enviar links. Ahora serás expulsado.`,
+            mentions: [m.sender]
+          }, { quoted: m })
+
+          await conn.sendMessage(m.chat, {
+            delete: {
+              remoteJid: m.chat,
+              fromMe: false,
+              id: msgID,
+              participant: delet
+            }
+          })
+
+          await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+
+          chat.antilinkWarns[m.sender] = 0
+        } catch {
+          await conn.sendMessage(m.chat, {
+            text: `⚠️ No pude expulsar a ${userTag}. Puede que no tenga permisos.`,
+            mentions: [m.sender]
+          }, { quoted: m })
+        }
       }
+
       return true
     }
   }
