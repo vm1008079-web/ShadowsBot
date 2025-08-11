@@ -1,153 +1,106 @@
 //--> Hecho por Ado-rgb (github.com/Ado-rgb)
 // •|• No quites créditos..
 import fetch from 'node-fetch'
-import fs from 'fs'
-import path from 'path'
 
-let linkRegex = /chat.whatsapp.com\/[0-9A-Za-z]{20,24}/i
-let linkRegex1 = /whatsapp.com\/channel\/[0-9A-Za-z]{20,24}/i
+let linkRegex = /chat\.whatsapp\.com\/[0-9A-Za-z]{20,24}/i
+let linkRegex1 = /whatsapp\.com\/channel\/[0-9A-Za-z]{20,24}/i
 const defaultImage = 'https://files.catbox.moe/ubftco.jpg'
 
-// Prefijos de números árabes
-const arabicPrefixes = ['212', '20', '971', '965', '966', '974', '973', '962']
-
-// Ruta carpeta subbots
-const jadiBotsFolder = path.join(process.cwd(), './JadiBots/')
-
-// Función para verificar si es Owner o Subbot (solo de global.conns)
-function isOwnerOrSubbot(jid) {
-  const number = jid.split('@')[0]
-  if (number === '50493732693') return true // Owner fijo
-  if (!global.conns) return false
-  return Object.values(global.conns).some(conn => {
-    // Los subbots en global.conns tienen usuario en conn.user?.id
-    return conn.user?.id?.split('@')[0] === number
-  })
-}
-
-// Función para detectar si un número es árabe
-function isArabNumber(jid) {
-  const number = jid.split('@')[0].replace(/\D/g, '')
-  return arabicPrefixes.some(prefix => number.startsWith(prefix))
-}
-
-const handler = async (m, { conn, command, args, isAdmin }) => {
-  const type = (args[0] || '').toLowerCase()
-  const enable = command === 'on'
-
-  // En privado solo se puede activar/desactivar antiarabepriv (y debe ser owner o subbot)
-  if (!m.isGroup) {
-    if (type !== 'antiarabepriv') {
-      return m.reply('❌ En privado solo puedes activar/desactivar *antiarabepriv*')
-    }
-    if (!isOwnerOrSubbot(m.sender)) {
-      return m.reply('⛔ Solo el owner o subbots autorizados pueden activar/desactivar el AntiArabePriv en privado.')
-    }
-  } else {
-    // En grupos valida tipos permitidos
-    if (!['antilink', 'welcome', 'antiarabe', 'antiarabepriv', 'modoadmin'].includes(type)) {
-      return m.reply(`✳️ Usa:
-*.on antilink* / *.off antilink*
-*.on welcome* / *.off welcome*
-*.on antiarabe* / *.off antiarabe*
-*.on antiarabepriv* / *.off antiarabepriv*
-*.on modoadmin* / *.off modoadmin*`)
-    }
-    if (['antilink', 'welcome', 'antiarabe', 'modoadmin'].includes(type) && !isAdmin) {
-      return m.reply('❌ Solo admins pueden activar o desactivar funciones.')
-    }
-    if (type === 'antiarabepriv' && !isOwnerOrSubbot(m.sender)) {
-      return m.reply('⛔ Solo el owner o subbots autorizados pueden activar/desactivar el AntiArabePriv.')
-    }
+async function isAdminOrOwner(m, conn) {
+  try {
+    const groupMetadata = await conn.groupMetadata(m.chat)
+    const participant = groupMetadata.participants.find(p => p.id === m.sender)
+    return participant?.admin || m.fromMe
+  } catch {
+    return false
   }
+}
+
+const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
+  if (!m.isGroup) return m.reply('🔒 Solo funciona en grupos.')
 
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
   const chat = global.db.data.chats[m.chat]
-  chat[type] = enable
-  return m.reply(`✅ ${type} ${enable ? 'activado' : 'desactivado'}.`)
+  const type = (args[0] || '').toLowerCase()
+  const enable = command === 'on'
+
+  if (!['antilink', 'welcome', 'antiarabe', 'modoadmin'].includes(type)) {
+    return m.reply(`✳️ Usa:\n*.on antilink* / *.off antilink*\n*.on welcome* / *.off welcome*\n*.on antiarabe* / *.off antiarabe*\n*.on modoadmin* / *.off modoadmin*`)
+  }
+
+  if (!isAdmin) return m.reply('❌ Solo admins (no owner) pueden activar o desactivar funciones.')
+
+  if (type === 'antilink') {
+    chat.antilink = enable
+    return m.reply(`✅ Antilink ${enable ? 'activado' : 'desactivado'}.`)
+  }
+
+  if (type === 'welcome') {
+    chat.welcome = enable
+    return m.reply(`✅ Welcome ${enable ? 'activado' : 'desactivado'}.`)
+  }
+
+  if (type === 'antiarabe') {
+    chat.antiarabe = enable
+    return m.reply(`✅ Antiarabe ${enable ? 'activado' : 'desactivado'}.`)
+  }
+
+  if (type === 'modoadmin') {
+    chat.modoadmin = enable
+    return m.reply(`✅ Modo Admin ${enable ? 'activado' : 'desactivado'}.`)
+  }
 }
 
 handler.command = ['on', 'off']
 handler.group = true
 handler.register = true
 handler.tags = ['group']
+handler.help = ['on welcome', 'off welcome', 'on antilink', 'off antilink', 'on modoadmin', 'off modoadmin']
 
-handler.help = [
-  'on welcome', 'off welcome',
-  'on antilink', 'off antilink',
-  'on antiarabe', 'off antiarabe',
-  'on antiarabepriv', 'off antiarabepriv',
-  'on modoadmin', 'off modoadmin'
-]
-
-// Antes de cualquier mensaje (privado o grupo)
 handler.before = async (m, { conn }) => {
-  if (!global.db.data.users[m.sender]) global.db.data.users[m.sender] = {}
-
-  // AntiArabePriv activado en privado (solo para subbots)
-  if (!m.isGroup) {
-    const botNumber = conn.user?.id?.split('@')[0]
-    const isSubbot = Object.values(global.conns || {}).some(c => c.user?.id?.split('@')[0] === botNumber)
-    if (isSubbot) {
-      const botChat = global.db.data.chats[botNumber] || {}
-      if (botChat.antiarabepriv && isArabNumber(m.sender)) {
-        await conn.sendMessage(m.sender, { text: '⛔ Bloqueado automáticamente por ser número árabe.' })
-        await conn.updateBlockStatus(m.sender, 'block')
-        return true
-      }
-    }
-    return
-  }
-
+  if (!m.isGroup) return
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
   const chat = global.db.data.chats[m.chat]
-  let user = global.db.data.users[m.sender]
-  if (typeof user.antilinkWarnings !== 'number') user.antilinkWarnings = 0
 
   if (chat.modoadmin) {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const isUserAdmin = groupMetadata.participants.find(p => p.id === m.sender)?.admin
-    if (!isUserAdmin && !m.fromMe) return true
+    if (!isUserAdmin && !m.fromMe) return
   }
 
-  // ANTIARABE normal
   if (chat.antiarabe && m.messageStubType === 27) {
     const newJid = m.messageStubParameters?.[0]
     if (!newJid) return
-    if (isArabNumber(newJid)) {
-      await conn.sendMessage(m.chat, { text: `Este pndj ${newJid} será expulsado, no queremos العرب aca. [ Anti Arabe Activado ]` })
+
+    const number = newJid.split('@')[0].replace(/\D/g, '')
+    const arabicPrefixes = ['212', '20', '971', '965', '966', '974', '973', '962']
+    const isArab = arabicPrefixes.some(prefix => number.startsWith(prefix))
+
+    if (isArab) {
+      await conn.sendMessage(m.chat, { text: `Este pndj ${newJid} será expulsado, no queremos العرب aca, adiosito. [ Anti Arabe Activado ]` })
       await conn.groupParticipantsUpdate(m.chat, [newJid], 'remove')
       return true
     }
   }
 
-  // ANTIARABE PRIV en grupos
-  if (chat.antiarabepriv && m.messageStubType === 27) {
-    const newJid = m.messageStubParameters?.[0]
-    if (!newJid) return
-    if (isArabNumber(newJid)) {
-      await conn.sendMessage(m.chat, { text: `⛔ Expulsión automática: ${newJid} es detectado como árabe. [ Anti Arabe PRIV Activado ]` })
-      await conn.groupParticipantsUpdate(m.chat, [newJid], 'remove')
-      return true
-    }
-  }
-
-  // ANTILINK
   if (chat.antilink) {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const isUserAdmin = groupMetadata.participants.find(p => p.id === m.sender)?.admin
     const text = m?.text || ''
 
     if (!isUserAdmin && (linkRegex.test(text) || linkRegex1.test(text))) {
+      const userTag = `@${m.sender.split('@')[0]}`
+      const delet = m.key.participant
+      const msgID = m.key.id
+
       try {
         const ownGroupLink = `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
         if (text.includes(ownGroupLink)) return
       } catch { }
 
-      user.antilinkWarnings++
-      if (user.antilinkWarnings < 3) {
+      try {
         await conn.sendMessage(m.chat, {
-          text: `⚠️ ${m.sender.split('@')[0]} advertencia ${user.antilinkWarnings}/3 por enviar links\nSi llegas a 3 serás expulsado`,
+          text: `🚫 Hey ${userTag}, no se permiten links aquí.`,
           mentions: [m.sender]
         }, { quoted: m })
 
@@ -155,24 +108,22 @@ handler.before = async (m, { conn }) => {
           delete: {
             remoteJid: m.chat,
             fromMe: false,
-            id: m.key.id,
-            participant: m.key.participant
+            id: msgID,
+            participant: delet
           }
         })
-      } else {
-        await conn.sendMessage(m.chat, {
-          text: `🚫 ${m.sender.split('@')[0]} alcanzó las 3 advertencias y será expulsado`,
-          mentions: [m.sender]
-        }, { quoted: m })
 
         await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
-        user.antilinkWarnings = 0
+      } catch {
+        await conn.sendMessage(m.chat, {
+          text: `⚠️ No pude eliminar ni expulsar a ${userTag}. Puede que no tenga permisos.`,
+          mentions: [m.sender]
+        }, { quoted: m })
       }
       return true
     }
   }
 
-  // WELCOME / BYE
   if (chat.welcome && [27, 28, 32].includes(m.messageStubType)) {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const groupSize = groupMetadata.participants.length
@@ -187,11 +138,20 @@ handler.before = async (m, { conn }) => {
     }
 
     if (m.messageStubType === 27) {
-      const txtWelcome = '↷✦; w e l c o m e ❞'
+      const txtWelcome = '🌟 BIENVENIDO/A 🌟'
       const bienvenida = `
-✿ Bienvenid@ a ${groupMetadata.subject}
-✰ ${userMention}, qué gusto :D
-✦ Ahora somos ${groupSize}
+👋 Hola ${userMention}!
+
+🙌 Te damos la bienvenida a *${groupMetadata.subject}*  
+👥 Somos *${groupSize}* personas en esta comunidad.
+
+📌 Porfa sigue las reglas para que todos la pasemos chido.
+
+🛠️ Si necesitas ayuda, habla con algun admin.
+
+✨ ¡Disfruta y participa activamente!
+
+*──────────*
 `.trim()
 
       await conn.sendMessage(m.chat, {
@@ -202,11 +162,16 @@ handler.before = async (m, { conn }) => {
     }
 
     if (m.messageStubType === 28 || m.messageStubType === 32) {
-      const txtBye = '↷✦; b y e ❞'
+      const txtBye = '👋 HASTA PRONTO 👋'
       const despedida = `
-✿ Adiós de ${groupMetadata.subject}
-✰ ${userMention}, vuelve pronto :>
-✦ Somos ${groupSize} aún.
+⚠️ El usuario ${userMention} ha salido de *${groupMetadata.subject}*  
+👥 Quedamos *${groupSize}* miembros.
+
+🙏 Gracias por tu tiempo y esperamos verte de nuevo pronto.
+
+💬 Recuerda que las puertas siempre están abiertas.
+
+*──────────*
 `.trim()
 
       await conn.sendMessage(m.chat, {
