@@ -1,18 +1,10 @@
-#  Michi-WaBot: Un Bot de WhatsApp.
+# ⭐ Michi-WaBot: Un Bot de WhatsApp Sencillo.
 
 <div align="center">
   <img src="https://iili.io/FZQTsXR.jpg" alt="Michi-WaBot Logo" width="150"/>
   <br>
   <p>Un bot de WhatsApp ligero, confiable y fácil de usar, diseñado para la comunidad.</p>
 </div>
-
----
-
-## 🚀 Características Principales
-
-* **Rendimiento Optimizado:** Desarrollado para ser rápido y eficiente, minimizando el consumo de recursos.
-* **Fácil de Instalar:** Un proceso de configuración directo y sin complicaciones, accesible para todos.
-* **Código Abierto y Comunitario:** Un proyecto impulsado por la transparencia y la colaboración. Agradecemos a todos los contribuyentes por su apoyo.
 
 ---
 
@@ -43,7 +35,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 3.  **Clona el Repositorio del Bot**
     ```bash
-    git clone https://github.com/Ado-rgb/Michi-WaBot.git
+    git clone [https://github.com/Ado-rgb/Michi-WaBot.git](https://github.com/Ado-rgb/Michi-WaBot.git)
     ```
 
 4.  **Accede al Directorio del Proyecto**
@@ -80,7 +72,9 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 * **Adonix-API:** Una API complementaria del creador.
     * [**myapiadonix.vercel.app**](https://myapiadonix.vercel.app)
 * **Kurayami Host:** Nuestro proveedor de hosting recomendado para este proyecto.
-    * [![Kurayami Host](https://dash.kurayamihost.dpdns.org)
+    * <a href="https://dash.kurayamihost.dpdns.org">
+          <img src="https://iili.io/FZQdR0Q.jpg" alt="Kurayami Host" width="200"/>
+      </a>
 
 ---
 
