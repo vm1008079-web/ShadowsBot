@@ -1,7 +1,7 @@
 #  Michi-WaBot: Un Bot de WhatsApp.
 
 <div align="center">
-  <img src="https://i.imgur.com/G4Yx1kX.png" alt="Michi-WaBot Logo" width="150"/>
+  <img src="https://iili.io/FZQTsXR.jpg" alt="Michi-WaBot Logo" width="150"/>
   <br>
   <p>Un bot de WhatsApp ligero, confiable y fácil de usar, diseñado para la comunidad.</p>
 </div>
@@ -43,7 +43,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 3.  **Clona el Repositorio del Bot**
     ```bash
-    git clone [https://github.com/Ado-rgb/Michi-WaBot.git](https://github.com/Ado-rgb/Michi-WaBot.git)
+    git clone https://github.com/Ado-rgb/Michi-WaBot.git
     ```
 
 4.  **Accede al Directorio del Proyecto**
