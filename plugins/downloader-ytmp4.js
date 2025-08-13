@@ -1,5 +1,3 @@
-//--> Hecho por Ado-rgb (github.com/Ado-rgb)
-// •|• No quites créditos..
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 
@@ -14,7 +12,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     let url = args[0]
     let videoInfo = null
 
-    
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
       if (!search.videos || search.videos.length === 0) {
@@ -29,13 +26,11 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       if (search && search.title) videoInfo = search
     }
 
-    
     if (videoInfo.seconds > 3780) {
       await conn.sendMessage(m.chat, { text: 'El video supera el límite de duración permitido (63 minutos).' }, { quoted: m })
       return
     }
 
-    
     let apiUrl = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
     let res = await fetch(apiUrl)
     if (!res.ok) throw new Error('Error al conectar con la API.')
@@ -44,17 +39,22 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     let { title, quality, download } = json.data
     let duration = videoInfo?.timestamp || 'Desconocida'
+    let thumbnail = videoInfo?.thumbnail || null
 
-    
-    let details = [
-      `Título: ${title}`,
-      `Duración: ${duration}`,
-      `Calidad: ${quality}`
-    ].join('\n')
+    await conn.sendMessage(m.chat, {
+      text: `🎵 *${title}*\n📀 Duración: *${duration}*\n🎚 Calidad: *${quality}*`,
+      contextInfo: {
+        externalAdReply: {
+          title: title,
+          body: "Descargando audio...",
+          thumbnailUrl: thumbnail,
+          sourceUrl: url,
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: m })
 
-    await conn.sendMessage(m.chat, { text: details }, { quoted: m })
-
-    
     await conn.sendMessage(m.chat, {
       audio: { url: download },
       mimetype: 'audio/mpeg',
