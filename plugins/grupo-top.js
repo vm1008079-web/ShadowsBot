@@ -34,7 +34,7 @@ handler.help = ['top *<texto>*']
 handler.command = ['top']
 handler.tags = ['group']
 handler.group = true
-handler.register = true
+handler.register = false
 
 export default handler
 
