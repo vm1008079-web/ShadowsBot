@@ -26,7 +26,7 @@ let handler = async (m, { conn, args, participants }) => {
 
     mentions.push(user.jid)
 
-    text += `🐦‍🔥 ${i + 1} » *${displayName}* @${user.jid.split('@')[0]}\n    Total: *${total} ${moneda}*\n\n`
+    text += `🐦‍🔥 ${i + 1} › @${user.jid.split('@')[0]}\n    Total: *${total} ${moneda}*\n\n`
   }
 
   await conn.reply(m.chat, text.trim(), m, { mentions })
