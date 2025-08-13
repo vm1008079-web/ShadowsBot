@@ -93,7 +93,7 @@ setInterval(() => {
 handler.help = ['acertijo']
 handler.tags = ['game']
 handler.command = ['acertijo', 'adivinanza']
-handler.register = true
+handler.register = false
 handler.group = false
 
 export default handler
