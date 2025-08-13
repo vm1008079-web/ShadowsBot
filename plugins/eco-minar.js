@@ -12,47 +12,49 @@ let handler = async (m, { conn }) => {
   let stone = pickRandom([200, 500, 700, 800, 900, 4000, 300])
 
   let img = 'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745557957843.jpeg'
-  let time = user.lastmiming + 600000
+  let cooldownTime = 600000
+  let now = Date.now()
+  let nextMine = (user.lastmiming || 0) + cooldownTime
 
-  if (new Date() - user.lastmiming < 600000) {
-    return conn.reply(m.chat, `
-⏳ *Aún estás descansando*
-> ❒ Vuelve a minar en › *${msToTime(time - new Date())}*
-`.trim(), m)
+  if (now < nextMine) {
+    let wait = msToTime(nextMine - now)
+    return conn.reply(m.chat, `⏳ *Descanso activo*\nVuelve a minar en: *${wait}*`, m, { ...global.rcanal })
   }
 
   let exp = Math.floor(Math.random() * 1000)
-  let info = `
-⛏️ *Te adentraste en las profundidades de la mina...*
 
-✎ *Recompensas obtenidas* ›
-> ✨ Exp › *${exp}*
-> 💸 ${moneda} › *${coin}*
-> ♦️ Esmeraldas › *${emerald}*
-> 🔩 Hierro › *${iron}*
-> 🏅 Oro › *${gold}*
-> 🕋 Carbón › *${coal}*
-> 🪨 Piedra › *${stone}*
+  let info = `
+⛏️ *Exploraste la mina y obtuviste:*
+
+✨ XP: *${exp}*
+💰 ${moneda}: *${coin}*
+♦️ Esmeraldas: *${emerald}*
+🔩 Hierro: *${iron}*
+🏅 Oro: *${gold}*
+🕋 Carbón: *${coal}*
+🪨 Piedra: *${stone}*
 `.trim()
 
-  await conn.sendFile(m.chat, img, 'mina.jpg', info, m)
+  await conn.sendFile(m.chat, img, 'mina.jpg', info, m, { ...global.rcanal })
   await m.react('⛏️')
 
   user.health -= 50
   user.pickaxedurability -= 30
   user.coin += coin
+  user.emerald += emerald
   user.iron += iron
   user.gold += gold
-  user.emerald += emerald
   user.coal += coal
   user.stone += stone
-  user.lastmiming = new Date() * 1
+  user.lastmiming = now
+
+  global.db.write()
 }
 
 handler.help = ['minar']
 handler.tags = ['eco']
 handler.command = ['minar', 'miming', 'mine']
-handler.register = true
+handler.register = false
 handler.group = false
 
 export default handler
@@ -62,7 +64,7 @@ function pickRandom(list) {
 }
 
 function msToTime(duration) {
-  let seconds = Math.floor((duration / 1000) % 60),
-      minutes = Math.floor((duration / (1000 * 60)) % 60)
+  let seconds = Math.floor((duration / 1000) % 60)
+  let minutes = Math.floor((duration / (1000 * 60)) % 60)
   return `${minutes} m y ${seconds} s`
 }
