@@ -4,23 +4,25 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
   let users = global.db.data.users
   let senderId = m.sender
   let senderName = await conn.getName(senderId)
-  let moneda = global.moneda || '💸' // por si querés personalizar el emoji/nombre
+  let moneda = global.moneda || '💸'
 
-  let tiempo = 5 * 60
-  if (cooldowns[senderId] && Date.now() - cooldowns[senderId] < tiempo * 1000) {
-    let tiempo2 = segundosAHMS(Math.ceil((cooldowns[senderId] + tiempo * 1000 - Date.now()) / 1000))
-    return m.reply(`✦ Ya te venís usando mucho eso we espera *${tiempo2}* pa volver a usar *#slut*.`)
+  const cooldownTime = 5 * 60 * 1000
+  if (cooldowns[senderId] && Date.now() - cooldowns[senderId] < cooldownTime) {
+    let timeLeft = segundosAHMS(Math.ceil((cooldowns[senderId] + cooldownTime - Date.now()) / 1000))
+    return conn.reply(
+      m.chat,
+      `⌛ Ya andas abusando we, espera *${timeLeft}* pa volver a usar *${usedPrefix}${command}*`,
+      m,
+      { ...global.rcanal }
+    )
   }
 
   cooldowns[senderId] = Date.now()
 
   let senderCoin = users[senderId].coin || 0
-  let randomUserId = Object.keys(users)[Math.floor(Math.random() * Object.keys(users).length)]
-  while (randomUserId === senderId) {
-    randomUserId = Object.keys(users)[Math.floor(Math.random() * Object.keys(users).length)]
-  }
+  let randomUserId = Object.keys(users).random()
+  while (randomUserId === senderId) randomUserId = Object.keys(users).random()
 
-  let randomUserCoin = users[randomUserId].coin || 0
   let minAmount = 15
   let maxAmount = 50
   let amountTaken = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount
@@ -51,23 +53,19 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     `✦ Le hablaste de tu ex en medio del acto 💔\n➩ Te bloqueó y te cobró el tiempo`,
   ]
 
-  switch (randomOption) {
-    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-    case 8: case 9: case 10: case 11: case 12: case 13:
-      users[senderId].coin += amountTaken
-      users[randomUserId].coin -= amountTaken
-      conn.sendMessage(m.chat, {
-        text: frases[randomOption],
-        mentions: [randomUserId],
-        ...global.rcanal
-      }, { quoted: m })
-      break
-
-    default:
-      let amountSubtracted = Math.min(Math.floor(Math.random() * (senderCoin - minAmount + 1)) + minAmount, maxAmount)
-      users[senderId].coin -= amountSubtracted
-      m.reply(`${frasesFail.random()}\n\n➩ Se restan *-${amountSubtracted} ${moneda}* a ${senderName}`)
-      break
+  if (randomOption < frases.length) {
+    users[senderId].coin += amountTaken
+    users[randomUserId].coin -= amountTaken
+    await conn.sendMessage(m.chat, {
+      text: frases[randomOption],
+      mentions: [randomUserId],
+      ...global.rcanal
+    }, { quoted: m })
+  } else {
+    let maxRest = Math.min(senderCoin, maxAmount)
+    let amountSubtracted = Math.floor(Math.random() * (maxRest - minAmount + 1)) + minAmount
+    users[senderId].coin -= amountSubtracted
+    await conn.reply(m.chat, `${frasesFail.random()}\n\n➩ Se restan *-${amountSubtracted} ${moneda}* a ${senderName}`, m, { ...global.rcanal })
   }
 
   global.db.write()
@@ -76,7 +74,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 handler.tags = ['eco']
 handler.help = ['slut']
 handler.command = ['slut', 'protituirse']
-handler.register = true
+handler.register = false
 handler.group = false
 
 export default handler
