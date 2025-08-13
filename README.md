@@ -1,20 +1,24 @@
-#  Michi-WaBot: Un Bot Sencillo ✨
+#  Michi-WaBot: Un Bot de WhatsApp.
 
-Michi-WaBot es un proyecto de código abierto diseñado para ser un bot de WhatsApp ligero y confiable. 💖 Nuestro objetivo es ofrecer una herramienta funcional y fácil de usar, accesible para todos. Agradecemos sinceramente a la comunidad por su apoyo continuo y contribuciones.
-
----
-
-### 🚀 Características del Proyecto
-
-* **Rendimiento Óptimo:** ⚡️ Desarrollado para una ejecución rápida y eficiente, minimizando el consumo de recursos.
-* **Facilidad de Instalación:** 🛠️ El proceso de configuración es directo y está pensado para ser accesible a todos, sin complicaciones.
-* **Código Abierto:** 🤝 Un proyecto impulsado por la comunidad, donde la transparencia y la colaboración son pilares fundamentales.
+<div align="center">
+  <img src="https://i.imgur.com/G4Yx1kX.png" alt="Michi-WaBot Logo" width="150"/>
+  <br>
+  <p>Un bot de WhatsApp ligero, confiable y fácil de usar, diseñado para la comunidad.</p>
+</div>
 
 ---
 
-### 📊 Estadísticas del Repositorio (Datos Dinámicos)
+## 🚀 Características Principales
 
-Estos badges muestran información actualizada en tiempo real directamente desde GitHub, reflejando el estado actual del repositorio.
+* **Rendimiento Optimizado:** Desarrollado para ser rápido y eficiente, minimizando el consumo de recursos.
+* **Fácil de Instalar:** Un proceso de configuración directo y sin complicaciones, accesible para todos.
+* **Código Abierto y Comunitario:** Un proyecto impulsado por la transparencia y la colaboración. Agradecemos a todos los contribuyentes por su apoyo.
+
+---
+
+## 📊 Estado del Repositorio
+
+Estos indicadores muestran el estado actualizado del proyecto en GitHub.
 
 ![GitHub stars](https://img.shields.io/github/stars/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=yellow)
 ![GitHub forks](https://img.shields.io/github/forks/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=blue)
@@ -22,59 +26,66 @@ Estos badges muestran información actualizada en tiempo real directamente desde
 
 ---
 
-### 💻 Guía de Instalación en Termux
+## 💻 Guía de Instalación en Termux
 
-Para instalar y ejecutar Michi-WaBot, sigue estos pasos en orden:
+Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
-1.  **Concede Permisos de Almacenamiento:**
+1.  **Concede Permisos de Almacenamiento**
     ```bash
     termux-setup-storage
     ```
 
-2.  **Actualiza y Prepara el Entorno:**
+2.  **Actualiza y Prepara el Entorno**
     ```bash
-    apt update && apt upgrade -y && pkg install -y git nodejs ffmpeg imagemagick
+    apt update && apt upgrade -y
+    pkg install -y git nodejs ffmpeg imagemagick
     ```
 
-3.  **Clona el Repositorio:**
+3.  **Clona el Repositorio del Bot**
     ```bash
-    git clone [https://github.com/Ado-rgb/Michi-WaBot](https://github.com/Ado-rgb/Michi-WaBot)
+    git clone [https://github.com/Ado-rgb/Michi-WaBot.git](https://github.com/Ado-rgb/Michi-WaBot.git)
     ```
 
-4.  **Navega al Directorio del Proyecto:**
+4.  **Accede al Directorio del Proyecto**
     ```bash
     cd Michi-WaBot
     ```
 
-5.  **Instala las Dependencias de Node.js:**
+5.  **Instala las Dependencias de Node.js**
     ```bash
     npm install
     ```
 
-6.  **Inicia el Bot:**
+6.  **Inicia el Bot**
     ```bash
     npm start
     ```
 
 ---
 
-### 👤 Créditos y Agradecimientos
+## 🤝 Créditos y Agradecimientos
 
-* **Creador:** [Ado](https://github.com/Ado-rgb)
-    ![Foto de Ado](https://github.com/Ado-rgb.png)
+* **Creador y Mantenedor Principal:** [Ado](https://github.com/Ado-rgb)
 
----
-
-### 🔗 Recursos Adicionales
-
-* **Adonix-API:** Una API útil del creador: [myapiadonix.vercel.app](https://myapiadonix.vercel.app)
-* **Kurayami Host:** 🖥️ Nuestro proveedor de hosting recomendado.
-    [![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
+    <div align="center">
+      <a href="https://github.com/Ado-rgb">
+        <img src="https://github.com/Ado-rgb.png" alt="Ado's GitHub Profile Picture" width="80" style="border-radius:50%;" />
+      </a>
+    </div>
 
 ---
 
-### 📜 Licencia
+## 🔗 Recursos Adicionales
 
-Este proyecto está bajo la **Licencia MIT**. Eres libre de usar, modificar y compartir el código, siempre que mantengas los créditos originales.
+* **Adonix-API:** Una API complementaria del creador.
+    * [**myapiadonix.vercel.app**](https://myapiadonix.vercel.app)
+* **Kurayami Host:** Nuestro proveedor de hosting recomendado para este proyecto.
+    * [![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
+
+---
+
+## 📜 Licencia
+
+Este proyecto está bajo la **Licencia MIT**. Puedes usar, modificar y distribuir el código libremente, siempre y cuando mantengas los créditos originales.
 
 © 2025 Ado.
