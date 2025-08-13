@@ -62,7 +62,7 @@ handler.help = ['pay']
 handler.tags = ['eco']
 handler.command = ['pay', 'transferir']
 handler.group = false
-handler.register = true
+handler.register = false
 
 export default handler
 
