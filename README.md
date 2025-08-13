@@ -35,7 +35,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 3.  **Clona el Repositorio del Bot**
     ```bash
-    git clone [https://github.com/Ado-rgb/Michi-WaBot.git](https://github.com/Ado-rgb/Michi-WaBot.git)
+    git clone https://github.com/Ado-rgb/Michi-WaBot.git
     ```
 
 4.  **Accede al Directorio del Proyecto**
