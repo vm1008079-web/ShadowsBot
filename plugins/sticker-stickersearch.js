@@ -100,5 +100,5 @@ let handler = async (m, { conn, text, command }) => {
 handler.help = ['stickersearch *<texto>*']
 handler.tags = ['sticker']
 handler.command = ['stickersearch']
-handler.register = true
+handler.register = false
 export default handler
