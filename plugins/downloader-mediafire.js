@@ -28,5 +28,5 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['mediafire']
 handler.tags = ['downloader']
 handler.command = ['mediafire']
-handler.register = true
+handler.register = false
 export default handler
