@@ -1,4 +1,4 @@
-# 🤖 Michi-WaBot: Un Bot Sencillo y Funcional para WhatsApp ✨
+# Michi-WaBot: Simple WhatsApp Bot 🔥
 
 Michi-WaBot es un proyecto de código abierto diseñado para ser un bot de WhatsApp ligero y confiable.
 
