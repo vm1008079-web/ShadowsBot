@@ -97,5 +97,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = ['mediafiresearch']
 handler.tags = ['search']
 handler.command = ['mediafiresearch']
-handler.register = true
+handler.register = false
 export default handler
