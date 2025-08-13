@@ -44,7 +44,7 @@ let handler = async (m, { conn }) => {
   // Extraer ID desde el mensaje citado
   const characterIdMatch = m.quoted.text.match(/ID:\s?\*(.+?)\*/);
   if (!characterIdMatch) {
-    return await conn.reply(m.chat, '《✧》No se encontró un ID válido en el mensaje citado.', m);
+    return await conn.reply(m.chat, '《✧》 No se encontró un ID válido en el mensaje citado.', m);
   }
 
   const characterId = characterIdMatch[1];
