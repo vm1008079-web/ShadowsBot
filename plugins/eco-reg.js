@@ -94,8 +94,7 @@ ${moneda}: +46`.trim()
   }
 }
 
-handler.help = ['reg']
-handler.tags = ['rg']
-handler.command = ['verify', 'verificar', 'reg', 'register', 'registrar']
+
+handler.command = ['regback']
 
 export default handler
