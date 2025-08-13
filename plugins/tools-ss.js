@@ -35,5 +35,5 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['ss <página web>']
 handler.tags = ['tools']
 handler.command = ['ssweb', 'ss']
-handler.register = true
+handler.register = false
 export default handler
