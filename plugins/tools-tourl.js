@@ -117,8 +117,8 @@ const handler = async (m, { conn, command }) => {
   fs.unlinkSync(filePath)
 }
 
-handler.help = ['tourl-pro']
+handler.help = ['tourl']
 handler.tags = ['uploader']
-handler.command = /^(tourl-pro)$/i
+handler.command = /^(tourl)$/i
 
 export default handler
