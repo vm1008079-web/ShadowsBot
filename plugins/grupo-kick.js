@@ -53,6 +53,6 @@ var handler = async (m, { conn, args }) => {
 handler.help = ['kick'];
 handler.tags = ['group'];
 handler.command = ['kick','echar','hechar','sacar','ban'];
-handler.register = true
+handler.register = false
 
 export default handler;
