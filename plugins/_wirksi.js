@@ -25,9 +25,7 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.command = ['tourl'];
-handler.help = ['tourl'];
-handler.tags = ['tools'];
+handler.command = ['tourl0'];
 export default handler;
 
 // --- Funciones auxiliares ---
