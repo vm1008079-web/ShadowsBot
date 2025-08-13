@@ -73,7 +73,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
     * [**myapiadonix.vercel.app**](https://myapiadonix.vercel.app)
 * **Kurayami Host:** Nuestro proveedor de hosting recomendado para este proyecto.
     * <a href="https://dash.kurayamihost.dpdns.org">
-          <img src="https://iili.io/FZQdR0Q.jpg" alt="Kurayami Host" width="150"/>
+          <img src="https://iili.io/FZQRmdP.jpg" alt="Kurayami Host" width="150"/>
       </a>
 
 ---
