@@ -55,7 +55,7 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
 
 handler.command = ['on', 'off']
 handler.group = true
-handler.register = true
+handler.register = false
 handler.tags = ['group']
 handler.help = ['on welcome', 'off welcome', 'on antilink', 'off antilink', 'on modoadmin', 'off modoadmin']
 
