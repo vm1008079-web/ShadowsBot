@@ -1,4 +1,4 @@
-*/import PhoneNumber from 'awesome-phonenumber'
+import PhoneNumber from 'awesome-phonenumber'
 import moment from 'moment-timezone'
 import { createHash } from 'crypto'
 
@@ -33,7 +33,6 @@ ${moneda} : *${user.coin.toLocaleString()}*
   }, { quoted: m })
 }
 
-handler.help = ['perfil']
-handler.tags = ['eco']
-handler.command = ['perfil', 'yo', 'miperfil']
-export default handler*/
+
+handler.command = ['cad'
+export default handler
