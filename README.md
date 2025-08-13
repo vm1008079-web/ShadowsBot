@@ -52,17 +52,17 @@ npm start
 ---
 ___
 
-> Visita mi api, te puede ser útil.
-## 🎋 Adonix-API 
+> Visita mi api, te puede ser útil.  
+## 🎋 Adonix-API
 
 > **URL:** [myapiadonix.vercel.app](https://myapiadonix.vercel.app)
 
 ---
 
-> Visita también este host recomendado  
+> Checa también este host recomendado  
 ## 🖥️ Kurayami Host
 
-[![Kurayami Host](https://dash.kurayamihost.dpdns.org/logo.png)](https://dash.kurayamihost.dpdns.org)
+[![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
 
 ---
 
