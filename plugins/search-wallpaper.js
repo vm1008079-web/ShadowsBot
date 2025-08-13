@@ -103,6 +103,6 @@ async function createImageMsg(url, conn) {
 handler.command = ['wallpaper']
 handler.help = ['wallpaper']
 handler.tags = ['search']
-handler.register = true
+handler.register = false
 
 export default handler
