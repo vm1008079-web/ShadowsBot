@@ -18,38 +18,28 @@ let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = ""
 let drm2 = ""
 let rtx = `
-❀ *Vinculación por Código QR*
+🎋 𝗩𝗶𝗻𝗰𝘂𝗹𝗮𝗰𝗶𝗼́𝗻 𝗽𝗼𝗿 𝗖𝗼́𝗱𝗶𝗴𝗼 𝗤𝗥
 
-╭─✧ *¿Cómo vincular tu WhatsApp?*
-│
-│ 1. Abre *WhatsApp* en tu teléfono.
-│ 2. Toca ⋮ *Más opciones* → *Dispositivos vinculados*.
-│ 3. Presiona *"Vincular un dispositivo"*.
-│ 4. Escanea el código QR que se mostrará aquí.
-│
-╰─✧ 
-
-➪ *Sub-bot activo:* \`Michi Wa\`
+📌 𝗣𝗮𝘀𝗼𝘀 𝗽𝗮𝗿𝗮 𝘃𝗶𝗻𝗰𝘂𝗹𝗮𝗿 𝘁𝘂 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽:
+1️⃣ Abre 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽 en tu teléfono  
+2️⃣ Pulsa ⋮ *Más opciones* → *Dispositivos vinculados*  
+3️⃣ Presiona *"Vincular un dispositivo"*  
+4️⃣ Escanea el código QR que se mostrará aquí
 `.trim()
 
 let rtx2 = `
-❀ *Vinculación por Código Manual (8 dígitos)*
+🍁 𝗩𝗶𝗻𝗰𝘂𝗹𝗮𝗰𝗶𝗼́𝗻 𝗽𝗼𝗿 𝗖𝗼́𝗱𝗶𝗴𝗼 𝗠𝗮𝗻𝘂𝗮𝗹 (8 dígitos)
 
-╭─✧ *¿Cómo hacerlo?*
-│
-│ 1. Abre *WhatsApp* en tu teléfono.
-│ 2. Toca ⋮ *Más opciones* → *Dispositivos vinculados*.
-│ 3. Presiona *"Vincular un dispositivo"*.
-│ 4. Selecciona *"Con número"* y escribe el código que se mostrará.
-│
-╰─✧
+📌 𝗣𝗮𝘀𝗼𝘀 𝗽𝗮𝗿𝗮 𝗵𝗮𝗰𝗲𝗿𝗹𝗼:
+1️⃣ Abre 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽 en tu teléfono  
+2️⃣ Pulsa ⋮ *Más opciones* → *Dispositivos vinculados*  
+3️⃣ Presiona *"Vincular un dispositivo"*  
+4️⃣ Selecciona *"Con número"* e introduce el código mostrado  
 
-⚠️ *Importante:* Algunos grupos pueden fallar al generar el código.
-➪ Recomendado: *Solicítalo por privado al bot.*
-
-🕒 El código es *válido solo para este número* y expira tras unos minutos.
-
-➪ *Sub-bot activo:* \`Michi Wa\`
+⚠️ 𝗜𝗺𝗽𝗼𝗿𝘁𝗮𝗻𝘁𝗲:  
+- Algunos grupos pueden fallar al generar el código  
+- Recomendado: Solicítalo por privado al bot  
+⏳ El código es válido solo para este número y expira en pocos segundos.
 `.trim()
 
 const __filename = fileURLToPath(import.meta.url)
