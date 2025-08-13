@@ -78,6 +78,6 @@ let handler = async (m, { conn, usedPrefix, text, command }) => {
 handler.tags = ['search']
 handler.help = ['ytsearch']
 handler.command = ['ytsearch', 'yts', 'youtubesearch']
-handler.register = true
+handler.register = false
 
 export default handler
