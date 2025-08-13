@@ -86,6 +86,6 @@ handler.help = ['rw']
 handler.tags = ['gacha']
 handler.command = ['ver', 'rw', 'rollwaifu']
 handler.group = false
-handler.register = true
+handler.register = false
 export default handler
       
