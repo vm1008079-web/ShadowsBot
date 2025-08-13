@@ -33,7 +33,7 @@ const handler = async (m, {conn, usedPrefix, command}) => {
 
 handler.help = ['tovideo'];
 handler.tags = ['sticker'];
-handler.register = true;
+handler.register = false;
 handler.command = ['tovideo', 'tomp4', 'togif'];
 
 export default handler;
