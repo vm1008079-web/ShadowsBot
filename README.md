@@ -18,7 +18,7 @@ Estos indicadores muestran el estado actualizado del proyecto en GitHub.
 
 ---
 
-## 💻 𝗚𝘂𝗶́𝗮 𝗱𝗲 𝗜𝗻𝘀𝘁𝗮𝗹𝗮𝗰𝗶𝗼́𝗻 𝗲𝗻 𝗧𝗲𝗿𝗺𝘂𝘅
+## 💻 𝗚𝘂𝗶𝗮 𝗱𝗲 𝗜𝗻𝘀𝘁𝗮𝗹𝗮𝗰𝗶𝗼𝗻 𝗲𝗻 𝗧𝗲𝗿𝗺𝘂𝘅
 
 Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
@@ -55,7 +55,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 ---
 
-## 🤝 𝗖𝗿𝗲́𝗱𝗶𝘁𝗼𝘀 𝘆 𝗔𝗴𝗿𝗮𝗱𝗲𝗰𝗶𝗺𝗶𝗲𝗻𝘁𝗼𝘀
+## 🤝 𝗖𝗿𝗲𝗱𝗶𝘁𝗼𝘀 𝘆 𝗔𝗴𝗿𝗮𝗱𝗲𝗰𝗶𝗺𝗶𝗲𝗻𝘁𝗼𝘀
 
 * **Creador y Mantenedor Principal:** [Ado](https://github.com/Ado-rgb)
 
