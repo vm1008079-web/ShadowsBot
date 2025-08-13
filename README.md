@@ -59,6 +59,13 @@ ___
 
 ---
 
+> Visita también este host recomendado  
+## 🖥️ Kurayami Host
+
+[![Kurayami Host](https://dash.kurayamihost.dpdns.org/logo.png)](https://dash.kurayamihost.dpdns.org)
+
+---
+
 ## 📜 Licencia
 
 Este proyecto está bajo la **Licencia MIT**  
