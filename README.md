@@ -1,4 +1,4 @@
-# ⭐ Michi-WaBot: Un Bot de WhatsApp Sencillo.
+# ⭐ Michi-WaBot
 
 <div align="center">
   <img src="https://iili.io/FZQTsXR.jpg" alt="Michi-WaBot Logo" width="150"/>
@@ -8,7 +8,7 @@
 
 ---
 
-## 📊 Estado del Repositorio
+## 📊 𝗘𝘀𝘁𝗮𝗱𝗼 𝗱𝗲𝗹 𝗥𝗲𝗽𝗼𝘀𝗶𝘁𝗼𝗿𝗶𝗼
 
 Estos indicadores muestran el estado actualizado del proyecto en GitHub.
 
@@ -18,7 +18,7 @@ Estos indicadores muestran el estado actualizado del proyecto en GitHub.
 
 ---
 
-## 💻 Guía de Instalación en Termux
+## 💻 𝗚𝘂𝗶́𝗮 𝗱𝗲 𝗜𝗻𝘀𝘁𝗮𝗹𝗮𝗰𝗶𝗼́𝗻 𝗲𝗻 𝗧𝗲𝗿𝗺𝘂𝘅
 
 Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
@@ -55,7 +55,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 ---
 
-## 🤝 Créditos y Agradecimientos
+## 🤝 𝗖𝗿𝗲́𝗱𝗶𝘁𝗼𝘀 𝘆 𝗔𝗴𝗿𝗮𝗱𝗲𝗰𝗶𝗺𝗶𝗲𝗻𝘁𝗼𝘀
 
 * **Creador y Mantenedor Principal:** [Ado](https://github.com/Ado-rgb)
 
@@ -79,7 +79,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 
 ---
 
-## 📜 Licencia
+## ❄ 𝗟𝗶𝗰𝗲𝗻𝗰𝗶𝗮
 
 Este proyecto está bajo la **Licencia MIT**. Puedes usar, modificar y distribuir el código libremente, siempre y cuando mantengas los créditos originales.
 
