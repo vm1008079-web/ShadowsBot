@@ -40,7 +40,7 @@ const handler = async (m, { conn }) => {
 
 👤 𝗨𝘀𝘂𝗮𝗿𝗶𝗼: @${m.sender.split`@`[0]}
 
-⚠️ Ese maje no está registrado
+No ha usado ningún comando de economía. 
     `.trim(),
     m,
     { mentions: [m.sender], ...global.rcanal }
