@@ -24,7 +24,7 @@ const defaultMenu = {
   before: `
 *⻲⃪᮫ۣۖ͢ 💙 ¡Hola %name! Bienvenido a %botname ≛*
 
-╭─❍ *𝗧𝗜𝗡𝗙𝗢* ❍─╮
+╭─❍ *𝗜𝗡𝗙𝗢* ❍─╮
 │👤 Usuario: @%taguser
 │📅 Fecha: %date
 │⏰ Tiempo activo: %uptime
@@ -122,7 +122,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       uptime: clockString(process.uptime() * 1000),
       tipo,
       readmore: readMore,
-      greeting,
+      greeting: getGreeting(hour),
     }
 
     const text = _text.replace(
@@ -165,10 +165,32 @@ function clockString(ms) {
 const ase = new Date()
 let hour = ase.getHours()
 
-const greetingMap = {
-  0: 'una linda noche 🌙', 1: 'una linda noche 💤', 2: 'una linda noche 🦉',
-  3: 'una linda mañana ✨', 4: 'una linda mañana 💫', 5: 'una linda mañana 🌅',
-  6: 'una linda mañana 🌄', 7: 'una linda mañana 🌅', 8: 'una linda mañana 💫',
-  9: 'una linda mañana ✨', 10: 'un lindo día 🌞', 11: 'un lindo día 🌨',
-  12: 'un lindo día ❄', 13: 'un lindo día 🌤', 14: 'una linda tarde 🌇',
-  15: 'una linda tarde 🥀', 16: 'una linda tarde 🌹', 17: 'una linda tarde[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Qeyivdsulyrevjoyeefhiyregjogokddiiefigo/mobile/tree/b5c3966127cf01d158d27d7a124cabd3f51ddf5d/plugins%2Fmenu.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/deiltondev2/kant/tree/d490c01530a886f2b23d390ffe0c107d96954161/plugins%2Fmenu.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")
+function getGreeting(hour) {
+  const greetings = {
+    0: 'una linda noche 🌙',
+    1: 'una linda noche 💤',
+    2: 'una linda noche 🦉',
+    3: 'una linda mañana ✨',
+    4: 'una linda mañana 💫',
+    5: 'una linda mañana 🌅',
+    6: 'una linda mañana 🌄',
+    7: 'una linda mañana 🌅',
+    8: 'una linda mañana 💫',
+    9: 'una linda mañana ✨',
+    10: 'un lindo día 🌞',
+    11: 'un lindo día 🌨',
+    12: 'un lindo día ❄',
+    13: 'un lindo día 🌤',
+    14: 'una linda tarde 🌇',
+    15: 'una linda tarde 🥀',
+    16: 'una linda tarde 🌹',
+    17: 'una linda tarde 🌇',
+    18: 'una linda tarde 🌆',
+    19: 'una linda noche 🌙',
+    20: 'una linda noche 🌙',
+    21: 'una linda noche 🌙',
+    22: 'una linda noche 🌙',
+    23: 'una linda noche 🌙',
+  }
+  return greetings[hour] || '¡Hola!'
+}
