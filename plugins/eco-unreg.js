@@ -6,8 +6,7 @@ user.registered = false
 return conn.reply(m.chat, `> ⭐ Tu registro fue borrado de mi base de datos.`, m)
 
 }
-handler.help = ['unreg']
-handler.tags = ['eco']
+
 handler.command = ['unreg']
-handler.register = true
+handler.register = false
 export default handler
