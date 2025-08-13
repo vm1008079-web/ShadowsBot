@@ -80,7 +80,7 @@ Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
 * **Adonix-API:** Una API complementaria del creador.
     * [**myapiadonix.vercel.app**](https://myapiadonix.vercel.app)
 * **Kurayami Host:** Nuestro proveedor de hosting recomendado para este proyecto.
-    * [![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
+    * [![Kurayami Host](https://dash.kurayamihost.dpdns.org)
 
 ---
 
