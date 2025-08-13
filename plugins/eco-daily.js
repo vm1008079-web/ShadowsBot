@@ -37,7 +37,7 @@ handler.help = ['daily', 'claim']
 handler.tags = ['rpg']
 handler.command = ['daily', 'diario']
 handler.group = false
-handler.register = true
+handler.register = false
 
 export default handler
 
