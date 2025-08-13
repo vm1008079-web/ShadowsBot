@@ -90,6 +90,6 @@ async function perplexityQuery(q, prompt) {
 handler.help = ['ask'];
 handler.command = ['ask'];
 handler.tags = ['ia'];
-handler.register = true
+handler.register = false
 
 export default handler;
