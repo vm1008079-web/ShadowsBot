@@ -82,7 +82,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.help = ["apk"]
 handler.tags = ["downloader"]
 handler.command = /^apk$/i
-handler.register = true
+handler.register = false
 
 export default handler
 
