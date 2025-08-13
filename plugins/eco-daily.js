@@ -1,15 +1,19 @@
 var handler = async (m, { conn }) => {
   let user = global.db.data.users[m.sender]
   let now = Date.now()
-  let cooldown = 2 * 60 * 60 * 1000 // 2 horas en ms
+  let cooldown = 2 * 60 * 60 * 1000
   let nextClaim = (user.lastclaim || 0) + cooldown
 
   if (now < nextClaim) {
     let wait = msToTime(nextClaim - now)
-    return conn.reply(m.chat, `✦ *Ya reclamaste tu premio diario*\n\n✧ Vuelve en: *${wait}*`, m)
+    return conn.reply(
+      m.chat,
+      `⏳ *Premio diario ya reclamado*\n\n⏰ Vuelve en: *${wait}*`,
+      m,
+      { ...global.rcanal }
+    )
   }
 
-  // Recompensas random entre 100 y 500
   let coin = Math.floor(Math.random() * 401) + 100
   let exp = Math.floor(Math.random() * 401) + 100
   let diamond = Math.floor(Math.random() * 401) + 100
@@ -20,13 +24,13 @@ var handler = async (m, { conn }) => {
   user.lastclaim = now
 
   let texto = 
-`✦ *Recompensa Diaria* ✦
+`🌟 *RECOMPENSA DIARIA* 🌟
 
-❐ ✧ XP: *+${exp}*
-❐ Diamantes: *+${diamond}*
-❐ ${moneda}: *+${coin}*`
+💎 Experiencia: *+${exp} XP*
+💠 Diamantes: *+${diamond}*
+💰 ${moneda}: *+${coin}*`
 
-  await conn.reply(m.chat, texto, m, rcanal)
+  await conn.reply(m.chat, texto, m, { ...global.rcanal })
 }
 
 handler.help = ['daily', 'claim']
