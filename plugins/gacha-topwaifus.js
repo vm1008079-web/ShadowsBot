@@ -47,6 +47,6 @@ handler.help = ['topwaifus'];
 handler.tags = ['gacha'];
 handler.command = ['topwaifus', 'waifustop', 'waifusboard'];
 handler.group = false;
-handler.register = true;
+handler.register = false;
 
 export default handler;
