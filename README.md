@@ -1,82 +1,72 @@
-# ⚜️ Michi-WaBot ⚜️
-![Michi-IA](https://files.catbox.moe/8zf4yo.png)
+# 🤖 Michi-WaBot: Un Bot Sencillo y Funcional para WhatsApp ✨
 
-Un bot sencillo para WhatsApp hecho con cariño  
-Pensado para ayudar sin complicaciones y funcionar rápido  
-Hecho para quienes buscan algo simple pero confiable  
+Michi-WaBot es un proyecto de código abierto diseñado para ser un bot de WhatsApp ligero y confiable.
 
 ---
 
-### Lo que puedes esperar »
-- Ligero y fácil de usar  
-- Funciona sin rodeos  
-- Hecho con dedicación y un toque personal
-___
+### 📊 Estadísticas del Repositorio (Datos Dinámicos)
 
-## 🔥 Instalación en Termux
+Estos badges muestran información actualizada en tiempo real directamente desde GitHub, reflejando el estado actual del repositorio.
 
-> **Sigue estos pasos en orden:**
-
-```bash
-termux-setup-storage
-```
-
-```bash
-apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick
-```
-
-```bash
-git clone https://github.com/Ado-rgb/Michi-WaBot
-```
-
-```bash
-cd Michi-WaBot
-```
-
-```bash
-npm install
-```
-
-```bash
-npm start
-```
+![GitHub stars](https://img.shields.io/github/stars/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=yellow)
+![GitHub forks](https://img.shields.io/github/forks/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=blue)
+![GitHub last commit](https://img.shields.io/github/last-commit/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=green)
 
 ---
 
-## 👤 Créditos
+### 💻 Guía de Instalación en Termux
 
-- 🍁 Creador: [Ado](https://github.com/Ado-rgb)
+Para instalar y ejecutar Michi-WaBot, sigue estos pasos en orden:
 
-![Foto del creador](https://github.com/Ado-rgb.png)
+1.  **Concede Permisos de Almacenamiento:**
+    ```bash
+    termux-setup-storage
+    ```
+
+2.  **Actualiza y Prepara el Entorno:**
+    ```bash
+    apt update && apt upgrade -y && pkg install -y git nodejs ffmpeg imagemagick
+    ```
+
+3.  **Clona el Repositorio:**
+    ```bash
+    git clone [https://github.com/Ado-rgb/Michi-WaBot](https://github.com/Ado-rgb/Michi-WaBot)
+    ```
+
+4.  **Navega al Directorio del Proyecto:**
+    ```bash
+    cd Michi-WaBot
+    ```
+
+5.  **Instala las Dependencias de Node.js:**
+    ```bash
+    npm install
+    ```
+
+6.  **Inicia el Bot:**
+    ```bash
+    npm start
+    ```
 
 ---
-___
 
-> Visita mi api, te puede ser útil.  
-## 🎋 Adonix-API
+### 👤 Créditos y Agradecimientos
 
-> **URL:** [myapiadonix.vercel.app](https://myapiadonix.vercel.app)
-
----
-
-> Checa también este host recomendado  
-## 🖥️ Kurayami Host
-
-[![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
+* **Creador:** [Ado](https://github.com/Ado-rgb)
+    ![Foto de Ado](https://github.com/Ado-rgb.png)
 
 ---
 
-## 📜 Licencia
+### 🔗 Recursos Adicionales
 
-Este proyecto está bajo la **Licencia MIT**  
-Puedes usarlo, modificarlo y compartirlo libremente manteniendo los créditos
+* **Adonix-API:** Una API útil del creador: [myapiadonix.vercel.app](https://myapiadonix.vercel.app)
+* **Kurayami Host:** 🖥️ Nuestro proveedor de hosting recomendado.
+    [![Kurayami Host](https://iili.io/FZQdR0Q.jpg)](https://dash.kurayamihost.dpdns.org)
 
 ---
 
-Gracias por darle una oportunidad a **Michi-WaBot**  
-Un proyecto hecho con humildad y buena onda 🐾
+### 📜 Licencia
 
-## Licencia
+Este proyecto está bajo la **Licencia MIT**. Eres libre de usar, modificar y compartir el código, siempre que mantengas los créditos originales.
 
-MIT License  
-(C) 2025 Ado
+© 2025 Ado.
