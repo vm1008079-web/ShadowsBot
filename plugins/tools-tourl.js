@@ -1,96 +1,124 @@
-import fetch from "node-fetch";
-import crypto from "crypto";
-import { FormData, Blob } from "formdata-node";
-import { fileTypeFromBuffer } from "file-type";
+import fs from 'fs'
+import path from 'path'
+import axios from 'axios'
+import FormData from 'form-data'
+import { fileTypeFromBuffer } from 'file-type'
 
-/**
- * Comando para subir archivos a Catbox
- */
-let handler = async (m, { conn }) => {
-  const STATUS_WAIT = "⏳";
-  const STATUS_DONE = "✅";
-  const STATUS_ERROR = "❌";
-  const CREDIT_TEXT = "Made with Ado";
-
-  const quotedMsg = m.quoted ? m.quoted : m;
-  const mime = (quotedMsg.msg || quotedMsg).mimetype || "";
-
+const handler = async (m, { conn, command }) => {
+  const q = m.quoted || m
+  const mime = (q.msg || q).mimetype || q.mediaType || ''
   if (!mime) {
-    return conn.reply(
-      m.chat,
-      `${STATUS_ERROR} Responde a un archivo válido (imagen, video, audio, etc.).`,
-      m
-    );
+    return conn.sendMessage(m.chat, {
+      text: `⚠️ Envía un archivo con el texto *.${command}* o responde al archivo con este comando.`,
+    }, { quoted: m })
   }
 
-  await m.react(STATUS_WAIT);
+  // Descargar el archivo
+  const media = await q.download()
+  const tempDir = './temp'
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir)
 
-  try {
-    const mediaBuffer = await quotedMsg.download();
-    if (!mediaBuffer) throw new Error("No se pudo descargar el archivo.");
+  const ext = mime.split('/')[1] || 'dat'
+  const fileName = `media_${Date.now()}.${ext}`
+  const filePath = path.join(tempDir, fileName)
+  fs.writeFileSync(filePath, media)
 
-    const isPermanent = /image\/(png|jpe?g|gif)|video\/mp4|audio\/(mpeg|ogg|mp4)/.test(mime);
-    const link = await uploadToCatbox(mediaBuffer);
+  const buffer = fs.readFileSync(filePath)
 
-    const message = [
-      `CATBOX UPLOADER`,
-      ``,
-      `Enlace: ${link}`,
-      `Tamaño: ${formatBytes(mediaBuffer.length)}`,
-      `Expiración: ${isPermanent ? "No expira" : "Desconocido"}`,
-      ``,
-      `${CREDIT_TEXT}`
-    ].join("\n");
+  // Reacción de carga
+  await conn.sendMessage(m.chat, {
+    react: { text: '⏳', key: m.key }
+  })
 
-    await conn.sendFile(m.chat, mediaBuffer, "uploaded_file", message, m);
-    await m.react(STATUS_DONE);
-
-  } catch (err) {
-    console.error("Error al subir a Catbox:", err);
-    await m.react(STATUS_ERROR);
-    conn.reply(m.chat, `${STATUS_ERROR} Error al subir el archivo.`, m);
+  // Subir a varios servicios
+  const uploadToSupa = async (buffer) => {
+    try {
+      const form = new FormData()
+      form.append('file', buffer, 'upload.jpg')
+      const res = await axios.post('https://i.supa.codes/api/upload', form, {
+        headers: form.getHeaders()
+      })
+      return res.data?.link || null
+    } catch (err) {
+      console.error('Error Supa:', err?.response?.data || err.message)
+      return null
+    }
   }
-};
 
-handler.help = ["tourl"];
-handler.tags = ["tools"];
-handler.command = ["catbox", "tourl"];
-export default handler;
+  const uploadToTmpFiles = async (filePath) => {
+    try {
+      const buf = fs.readFileSync(filePath)
+      const { ext, mime } = await fileTypeFromBuffer(buf)
+      const form = new FormData()
+      form.append('file', buf, {
+        filename: `${Date.now()}.${ext}`,
+        contentType: mime
+      })
+      const res = await axios.post('https://tmpfiles.org/api/v1/upload', form, {
+        headers: form.getHeaders()
+      })
+      return res.data.data.url.replace('s.org/', 's.org/dl/')
+    } catch (err) {
+      console.error('Error TmpFiles:', err)
+      return null
+    }
+  }
 
-/**
- * Convierte bytes a formato legible
- */
-function formatBytes(bytes) {
-  if (bytes === 0) return "0 B";
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+  const uploadToUguu = async (filePath) => {
+    try {
+      const form = new FormData()
+      form.append('files[]', fs.createReadStream(filePath))
+      const res = await axios.post('https://uguu.se/upload.php', form, {
+        headers: form.getHeaders()
+      })
+      return res.data.files?.[0]?.url || null
+    } catch (err) {
+      console.error('Error Uguu:', err)
+      return null
+    }
+  }
+
+  const uploadToFreeImageHost = async (buffer) => {
+    try {
+      const form = new FormData()
+      form.append('source', buffer, 'file')
+      const res = await axios.post('https://freeimage.host/api/1/upload', form, {
+        params: {
+          key: '6d207e02198a847aa98d0a2a901485a5' // Cambia si se acaba la cuota
+        },
+        headers: form.getHeaders()
+      })
+      return res.data.image.url
+    } catch (err) {
+      console.error('Error FreeImageHost:', err?.response?.data || err.message)
+      return null
+    }
+  }
+
+  const [supa, tmp, uguu, freehost] = await Promise.all([
+    uploadToSupa(buffer),
+    uploadToTmpFiles(filePath),
+    uploadToUguu(filePath),
+    uploadToFreeImageHost(buffer),
+  ])
+
+  let message = '*✅ Archivo subido exitosamente a varios servicios:*\n'
+  if (supa) message += `\n🔗 *Supa:* ${supa}`
+  if (tmp) message += `\n🔗 *TmpFiles:* ${tmp}`
+  if (uguu) message += `\n🔗 *Uguu:* ${uguu}`
+  if (freehost) message += `\n🔗 *FreeImage.Host:* ${freehost}`
+
+  await conn.sendMessage(m.chat, { text: message }, { quoted: m })
+  await conn.sendMessage(m.chat, {
+    react: { text: '✅', key: m.key }
+  })
+
+  // Borra el archivo temporal
+  fs.unlinkSync(filePath)
 }
 
-/**
- * Sube un archivo a Catbox
- */
-async function uploadToCatbox(content) {
-  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
-  if (!ext || !mime) throw new Error("Tipo de archivo no reconocido.");
+handler.help = ['tourl-pro']
+handler.tags = ['uploader']
+handler.command = /^(tourl-pro)$/i
 
-  const blob = new Blob([content.buffer], { type: mime });
-  const formData = new FormData();
-  const fileName = `${crypto.randomBytes(5).toString("hex")}.${ext}`;
-
-  formData.append("reqtype", "fileupload");
-  formData.append("fileToUpload", blob, fileName);
-
-  const res = await fetch("https://catbox.moe/user/api.php", {
-    method: "POST",
-    body: formData,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " +
-        "(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-    },
-  });
-
-  if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-  return res.text();
-}
+export default handler
