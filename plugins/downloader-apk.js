@@ -16,7 +16,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     }, { quoted: m })
   }
 
-  // Manejar la selección de un APK por número
+  
   if (!isNaN(text) && m.sender in conn.apk) {
     const idx = parseInt(text) - 1
     let dt = conn.apk[m.sender]
@@ -60,7 +60,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     return
   }
 
-  // Buscar apps por nombre
+  
   try {
     let results = await aptoide.search(text)
     if (!results.length) {
