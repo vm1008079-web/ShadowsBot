@@ -55,9 +55,9 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     let { title, thumbnail, quality, download } = json.data
 
-    // Miniatura con externalAdReply siempre mostrando calidad y título
+    
     await conn.sendMessage(m.chat, {
-      text: ``,
+      text: `> *♻️ Enviando su pedido..*`,
       contextInfo: {
         externalAdReply: {
           title: `${title} | ${quality}`,
@@ -70,7 +70,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }, { quoted: m })
 
-    // Enviar archivo
+    
     if (isAudio) {
       await conn.sendMessage(m.chat, {
         audio: { url: download },
