@@ -41,7 +41,7 @@ export async function before(m, { conn }) {
           thumbnailUrl: bannerFinal,
           sourceUrl: 'myapiadonix.vercel.app',
           mediaType: 1,
-          renderLargerThumbnail: false
+          renderLargerThumbnail: true
         }
       }
     }
