@@ -3,7 +3,7 @@ import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
 const tags = {
-  serbot: '🌐 SUBBOTS',
+  serbot: '🫟 SUBBOTS',
   eco: '💸 ECONOMÍA',
   downloader: '⬇️ DESCARGAS',
   tools: '🛠️ HERRAMIENTAS',
@@ -22,19 +22,20 @@ const tags = {
 
 const defaultMenu = {
   before: `
-ꕥ🌤 *Hola, soy %botname* ꕥ🐥
-> %tipo
+🌤 Hola, soy %botname *( %tipo )*
+*%name*, %greeting
 
-> 👋 Hola *%name*, %greeting*
+🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
 
-> 📅 Fecha: *%date*
-> ⏳ Tiempo activo: *%uptime*
-%readmore`.trimStart(),
+> 🥮 Fecha = *%date*
+> 🍿 Actividad = *%uptime*
+%readmore
+`.trimStart(),
 
-  header: '\n*%category* 💚',
-  body: '> ꕥ %cmd %islimit %isPremium',
+  header: '\n\`%category 🥞\`',
+  body: '\`🧃\` *%cmd* %islimit %isPremium',
   footer: '',
-  after: '\n🌤 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 𝖠𝖽𝗈 ꕥ',
+  after: '\n🍂 Creado por Ado.',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -44,17 +45,16 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const name = await conn.getName(m.sender)
 
     const d = new Date(Date.now() + 3600000)
-    const locale = 'es'
-    const date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+    const date = d.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' })
 
     const help = Object.values(global.plugins)
       .filter(p => !p.disabled)
-      .map(plugin => ({
-        help: Array.isArray(plugin.help) ? plugin.help : [plugin.help],
-        tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
-        prefix: 'customPrefix' in plugin,
-        limit: plugin.limit,
-        premium: plugin.premium,
+      .map(p => ({
+        help: Array.isArray(p.help) ? p.help : [p.help],
+        tags: Array.isArray(p.tags) ? p.tags : [p.tags],
+        prefix: 'customPrefix' in p,
+        limit: p.limit,
+        premium: p.premium,
       }))
 
     let nombreBot = global.namebot || 'Bot'
@@ -62,39 +62,29 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = join('./JadiBots', botActual, 'config.json')
-
     if (fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath))
         if (config.name) nombreBot = config.name
         if (config.banner) bannerFinal = config.banner
-      } catch (err) {
-        console.log('⚠️ No se pudo leer config del subbot:', err)
-      }
+      } catch {}
     }
 
-    const tipo = conn.user.jid === global.conn.user.jid
-      ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅'
-      : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
-
+    const tipo = conn.user.jid === global.conn.user.jid ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅' : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
     const menuConfig = conn.menu || defaultMenu
 
     const _text = [
       menuConfig.before,
       ...Object.keys(tags).map(tag => {
-        return [
-          menuConfig.header.replace(/%category/g, tags[tag]),
-          help.filter(menu => menu.tags?.includes(tag)).map(menu =>
-            menu.help.map(helpText =>
-              menuConfig.body
-                .replace(/%cmd/g, menu.prefix ? helpText : `${_p}${helpText}`)
-                .replace(/%islimit/g, menu.limit ? '◜⭐◞' : '')
-                .replace(/%isPremium/g, menu.premium ? '◜🪪◞' : '')
-                .trim()
-            ).join('\n')
-          ).join('\n'),
-          menuConfig.footer,
-        ].join('\n')
+        const cmds = help
+          .filter(menu => menu.tags?.includes(tag))
+          .map(menu => menu.help.map(h => 
+            menuConfig.body
+              .replace(/%cmd/g, menu.prefix ? h : `${_p}${h}`)
+              .replace(/%islimit/g, menu.limit ? '⭐' : '')
+              .replace(/%isPremium/g, menu.premium ? '🪪' : '')
+          ).join('\n')).join('\n')
+        return [menuConfig.header.replace(/%category/g, tags[tag]), cmds, menuConfig.footer].join('\n')
       }),
       menuConfig.after
     ].join('\n')
@@ -123,24 +113,17 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       (_, name) => String(replace[name])
     )
 
-    const isURL = typeof bannerFinal === 'string' && /^https?:\/\//i.test(bannerFinal)
-    const imageContent = isURL
-      ? { image: { url: bannerFinal } }
-      : { image: fs.readFileSync(bannerFinal) }
+    const isURL = /^https?:\/\//i.test(bannerFinal)
+    const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
-    await conn.sendMessage(m.chat, {
-      ...imageContent,
-      caption: text.trim(),
-      mentionedJid: conn.parseMention(text)
-    }, { quoted: m })
-
+    await conn.sendMessage(m.chat, { ...imageContent, caption: text.trim(), mentionedJid: conn.parseMention(text) }, { quoted: m })
   } catch (e) {
     console.error('❌ Error en el menú:', e)
     conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
   }
 }
 
-handler.command = ['menu', 'help', 'menú']
+handler.command = ['menutest']
 handler.register = false
 export default handler
 
@@ -155,9 +138,7 @@ function clockString(ms) {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
 }
 
-const ase = new Date()
-let hour = ase.getHours()
-
+const hour = new Date().getHours()
 const greetingMap = {
   0: 'una linda noche 🌙', 1: 'una linda noche 💤', 2: 'una linda noche 🦉',
   3: 'una linda mañana ✨', 4: 'una linda mañana 💫', 5: 'una linda mañana 🌅',
@@ -168,4 +149,4 @@ const greetingMap = {
   18: 'una linda noche 🌙', 19: 'una linda noche 🌃', 20: 'una linda noche 🌌',
   21: 'una linda noche 🌃', 22: 'una linda noche 🌙', 23: 'una linda noche 🌃',
 }
-var greeting = 'espero que tengas ' + (greetingMap[hour] || 'un buen día')
+const greeting = 'Espero que tengas ' + (greetingMap[hour] || 'un buen día')
