@@ -1,26 +1,27 @@
 import speed from "performance-now";
-import { spawn, exec, execSync } from "child_process";
+import { exec } from "child_process";
 
 let handler = async (m, { conn }) => {
   let timestamp = speed();
-  let latensi = speed() - timestamp;
 
   exec(`neofetch --stdout`, (error, stdout, stderr) => {
+    let latensi = speed() - timestamp;
     let child = stdout.toString("utf-8");
     let ssd = child.replace(/Memory:/, "Ram:");
+
+    const buttons = [
+      {
+        buttonId: `.speed`, // el comando que se ejecutará al hacer clic
+        buttonText: { displayText: "⚡ Ver velocidad" },
+        type: 1
+      }
+    ];
 
     conn.sendMessage(m.chat, {
       text: `${ssd}\n乂  *Speed* : ${latensi.toFixed(4)} _ms_`,
       footer: '📊 Información del sistema',
-      templateButtons: [
-        {
-          index: 1,
-          quickReplyButton: {
-            displayText: '⚡ Ver velocidad',
-            id: '.speed'
-          }
-        }
-      ]
+      buttons: buttons,
+      headerType: 1
     }, { quoted: m });
   });
 };
