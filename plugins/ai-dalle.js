@@ -34,7 +34,7 @@ Detalles:
 ✎ *Prompt ›* ${prompt}
 ↺ Disfruta tu nueva creación.
       `.trim(),
-      footer: 'Adonix IA',
+      footer: 'Adonix API',
       buttons: [
         { buttonId: `${usedPrefix}${command} ${prompt}`, buttonText: { displayText: '♻️ Otra' }, type: 1 },
         { buttonId: `${usedPrefix}menu`, buttonText: { displayText: '❄️ Ir al menu' }, type: 1 }
