@@ -25,15 +25,15 @@ const defaultMenu = {
 🌤 Hola, soy %botname
 *%name*, %greeting
 
-📅 Fecha: *%date*
-🍿 Tiempo activo: *%uptime*
+> 🥮 Fecha : *%date*
+> 🍿 Tiempo activo : *%uptime*
 %readmore
 `.trimStart(),
 
   header: '\n\`%category 🥞\`',
-  body: '\`🧃\` *:*%cmd %islimit %isPremium',
+  body: '\`🧃\`*%cmd* %islimit %isPremium',
   footer: '',
-  after: '\n❆ Creado por Ado.',
+  after: '\n🍂 Creado por Ado.',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
