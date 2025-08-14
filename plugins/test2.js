@@ -22,7 +22,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🌤 Hola, soy %botname
+🌤 Hola, soy %botname %tipo
 *%name*, %greeting
 
 🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
