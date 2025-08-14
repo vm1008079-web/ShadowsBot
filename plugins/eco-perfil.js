@@ -34,5 +34,5 @@ ${moneda} : *${user.coin.toLocaleString()}*
 }
 
 
-handler.command = ['cad'
+handler.command = ['cad']
 export default handler
