@@ -113,35 +113,15 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       (_, name) => String(replace[name])
     )
 
-    // Detectar si es WhatsApp Business
-    let isBusiness = false
-    try {
-      let info = await conn.onWhatsApp(m.sender)
-      if (info?.[0]?.verifiedName) isBusiness = true
-    } catch (e) {
-      console.error('Error detectando Business:', e)
-    }
-
     const isURL = /^https?:\/\//i.test(bannerFinal)
     const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
-    const buttons = [
-      { buttonId: '.code', buttonText: { displayText: '🐦‍🔥 Ser SubBot' }, type: 1 }
-    ]
+    await conn.sendMessage(
+      m.chat,
+      { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos..', headerType: 4, mentionedJid: conn.parseMention(text) },
+      { quoted: m }
+    )
 
-    if (isBusiness) {
-      await conn.sendMessage(
-        m.chat,
-        { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos..', headerType: 4, mentionedJid: conn.parseMention(text) },
-        { quoted: m }
-      )
-    } else {
-      await conn.sendMessage(
-        m.chat,
-        { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos.. ', buttons, headerType: 4, mentionedJid: conn.parseMention(text) },
-        { quoted: m }
-      )
-    }
   } catch (e) {
     console.error('❌ Error en el menú:', e)
     conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
