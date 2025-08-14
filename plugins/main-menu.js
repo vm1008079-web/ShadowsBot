@@ -118,12 +118,12 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     // --- Botón agregado ---
     const buttons = [
-      { buttonId: '.code', buttonText: { displayText: 'Ser SubBot 🫟' }, type: 1 }
+      { buttonId: '.code', buttonText: { displayText: '🐦‍🔥 Ser SubBot' }, type: 1 }
     ]
 
     await conn.sendMessage(
       m.chat,
-      { ...imageContent, caption: text.trim(), footer: '🍂 Toca el botón para ejecutar .code', buttons, headerType: 4, mentionedJid: conn.parseMention(text) },
+      { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos.. ', buttons, headerType: 4, mentionedJid: conn.parseMention(text) },
       { quoted: m }
     )
   } catch (e) {
