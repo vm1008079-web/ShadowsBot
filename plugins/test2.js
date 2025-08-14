@@ -25,8 +25,10 @@ const defaultMenu = {
 🌤 Hola, soy %botname
 *%name*, %greeting
 
-> 🥮 Fecha : *%date*
-> 🍿 Tiempo activo : *%uptime*
+🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
+
+> 🥮 Fecha = *%date*
+> 🍿 Tiempo activo = *%uptime*
 %readmore
 `.trimStart(),
 
