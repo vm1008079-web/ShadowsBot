@@ -59,8 +59,17 @@ Respuesta: *${acertijoActual.respuesta}*
     `.trim(), m, { mentions: [m.sender] })
     acertijoActual = null
   } else {
+    const buttons = [
+      {
+        buttonId: `${usedPrefix}${command}`,
+        buttonText: { displayText: "🌤️ Jugar de Nuevo" },
+        type: 1
+      }
+    ];
+
     if (acertijoActual.intentos >= maxIntentos) {
-      await conn.reply(m.chat, `
+      await conn.sendMessage(m.chat, {
+        text: `
 ❌ Se te acabaron los intentos (6) :c
 
 ⌛ Se acabó el tiempo para responder!
@@ -68,8 +77,11 @@ Respuesta: *${acertijoActual.respuesta}*
 La respuesta correcta era: *${acertijoActual.respuesta}*
 
 ${acertijoActual.pregunta}
-      `.trim(), m)
-      acertijoActual = null
+        `.trim(),
+        buttons: buttons,
+        headerType: 1
+      });
+      acertijoActual = null;
     } else {
       await conn.reply(m.chat, `❌ Incorrecto, intenta otra vez.\n\nIntento *${acertijoActual.intentos}* de *${maxIntentos}*\n\nPregunta: ${acertijoActual.pregunta}`, m)
     }
@@ -79,10 +91,20 @@ ${acertijoActual.pregunta}
 setInterval(() => {
   if (!acertijoActual) return
   if (Date.now() - acertijoActual.inicio > tiempoLimite) {
+    const buttons = [
+      {
+        buttonId: `${global.usedPrefix}${global.command}`,
+        buttonText: { displayText: "🌤️ Jugar de Nuevo" },
+        type: 1
+      }
+    ];
+
     global.conn?.sendMessage(
       acertijoActual.chat,
       {
-        text: `⌛ Se acabó el tiempo para responder!\n\n${acertijoActual.pregunta}\n\nLa respuesta era: *${acertijoActual.respuesta}*`
+        text: `⌛ Se acabó el tiempo para responder!\n\n${acertijoActual.pregunta}\n\nLa respuesta era: *${acertijoActual.respuesta}*`,
+        buttons: buttons,
+        headerType: 1
       },
       { mentions: [acertijoActual.jugador] }
     )
