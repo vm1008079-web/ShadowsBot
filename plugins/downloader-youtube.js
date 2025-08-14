@@ -27,28 +27,16 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
       let search = await yts(args.join(' '))
-      if (!search.videos || search.videos.length === 0) {
-        await conn.sendMessage(m.chat, {
-          text: '⚠️ No se encontraron resultados.',
-          ...global.rcanal
-        }, { quoted: m })
-        return
-      }
+      if (!search.videos?.length) return m.reply('⚠️ No se encontraron resultados.')
       videoInfo = search.videos[0]
       url = videoInfo.url
     } else {
       let id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
       let search = await yts({ videoId: id })
-      if (search && search.title) videoInfo = search
+      if (search?.title) videoInfo = search
     }
 
-    if (videoInfo.seconds > 3780) {
-      await conn.sendMessage(m.chat, {
-        text: '⛔ El video supera el límite de duración permitido (63 minutos).',
-        ...global.rcanal
-      }, { quoted: m })
-      return
-    }
+    if (videoInfo.seconds > 3780) return m.reply('⛔ El video supera el límite de 63 minutos.')
 
     let apiUrl = ''
     let isAudio = false
@@ -58,13 +46,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       isAudio = true
     } else if (command == 'play2' || command == 'ytmp4') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
-    } else {
-      await conn.sendMessage(m.chat, {
-        text: '❌ Comando no reconocido.',
-        ...global.rcanal
-      }, { quoted: m })
-      return
-    }
+    } else return m.reply('❌ Comando no reconocido.')
 
     let res = await fetch(apiUrl)
     if (!res.ok) throw new Error('Error al conectar con la API.')
@@ -72,30 +54,23 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     if (!json.success) throw new Error('No se pudo obtener información del video.')
 
     let { title, thumbnail, quality, download } = json.data
-    let duration = videoInfo?.timestamp || 'Desconocida'
 
-    let details = `
-> \`❄️ Titulo »\` ${title}
-
-> \`🌼 Duración »\` ${duration}
-> \`🪴 Calidad »\` ${quality}
-> \`🌥️ Tipo »\` ${isAudio ? 'Audio' : 'Video'}`.trim()
-
+    // Miniatura con externalAdReply siempre mostrando calidad y título
     await conn.sendMessage(m.chat, {
-      text: details,
-      ...global.rcanal,
+      text: ``,
       contextInfo: {
         externalAdReply: {
-          title: nombreBot,
-          body: '❤️‍🔥 Procesando...',
+          title: `${title} | ${quality}`,
+          body: isAudio ? 'Audio en proceso...' : 'Video en proceso...',
           thumbnailUrl: thumbnail,
-          sourceUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
+          sourceUrl: url,
           mediaType: 1,
           renderLargerThumbnail: true
         }
       }
     }, { quoted: m })
 
+    // Enviar archivo
     if (isAudio) {
       await conn.sendMessage(m.chat, {
         audio: { url: download },
@@ -107,8 +82,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       await conn.sendMessage(m.chat, {
         video: { url: download },
         mimetype: 'video/mp4',
-        fileName: `${title}.mp4`,
-        ...global.rcanal
+        fileName: `${title}.mp4`
       }, { quoted: m })
     }
 
@@ -116,10 +90,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   } catch (e) {
     console.error(e)
     await m.react('❌')
-    await conn.sendMessage(m.chat, {
-      text: '❌ Se produjo un error al procesar la solicitud.',
-      ...global.rcanal
-    }, { quoted: m })
+    m.reply('❌ Ocurrió un error procesando tu solicitud.')
   }
 }
 
