@@ -30,10 +30,10 @@ const defaultMenu = {
 %readmore
 `.trimStart(),
 
-  header: '\n%category 🥞',
-  body: '\`🧃 *:*\`%cmd %islimit %isPremium',
+  header: '\n\`%category 🥞\`',
+  body: '\`🧃\` *:*%cmd %islimit %isPremium',
   footer: '',
-  after: '\n❆ Creado por Ado ✨',
+  after: '\n❆ Creado por Ado.',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
