@@ -22,7 +22,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🌤 Hola, soy %botname %tipo
+🌤 Hola, soy %botname *( %tipo )*
 *%name*, %greeting
 
 🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
@@ -70,7 +70,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       } catch {}
     }
 
-    const tipo = conn.user.jid === global.conn.user.jid ? 'Principal' : 'SubBot'
+    const tipo = conn.user.jid === global.conn.user.jid ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅' : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
     const menuConfig = conn.menu || defaultMenu
 
     const _text = [
