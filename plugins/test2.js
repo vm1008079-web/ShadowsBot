@@ -3,7 +3,7 @@ import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
 const tags = {
-  serbot: '🌐 SUBBOTS',
+  serbot: '🫟 SUBBOTS',
   eco: '💸 ECONOMÍA',
   downloader: '⬇️ DESCARGAS',
   tools: '🛠️ HERRAMIENTAS',
@@ -28,7 +28,7 @@ const defaultMenu = {
 🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
 
 > 🥮 Fecha = *%date*
-> 🍿 Tiempo activo = *%uptime*
+> 🍿 Actividad = *%uptime*
 %readmore
 `.trimStart(),
 
