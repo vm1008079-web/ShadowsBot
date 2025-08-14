@@ -116,7 +116,16 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const isURL = /^https?:\/\//i.test(bannerFinal)
     const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
-    await conn.sendMessage(m.chat, { ...imageContent, caption: text.trim(), mentionedJid: conn.parseMention(text) }, { quoted: m })
+    // --- Botón agregado ---
+    const buttons = [
+      { buttonId: '.code', buttonText: { displayText: 'Ser SubBot 🫟' }, type: 1 }
+    ]
+
+    await conn.sendMessage(
+      m.chat,
+      { ...imageContent, caption: text.trim(), footer: '🍂 Toca el botón para ejecutar .code', buttons, headerType: 4, mentionedJid: conn.parseMention(text) },
+      { quoted: m }
+    )
   } catch (e) {
     console.error('❌ Error en el menú:', e)
     conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
