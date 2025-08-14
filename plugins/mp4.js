@@ -14,18 +14,19 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       return m.reply(`❌ No se encontró ningún resultado para la búsqueda: *${text}*`);
     }
 
-    const { title, video_url, thumbnail, duration, views, published } = data.result;
+    const { title, download_url } = data.result;
 
     const caption = `
-🎵 *Título:* ${title}
-⏳ *Duración:* ${duration}
-👀 *Vistas:* ${views.toLocaleString()}
-📅 *Publicado:* ${published}
-🔗 *Enlace:* ${video_url}
+🎵 *Reproduciendo:* ${title}
+
+🎧 *Si no se reproduce, descarga el archivo.*
     `.trim();
 
     await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
+      audio: { url: download_url },
+      fileName: `${title}.mp3`,
+      mimetype: 'audio/mp4', // Se envía como MP4 con audio
+      ptt: true, // Envía como nota de voz
       caption: caption,
     }, { quoted: m });
 
