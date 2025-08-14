@@ -31,7 +31,7 @@ const defaultMenu = {
 `.trimStart(),
 
   header: '\n\`%category 🥞\`',
-  body: '\`🧃\`*%cmd* %islimit %isPremium',
+  body: '\`🧃\` *%cmd* %islimit %isPremium',
   footer: '',
   after: '\n🍂 Creado por Ado.',
 }
