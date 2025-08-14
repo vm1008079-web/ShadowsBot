@@ -28,7 +28,7 @@ export async function before(m, { conn }) {
 
     global.rcanal = {
       contextInfo: {
-        isForwarded: true,
+        isForwarded: false,
         forwardingScore: 1,
         forwardedNewsletterMessageInfo: {
           newsletterJid: newsletterJidRandom,
@@ -40,8 +40,8 @@ export async function before(m, { conn }) {
           body: global.author,
           thumbnailUrl: bannerFinal,
           sourceUrl: 'myapiadonix.vercel.app',
-          mediaType: 3,
-          renderLargerThumbnail: true
+          mediaType: 1,
+          renderLargerThumbnail: false
         }
       }
     }
