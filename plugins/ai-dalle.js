@@ -24,7 +24,7 @@ Recuerda que la imagen puede tardar unos segundos en generarse.
     // Convertir la respuesta en buffer (imagen)
     const buffer = await res.buffer()
 
-    // Enviar la imagen al chat
+    // Enviar la imagen con botones
     await conn.sendMessage(m.chat, {
       image: buffer,
       caption: `
@@ -33,7 +33,13 @@ Recuerda que la imagen puede tardar unos segundos en generarse.
 Detalles:
 ✎ *Prompt ›* ${prompt}
 ↺ Disfruta tu nueva creación.
-`.trim()
+      `.trim(),
+      footer: 'Adonix IA',
+      buttons: [
+        { buttonId: `${usedPrefix}${command} ${prompt}`, buttonText: { displayText: '♻️ Otra' }, type: 1 },
+        { buttonId: `${usedPrefix}menu`, buttonText: { displayText: '❄️ Ir al menu' }, type: 1 }
+      ],
+      headerType: 4
     }, { quoted: m })
 
     // Reaccionar con check
