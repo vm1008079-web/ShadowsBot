@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
-async function aimusic(prompt, { tags = 'pop, romantic' } = {}) {
+async function aimusic(prompt, { tags = 'pop, romantic, cumbia, reggaeton' } = {}) {
     try {
         if (!prompt) throw new Error('Prompt is required');
         
