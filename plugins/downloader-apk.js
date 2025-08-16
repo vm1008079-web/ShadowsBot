@@ -64,7 +64,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     }
 
     const top5 = results.slice(0, 5)
-    let msg = `🦞 Resultados para: *${text}*\n\nSelecciona un número para descargar:\n\n`
+    const buttons = top5.map((v, i) => ({
+      buttonId: `${usedPrefix + command} ${i + 1}`,
+      buttonText: { displayText: `${i + 1}. ${v.name}` },
+      type: 1
+    }))
+
+    let msg = `🦞 Resultados para: *${text}*\n\nSelecciona una aplicación para descargar:\n\n`
 
     top5.forEach((app, i) => {
       msg += `*${i + 1}.* ${app.name}\n`
@@ -74,7 +80,12 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
     msg += `📦 Mostrando las ${top5.length} mejores de ${results.length} resultados.`
 
-    await conn.sendMessage(m.chat, { text: msg }, { quoted: m })
+    await conn.sendMessage(m.chat, {
+      text: msg,
+      footer: 'Toca un botón para descargar el APK.',
+      buttons,
+      headerType: 1
+    }, { quoted: m })
   } catch (e) {
     console.error(e)
     conn.sendMessage(m.chat, { text: "❌ Ocurrió un error al buscar las aplicaciones. Intenta de nuevo más tarde." }, { quoted: m })
