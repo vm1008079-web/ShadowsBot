@@ -16,7 +16,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     }, { quoted: m })
   }
 
-  
   if (!isNaN(text) && m.sender in conn.apk) {
     const idx = parseInt(text) - 1
     let dt = conn.apk[m.sender]
@@ -32,21 +31,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     try {
       dt.download = true
       let data = await aptoide.download(dt.data[idx].id)
-
-      await conn.sendMessage(m.chat, {
-        image: { url: data.img },
-        caption: `*✅ Descarga Iniciada*\n\n📱 *Nombre:* ${data.appname}\n👨‍💻 *Desarrollador:* ${data.developer}\n`
-      }, { quoted: m })
-
       let dl = await conn.getFile(data.link)
+
       await conn.sendMessage(m.chat, {
         document: dl.data,
         fileName: `${data.appname}.apk`,
-        mimetype: 'application/vnd.android.package-archive'
-      }, { quoted: m })
-      
-      await conn.sendMessage(m.chat, {
-        text: `✅ *¡APK descargado!*`,
+        mimetype: 'application/vnd.android.package-archive',
+        caption: `✅ *APK Descargado*\n\n📱 *Nombre:* ${data.appname}\n👨‍💻 *Desarrollador:* ${data.developer}\n📦 *Versión:* ${dt.data[idx].version}\n📊 *Tamaño:* ${(dt.data[idx].size / (1024 * 1024)).toFixed(2)} MB`
       }, { quoted: m })
 
     } catch (e) {
@@ -60,7 +51,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     return
   }
 
-  
   try {
     let results = await aptoide.search(text)
     if (!results.length) {
@@ -74,26 +64,17 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     }
 
     const top5 = results.slice(0, 5)
-    const buttons = top5.map((v, i) => ({
-      buttonId: `${usedPrefix + command} ${i + 1}`,
-      buttonText: { displayText: `${i + 1}. ${v.name}` },
-      type: 1
-    }))
+    let msg = `🦞 Resultados para: *${text}*\n\nSelecciona un número para descargar:\n\n`
 
-    let msg = `> 🦞 Resultados para: *${text}*\n\n*Selecciona una app para descargar el APK:*\n\n`
     top5.forEach((app, i) => {
-        msg += `*${i + 1}.* ${app.name}\n`
-        msg += `   ╰— *Versión:* ${app.version}\n`
-        msg += `   ╰— *Tamaño:* ${(app.size / (1024 * 1024)).toFixed(2)} MB\n`
+      msg += `*${i + 1}.* ${app.name}\n`
+      msg += `   ╰— Versión: ${app.version}\n`
+      msg += `   ╰— Tamaño: ${(app.size / (1024 * 1024)).toFixed(2)} MB\n\n`
     })
-    msg += `\n📦 Mostrando las ${top5.length} mejores de ${results.length} resultados.`
 
-    await conn.sendMessage(m.chat, {
-      text: msg,
-      footer: 'Usa los botones para descargar.',
-      buttons,
-      headerType: 1
-    }, { quoted: m })
+    msg += `📦 Mostrando las ${top5.length} mejores de ${results.length} resultados.`
+
+    await conn.sendMessage(m.chat, { text: msg }, { quoted: m })
   } catch (e) {
     console.error(e)
     conn.sendMessage(m.chat, { text: "❌ Ocurrió un error al buscar las aplicaciones. Intenta de nuevo más tarde." }, { quoted: m })
@@ -107,7 +88,6 @@ handler.register = false
 
 export default handler
 
-// Módulo Aptoide
 const aptoide = {
   search: async function (query) {
     let res = await fetch(`https://ws75.aptoide.com/api/7/apps/search?query=${encodeURIComponent(query)}&limit=100`)
