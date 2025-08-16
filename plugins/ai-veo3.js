@@ -126,7 +126,7 @@ Si no pones género, por default usa: pop, romantic`, fkontak);
 };
 
 handler.help = ['aimusic'];
-handler.tags = ['ia];
+handler.tags = ['ia'];
 handler.command = ['aimusic'];
 
 export default handler;
