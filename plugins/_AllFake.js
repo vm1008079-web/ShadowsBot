@@ -28,13 +28,10 @@ export async function before(m, { conn }) {
         }
       },
       contextInfo: {
-        isForwarded: true,
+        ...global.rcanal?.contextInfo, // por si ya había algo
         forwardingScore: 1,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid: newsletterJidRandom,
-          serverMessageId: 100,
-          newsletterName: nombreBot,
-        }
+        isForwarded: true,
+        participant: newsletterJidRandom // solo para reenviado desde canal
       }
     }
   } catch (e) {
