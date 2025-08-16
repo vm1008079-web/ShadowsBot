@@ -11,7 +11,7 @@ async function aimusic(prompt, { tags = 'pop, romantic, cumbia, reggaeton' } = {
                 query: JSON.stringify([
                     {
                         role: 'system',
-                        content: 'You are a professional lyricist AI trained to write poetic and rhythmic song lyrics. Respond with lyrics only, using [verse], [chorus], [bridge], and [instrumental] tags to structure the song. Use only the tag (e.g., [verse]) without any numbering or extra text. Do not add explanations or commentary. Respond in clean plain text, exactly as if it were a lyric sheet.'
+                        content: 'Eres una IA letrista profesional entrenada para escribir letras de canciones poéticas y rítmicas en español. Responde únicamente con letras, usando las etiquetas [verse], [chorus], [bridge] e [instrumental] para estructurar la canción. Usa solo la etiqueta (por ejemplo, [verse]) sin números ni texto adicional. No agregues explicaciones ni comentarios. Responde en texto limpio, exactamente como si fuera una hoja de letras de canción.'
                     },
                     {
                         role: 'user',
