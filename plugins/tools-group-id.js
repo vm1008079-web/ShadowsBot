@@ -75,8 +75,8 @@ const handler = async (m, { conn }) => {
     }
 };
 
-handler.help = ['toplayroblox'];
-handler.tags = ['herramientas'];
-handler.command = ['toplayroblox', 'toplayrbx'];
+handler.help = ['topplayroblox'];
+handler.tags = ['tools'];
+handler.command = ['topplayroblox', 'topplayrbx'];
 
 export default handler;
