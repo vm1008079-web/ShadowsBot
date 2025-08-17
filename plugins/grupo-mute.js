@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 
+// Comando: mute / unmute
 let handler = async (m, { conn, command }) => {
   if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
 
@@ -16,6 +17,7 @@ let handler = async (m, { conn, command }) => {
   if (target === groupOwner) return m.reply('❌ No puedes mutear al creador del grupo.')
   if (target === conn.user.jid) return m.reply('❌ No puedes mutear al bot.')
 
+  // No mutear admins
   const targetData = groupMetadata.participants.find(p => p.id === target)
   if (targetData?.admin) return m.reply('❌ No puedes mutear a un admin.')
 
@@ -56,23 +58,33 @@ let handler = async (m, { conn, command }) => {
   }
 }
 
-// Middleware global para eliminar mensajes de muteados
+// Middleware global para eliminar mensajes de muteados en todos los bots
 global.conn.ev.on('messages.upsert', async ({ messages }) => {
   for (const msg of messages) {
     const chat = msg.key.remoteJid
     const user = msg.key.participant || msg.key.remoteJid
 
-    if (global.db.data.users[user]?.muto) {
+    if (!global.db.data.users[user]?.muto) continue
+
+    // Recorremos todos los bots conectados
+    for (const bot of Object.values(global.bots || {})) {
       try {
-        await conn.sendMessage(chat, { delete: msg.key })
+        const groupMetadata = await bot.groupMetadata(chat)
+        const botIsAdmin = groupMetadata.participants.some(p => p.id === bot.user?.id && p.admin)
+
+        if (botIsAdmin) {
+          await bot.sendMessage(chat, { delete: msg.key })
+        }
       } catch (e) {
-        console.log('❌ Error eliminando mensaje muteado:', e)
+        console.log('❌ Error eliminando mensaje muteado con subbot:', e)
       }
     }
   }
 })
 
 handler.command = ['mute', 'unmute']
-
+handler.group = true
+handler.admin = true
+handler.botAdmin = true
 
 export default handler
