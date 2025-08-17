@@ -533,4 +533,24 @@ global.reload = async (_ev, filename) => {
       }
     } else conn.logger.info(chalk.green(`[INFO] ✨ Nuevo plugin - '${filename}'`));
 
-    const err = syntaxerror(readFileSync(dir),
+    const err = syntaxerror(readFileSync(dir), filename, {
+      sourceType: 'module',
+      allowAwaitOutsideFunction: true,
+    });
+    if (err) conn.logger.error(chalk.red(`[ERROR] ❌ Error de sintaxis al cargar '${filename}':\n${format(err)}`));
+    else {
+      try {
+        const module = await import(`${global.__filename(dir)}?update=${Date.now()}`);
+        global.plugins[filename] = module.default || module;
+      } catch (e) {
+        conn.logger.error(chalk.red(`[ERROR] ❌ Error al requerir el plugin '${filename}':\n${format(e)}`));
+      } finally {
+        global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)));
+      }
+    }
+  }
+};
+Object.freeze(global.reload);
+
+watch(pluginFolder, global.reload);
+await global.reloadHandler();
