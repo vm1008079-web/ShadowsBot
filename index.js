@@ -14,18 +14,22 @@ function sleep(ms) {
     return new Promise(r => setTimeout(r, ms))
 }
 
-// Animación tipo cohetes
-async function rocketAnimation(lines = 10) {
+async function rocketLaunch(lines = 12) {
     const rocket = '🚀'
+    const explosion = ['💥', '🔥', '✨', '🌟']
     for (let i = lines; i > 0; i--) {
         console.clear()
         for (let j = 0; j < i; j++) console.log('')
-        console.log(`        ${rocket}`)
+        console.log(`       ${rocket}`)
         await sleep(80)
+    }
+    for (let i = 0; i < 4; i++) {
+        console.clear()
+        console.log(`       ${explosion[i]}  ${explosion[(i + 1) % 4]}  ${explosion[(i + 2) % 4]}`)
+        await sleep(150)
     }
 }
 
-// Animación de texto letra por letra
 async function typeText(text, delay = 30) {
     for (const char of text) {
         process.stdout.write(char)
@@ -34,28 +38,26 @@ async function typeText(text, delay = 30) {
     process.stdout.write('\n')
 }
 
-// Barra de carga dinámica
 async function loadingBar() {
     const frames = ['[      ]', '[=     ]', '[==    ]', '[===   ]', '[====  ]', '[===== ]', '[======]']
     for (let i = 0; i < 3; i++) {
         for (const frame of frames) {
             const color = ['\x1b[36m', '\x1b[35m', '\x1b[33m', '\x1b[32m'][i % 4]
-            process.stdout.write(`\r${color}⚡ Iniciando Michi Wa Bot ${frame}\x1b[0m`)
+            process.stdout.write(`\r⚡ Iniciando Michi Wa Bot ${frame} ⚡\x1b[0m`)
             await sleep(120)
         }
     }
     console.log('\n')
 }
 
-// Logo cfonts con parpadeo y gradientes
-async function epicCfonts() {
+async function epicLogo() {
     const gradients = [
         ['cyan', 'magenta'],
         ['yellow', 'red'],
         ['green', 'white'],
         ['blue', 'magenta']
     ]
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
         console.clear()
         cfonts.say('✧ MICHÍ WA ✧', {
             font: 'block',
@@ -69,7 +71,7 @@ async function epicCfonts() {
             gradient: gradients[(i + 1) % gradients.length],
             env: 'node'
         })
-        await sleep(500)
+        await sleep(400)
     }
 }
 
@@ -79,10 +81,10 @@ async function launch(scripts) {
     if (isWorking) return
     isWorking = true
 
-    await rocketAnimation(12)
+    await rocketLaunch()
     await typeText('🔥 Preparando scripts...')
     await loadingBar()
-    await epicCfonts()
+    await epicLogo()
 
     for (const script of scripts) {
         const args = [join(__dirname, script), ...process.argv.slice(2)]
