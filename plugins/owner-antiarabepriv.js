@@ -31,15 +31,12 @@ handler.before = async (m, { conn }) => {
   const settings = global.db.data.settings
 
   if (settings.antiarabepriv) {
-    // En privados el JID del que escribe es m.chat
     const jid = m.chat
     const number = jid.split('@')[0]
     const isArab = arabicPrefixes.some(prefix => number.startsWith(prefix))
 
     if (isArab) {
       try {
-        // mensaje antes de bloquear (opcional)
-        await conn.sendMessage(m.chat, { text: "❌ No aceptamos números árabes en privado." })
         await conn.updateBlockStatus(jid, 'block')
         console.log(`Bloqueado número árabe en privado: ${jid}`)
       } catch (e) {
