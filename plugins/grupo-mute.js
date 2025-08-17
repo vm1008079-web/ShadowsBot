@@ -83,8 +83,6 @@ global.conn.ev.on('messages.upsert', async ({ messages }) => {
 })
 
 handler.command = ['mute', 'unmute']
-handler.group = true
-handler.admin = true
-handler.botAdmin = true
+
 
 export default handler
