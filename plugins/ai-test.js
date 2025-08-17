@@ -158,9 +158,9 @@ const handler = async (m, { args, conn, usedPrefix, command }) => {
     if (!result.success) return conn.reply(m.chat, `❌ Error: ${result.result.error}`, fkontak)
 
     if (type === "image") {
-      await conn.sendMessage(m.chat, { image: { url: result.result.url }, caption: `✅ *Image:* ${result.result.prompt}\n${global.wm}` }, { quoted: fkontak })
+      await conn.sendMessage(m.chat, { image: { url: result.result.url }, caption: `✅ *Image:* ${result.result.prompt}\n${global.namebot}` }, { quoted: fkontak })
     } else {
-      await conn.sendMessage(m.chat, { video: { url: result.result.url }, caption: `✅ *Video:* ${prompt}\n${global.wm}` }, { quoted: fkontak })
+      await conn.sendMessage(m.chat, { video: { url: result.result.url }, caption: `✅ *Video:* ${prompt}\n${global.namebot}` }, { quoted: fkontak })
     }
 
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
