@@ -1,55 +1,61 @@
-import fs from "fs"
 import fetch from "node-fetch"
 import { spawn } from "child_process"
+import { tmpdir } from "os"
+import { join } from "path"
+import fs from "fs"
 
-const handler = async (m, { conn, command, usedPrefix, text }) => {
-  if (!text) throw `⚠️ Usa: ${usedPrefix + command} <texto para la imagen>`
+// Convierte buffer a sticker WebP con ffmpeg
+async function toWebp(buffer) {
+  let tmpIn = join(tmpdir(), `input_${Date.now()}.png`)
+  let tmpOut = join(tmpdir(), `output_${Date.now()}.webp`)
+  fs.writeFileSync(tmpIn, buffer)
 
-  let apiUrl = `https://api.botcahx.eu.org/api/search/openai-image?text=${text}&apikey=Apikey_Lu_Mas`
-  let res = await fetch(apiUrl)
-  if (!res.ok) throw "❌ Error al generar la imagen desde la API"
-  let buffer = await res.buffer()
-
-  // Guardamos la imagen temporal
-  let imgPath = "./tmp/ai-sticker.png"
-  let webpPath = "./tmp/ai-sticker.webp"
-  fs.writeFileSync(imgPath, buffer)
-
-  m.reply("✨ Generando tu sticker, espera un momento...")
-
-  // Convertir a WebP con ffmpeg
   await new Promise((resolve, reject) => {
     const ffmpeg = spawn("ffmpeg", [
-      "-i", imgPath,
+      "-i", tmpIn,
       "-vf", "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:-1:-1:color=white",
       "-vcodec", "libwebp",
       "-lossless", "1",
       "-qscale", "75",
       "-preset", "default",
       "-an", "-vsync", "0",
-      webpPath
+      tmpOut
     ])
 
     ffmpeg.on("close", (code) => {
-      if (code !== 0) return reject(new Error("Error en ffmpeg"))
-      resolve()
+      if (code !== 0) reject(new Error("Error en ffmpeg"))
+      else resolve()
     })
   })
 
-  // Enviar el sticker
-  await conn.sendMessage(m.chat, {
-    sticker: { url: webpPath },
-    mimetype: "image/webp"
-  }, { quoted: m })
-
-  // Borrar archivos temporales
-  fs.unlinkSync(imgPath)
-  fs.unlinkSync(webpPath)
+  let webp = fs.readFileSync(tmpOut)
+  fs.unlinkSync(tmpIn)
+  fs.unlinkSync(tmpOut)
+  return webp
 }
 
-handler.help = ["aisticker <texto>"]
-handler.tags = ["sticker"]
-handler.command = ["aisticker"]
+let handler = async (m, { conn, args }) => {
+  const prompt = args.join(" ")
+  if (!prompt) return m.reply("⚠️ Escribe un texto para generar el sticker.")
 
+  try {
+    const api = `https://myapiadonix.vercel.app/api/IAimagen?prompt=${encodeURIComponent(prompt)}`
+    const res = await fetch(api)
+    if (!res.ok) throw new Error(`Error HTTP ${res.status}`)
+
+    const buffer = await res.buffer()
+    const webp = await toWebp(buffer)
+
+    await conn.sendMessage(m.chat, { sticker: webp }, { quoted: m })
+
+  } catch (e) {
+    console.error("Error generando sticker:", e)
+    m.reply("❌ No se pudo generar el sticker, intenta más tarde.")
+  }
+}
+
+handler.command = ["aisticker", "aistiker", "stickerai", "sai"]
+handler.tags = ["sticker"]
+handler.limit = true
 
 export default handler
