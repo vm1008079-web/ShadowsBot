@@ -22,24 +22,21 @@ let handler = async (m, { conn, command, me }) => {
     muteadosPorSubbot[subbotId] = muteadosPorSubbot[subbotId] || {}
     muteadosPorSubbot[subbotId][m.chat] = muteadosPorSubbot[subbotId][m.chat] || {}
 
-    if (command.toLowerCase() === 'mute') {
-        if (!m.quoted) return m.reply('Responde al mensaje de la persona que quieres mutear.')
-        const usuario = m.quoted.sender
+    if (!m.quoted) return m.reply('Responde al mensaje de la persona que quieres mutear o desmutear.')
 
+    const usuario = m.quoted.sender
+    const nombre = await conn.getName(usuario)
+
+    if (command.toLowerCase() === 'mute') {
         // Validar que no mutee admins
         const targetIsAdmin = await isAdminOrOwner(m, conn, usuario)
         if (targetIsAdmin) return m.reply('❌ No puedes mutear a un admin.')
 
-        const nombre = await conn.getName(usuario)
         muteadosPorSubbot[subbotId][m.chat][usuario.split('@')[0]] = true
         m.reply(`🔇 ${nombre} ha sido muteado correctamente en este subbot.`)
     }
 
     if (command.toLowerCase() === 'unmute') {
-        if (!m.quoted) return m.reply('Responde al mensaje de la persona que quieres desmutear.')
-        const usuario = m.quoted.sender
-        const nombre = await conn.getName(usuario)
-
         if (muteadosPorSubbot[subbotId][m.chat][usuario.split('@')[0]]) {
             delete muteadosPorSubbot[subbotId][m.chat][usuario.split('@')[0]]
             m.reply(`🔊 ${nombre} ha sido desmuteado correctamente en este subbot.`)
