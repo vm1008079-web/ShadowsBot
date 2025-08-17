@@ -8,87 +8,39 @@
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
-  conn.apk = conn.apk || {}
-
   if (!text) {
     return conn.sendMessage(m.chat, {
       text: `⚡ Ingresa el nombre de la aplicación que quieres buscar.\n\n📌 Ejemplo:\n${usedPrefix + command} Facebook Lite`
     }, { quoted: m })
   }
 
-  if (!isNaN(text) && m.sender in conn.apk) {
-    const idx = parseInt(text) - 1
-    let dt = conn.apk[m.sender]
-
-    if (dt.download) {
-      return conn.sendMessage(m.chat, { text: "⏳ Ya estás descargando un archivo, espera a que termine para continuar." }, { quoted: m })
-    }
-
-    if (!dt.data[idx]) {
-      return conn.sendMessage(m.chat, { text: "❌ El número que ingresaste no es válido. Por favor, selecciona uno de la lista." }, { quoted: m })
-    }
-
-    try {
-      dt.download = true
-      let data = await aptoide.download(dt.data[idx].id)
-      let dl = await conn.getFile(data.link)
-
-      await conn.sendMessage(m.chat, {
-        document: dl.data,
-        fileName: `${data.appname}.apk`,
-        mimetype: 'application/vnd.android.package-archive',
-        caption: `✅ *APK Descargado*\n\n📱 *Nombre:* ${data.appname}\n👨‍💻 *Desarrollador:* ${data.developer}\n📦 *Versión:* ${dt.data[idx].version}\n📊 *Tamaño:* ${(dt.data[idx].size / (1024 * 1024)).toFixed(2)} MB`
-      }, { quoted: m })
-
-    } catch (e) {
-      console.error(e)
-      conn.sendMessage(m.chat, { text: "❌ Ocurrió un error al descargar el APK. Intenta de nuevo más tarde." }, { quoted: m })
-    } finally {
-      dt.download = false
-      if (dt.time) clearTimeout(dt.time)
-      delete conn.apk[m.sender]
-    }
-    return
-  }
-
   try {
+    // reacción al iniciar búsqueda
+    await conn.sendMessage(m.chat, { react: { text: "🔍", key: m.key } })
+
     let results = await aptoide.search(text)
     if (!results.length) {
       return conn.sendMessage(m.chat, { text: "⚠️ No se encontraron resultados para tu búsqueda. Intenta con un nombre diferente." }, { quoted: m })
     }
 
-    conn.apk[m.sender] = {
-      data: results,
-      download: false,
-      time: setTimeout(() => delete conn.apk[m.sender], 10 * 60 * 1000)
-    }
-
-    const top5 = results.slice(0, 5)
-    const buttons = top5.map((v, i) => ({
-      buttonId: `${usedPrefix + command} ${i + 1}`,
-      buttonText: { displayText: `${i + 1}. ${v.name}` },
-      type: 1
-    }))
-
-    let msg = `🦞 Resultados para: *${text}*\n\nSelecciona una aplicación para descargar:\n\n`
-
-    top5.forEach((app, i) => {
-      msg += `*${i + 1}.* ${app.name}\n`
-      msg += `   ╰— Versión: ${app.version}\n`
-      msg += `   ╰— Tamaño: ${(app.size / (1024 * 1024)).toFixed(2)} MB\n\n`
-    })
-
-    msg += `📦 Mostrando las ${top5.length} mejores de ${results.length} resultados.`
+    let app = results[0]
+    let data = await aptoide.download(app.id)
+    let dl = await conn.getFile(data.link)
 
     await conn.sendMessage(m.chat, {
-      text: msg,
-      footer: 'Toca un botón para descargar el APK.',
-      buttons,
-      headerType: 1
+      document: dl.data,
+      fileName: `${data.appname}.apk`,
+      mimetype: 'application/vnd.android.package-archive',
+      caption: `✅ *APK Descargado*\n\n📱 *Nombre:* ${data.appname}\n👨‍💻 *Desarrollador:* ${data.developer}\n📦 *Versión:* ${app.version}\n📊 *Tamaño:* ${(app.size / (1024 * 1024)).toFixed(2)} MB`
     }, { quoted: m })
+
+    // reacción al terminar
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
+
   } catch (e) {
     console.error(e)
-    conn.sendMessage(m.chat, { text: "❌ Ocurrió un error al buscar las aplicaciones. Intenta de nuevo más tarde." }, { quoted: m })
+    conn.sendMessage(m.chat, { text: "❌ Ocurrió un error al descargar el APK. Intenta de nuevo más tarde." }, { quoted: m })
+    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } })
   }
 }
 
@@ -101,7 +53,7 @@ export default handler
 
 const aptoide = {
   search: async function (query) {
-    let res = await fetch(`https://ws75.aptoide.com/api/7/apps/search?query=${encodeURIComponent(query)}&limit=100`)
+    let res = await fetch(`https://ws75.aptoide.com/api/7/apps/search?query=${encodeURIComponent(query)}&limit=1`)
     res = await res.json()
     if (!res.datalist?.list?.length) return []
 
