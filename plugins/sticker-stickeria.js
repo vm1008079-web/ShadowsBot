@@ -4,7 +4,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import fs from "fs"
 
-// Convierte buffer a sticker WebP con ffmpeg
+
 async function toWebp(buffer) {
   let tmpIn = join(tmpdir(), `input_${Date.now()}.png`)
   let tmpOut = join(tmpdir(), `output_${Date.now()}.webp`)
