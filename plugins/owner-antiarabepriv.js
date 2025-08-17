@@ -2,7 +2,7 @@
 const ownerNumber = "50493732693@s.whatsapp.net" // tu número como owner
 const arabicPrefixes = ['212', '20', '971', '965', '966', '974', '973', '962']
 
-const handler = async (m, { conn, command, args }) => {
+const handler = async (m, { conn, args }) => {
   if (!global.db.data.settings) global.db.data.settings = {}
   const settings = global.db.data.settings
 
@@ -19,28 +19,33 @@ const handler = async (m, { conn, command, args }) => {
 
 handler.command = ['antiarabepriv']
 handler.owner = true
+handler.group = false
+handler.private = false
 handler.tags = ['owner']
 handler.help = ['antiarabepriv on', 'antiarabepriv off']
 
-
+// Antes de procesar cualquier mensaje privado
 handler.before = async (m, { conn }) => {
   if (m.isGroup) return
   if (!global.db.data.settings) global.db.data.settings = {}
   const settings = global.db.data.settings
 
   if (settings.antiarabepriv) {
-    const number = m.sender.split('@')[0].replace(/\D/g, '')
+    // En privados el JID del que escribe es m.chat
+    const jid = m.chat
+    const number = jid.split('@')[0]
     const isArab = arabicPrefixes.some(prefix => number.startsWith(prefix))
 
     if (isArab) {
       try {
-        // opcional: manda aviso antes de bloquear
+        // mensaje antes de bloquear (opcional)
         await conn.sendMessage(m.chat, { text: "❌ No aceptamos números árabes en privado." })
-        await conn.updateBlockStatus(m.sender, 'block')
-        console.log(`Bloqueado número árabe: ${m.sender}`)
+        await conn.updateBlockStatus(jid, 'block')
+        console.log(`Bloqueado número árabe en privado: ${jid}`)
       } catch (e) {
         console.log('Error al bloquear:', e)
       }
+      return true
     }
   }
 }
