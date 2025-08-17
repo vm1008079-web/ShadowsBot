@@ -307,17 +307,15 @@ async function handleLogin() {
   }
 
   let loginMethod = await question(
-    chalk.green(
-      `\n🔱 Holas \n` +
-      `❇️ Escribe "code" para iniciar...\n` +
-      `> `
+    chalk.grey(
+      `🫟 𝖯𝗈𝗋 𝖿𝖺𝗏𝗈𝗋 𝖾𝗌𝖼𝗋𝗂𝖻𝖾 "𝖼𝗈𝖽𝖾" 𝗉𝖺𝗋𝖺 𝖼𝗈𝗇𝗍𝗂𝗇𝗎𝖺𝗋 :𝖣`
     )
   );
 
   loginMethod = loginMethod.toLowerCase().trim();
 
   if (loginMethod === 'code') {
-    let phoneNumber = await question(chalk.red('🔥 Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
+    let phoneNumber = await question(chalk.yellow('🌤️ Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
     phoneNumber = phoneNumber.replace(/\D/g, '');
 
     if (phoneNumber.startsWith('52') && phoneNumber.length === 12) {
