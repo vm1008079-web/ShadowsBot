@@ -18,8 +18,8 @@ import { spawn } from 'child_process';
 import { createRequire } from 'module';
 
 // --- INICIO DE CAMBIOS: Importaciones optimizadas y Baileys ---
-const { default: makeWASocket, proto, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion, Browsers, makeCacheableSignalKeyStore, jidNormalizedUser } = await import('@whiskeysockets/baileys');
-import { serialize, protoType } from './lib/simple.js';
+const { default: baileys, proto, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion, Browsers, makeCacheableSignalKeyStore, jidNormalizedUser } = await import('@whiskeysockets/baileys');
+import { makeWASocket, serialize, protoType } from './lib/simple.js';
 // --- FIN DE CAMBIOS ---
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
