@@ -54,8 +54,9 @@ let handler = async (m, { conn, args }) => {
   }
 }
 
-handler.command = ["aisticker", "aistiker", "stickerai", "sai"]
+handler.command = ["aisticker", "aistiker", "stickerai"]
 handler.tags = ["sticker"]
-handler.limit = true
+handler.help = ["aisticker"]
+
 
 export default handler
