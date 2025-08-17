@@ -1,79 +1,46 @@
-import fetch from 'node-fetch'
+// plugin mute.js
+let mutes = {}; // usuarios muteados por chat
 
-// Comando: mute / unmute
-let handler = async (m, { conn, command }) => {
-  if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
+let handler = async (m, { conn, args, usedPrefix, command }) => {
+    const chatId = m.key.remoteJid;
+    const metadata = m.isGroup ? await conn.groupMetadata(chatId) : null;
+    const isAdmin = m.isGroup ? metadata.participants.find(u => u.id === m.sender)?.admin : true;
+    if (!isAdmin) return m.reply('❌ Solo los admins pueden usar este comando');
 
-  const groupMetadata = await conn.groupMetadata(m.chat)
-  const senderData = groupMetadata.participants.find(p => p.id === m.sender)
-  const senderIsAdmin = senderData?.admin || m.fromMe
-  if (!senderIsAdmin) return m.reply('❌ Solo admins pueden usar este comando.')
+    const target = m.quoted ? m.quoted.sender : args[0];
+    if (!target) return m.reply(`⚠️ Uso: ${usedPrefix + command} @usuario o respondiendo a su mensaje`);
 
-  let target = m.quoted?.sender || (m.mentionedJid && m.mentionedJid[0])
-  if (!target) return m.reply('🍬 Menciona a la persona que deseas mutar/desmutar.')
-
-  const groupOwner = groupMetadata.owner || m.chat.split('-')[0] + '@s.whatsapp.net'
-  if (target === groupOwner) return m.reply('❌ No puedes mutear al creador del grupo.')
-  if (target === conn.user.jid) return m.reply('❌ No puedes mutear al bot.')
-
-  const targetData = groupMetadata.participants.find(p => p.id === target)
-  if (targetData?.admin) return m.reply('❌ No puedes mutear a un admin.')
-
-  if (!global.db.data.users[target]) global.db.data.users[target] = {}
-  const userDb = global.db.data.users[target]
-
-  if (command === 'mute') {
-    if (userDb.muto) return m.reply('🍭 Este usuario ya ha sido mutado.')
-    userDb.muto = true
-
-    const msgInfo = {
-      key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'Halo' },
-      message: {
-        locationMessage: {
-          name: '𝗨𝘀𝘂𝗮𝗿𝗶𝗼 𝗺𝘂𝘁𝗮𝗱𝗼',
-          jpegThumbnail: await (await fetch('https://telegra.ph/file/f8324d9798fa2ed2317bc.png')).buffer(),
-        }
-      },
-      participant: '0@s.whatsapp.net'
+    if (command === 'mute') {
+        if (!mutes[chatId]) mutes[chatId] = [];
+        if (mutes[chatId].includes(target)) return m.reply('⚠️ Este usuario ya está muteado');
+        mutes[chatId].push(target);
+        return m.reply(`✅ Usuario muteado: @${target.split('@')[0]}`);
     }
-    await conn.reply(m.chat, '🔇 Tus mensajes serán eliminados', msgInfo, null, { mentions: [target] })
-  } else if (command === 'unmute') {
-    if (!userDb.muto) return m.reply('🍭 Este usuario no ha sido mutado.')
-    userDb.muto = false
 
-    const msgInfo = {
-      key: { participants: '0@s.whatsapp.net', fromMe: false, id: 'Halo' },
-      message: {
-        locationMessage: {
-          name: '𝗨𝘀𝘂𝗮𝗿𝗶𝗼 𝗱𝗲𝗺𝘂𝘁𝗮𝗱𝗼',
-          jpegThumbnail: await (await fetch('https://telegra.ph/file/aea704d0b242b8c41bf15.png')).buffer(),
-        }
-      },
-      participant: '0@s.whatsapp.net'
+    if (command === 'unmute') {
+        if (!mutes[chatId] || !mutes[chatId].includes(target)) return m.reply('⚠️ Este usuario no está muteado');
+        mutes[chatId] = mutes[chatId].filter(u => u !== target);
+        return m.reply(`✅ Usuario desmuteado: @${target.split('@')[0]}`);
     }
-    await conn.reply(m.chat, '🔊 Tus mensajes no serán eliminados', msgInfo, null, { mentions: [target] })
-  }
+};
+
+handler.command = ['mute','unmute'];
+handler.group = true;
+
+export default handler;
+
+// before hook para eliminar mensajes de muteados
+export async function before(m, { conn }) {
+    const chatId = m.key.remoteJid;
+    if (!mutes[chatId]) return true;
+
+    if (mutes[chatId].includes(m.sender)) {
+        try {
+            await conn.deleteMessage(chatId, { id: m.key.id, remoteJid: chatId, fromMe: false });
+        } catch (e) {
+            await conn.sendMessage(chatId, { text: `⚠️ No pude eliminar el mensaje de @${m.sender.split('@')[0]}, puede que falten privilegios` }, { quoted: m });
+        }
+        return false;
+    }
+    return true;
 }
-
-// Middleware global para eliminar mensajes de muteados en todos los bots sin validar admin
-global.conn.ev.on('messages.upsert', async ({ messages }) => {
-  for (const msg of messages) {
-    const chat = msg.key.remoteJid
-    const user = msg.key.participant || msg.key.remoteJid
-
-    if (!global.db.data.users[user]?.muto) continue
-
-    for (const bot of Object.values(global.bots || {})) {
-      try {
-        await bot.sendMessage(chat, { delete: msg.key })
-      } catch (e) {
-        console.log(`⚠️ No se pudo eliminar mensaje de ${user}. Puede que falten privilegios al bot.`, e)
-      }
-    }
-  }
-})
-
-handler.command = ['mute', 'unmute']
-
-
-export default handler
