@@ -5,7 +5,7 @@ import { spawn } from "child_process"
 const handler = async (m, { conn, command, usedPrefix, text }) => {
   if (!text) throw `⚠️ Usa: ${usedPrefix + command} <texto para la imagen>`
 
-  let apiUrl = `https://api.botcahx.eu.org/api/search/openai-image?text=${text}&apikey=${btc}`
+  let apiUrl = `https://api.botcahx.eu.org/api/search/openai-image?text=${text}&apikey=Apikey_Lu_Mas`
   let res = await fetch(apiUrl)
   if (!res.ok) throw "❌ Error al generar la imagen desde la API"
   let buffer = await res.buffer()
