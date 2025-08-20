@@ -6,14 +6,14 @@ import fs from 'fs'
 import path from 'path'
 
 let handler = async (m, { conn, args, command, usedPrefix }) => {
-  if (!args[0]) return m.reply(`✅ Uso correcto: ${usedPrefix + command} <enlace o nombre>`)
+  if (!args[0]) return m.reply(`⚠️ Uso correcto: ${usedPrefix + command} <enlace o nombre>`)
 
   try {
     await m.react('🕓')
 
+    
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
-
     let nombreBot = global.namebot || '⎯⎯⎯⎯⎯⎯ Bot Principal ⎯⎯⎯⎯⎯⎯'
     if (fs.existsSync(configPath)) {
       try {
@@ -22,6 +22,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       } catch {}
     }
 
+   
     let url = args[0]
     let videoInfo = null
 
@@ -38,6 +39,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (videoInfo.seconds > 3780) return m.reply('⛔ El video supera el límite de 63 minutos.')
 
+    // API
     let apiUrl = ''
     let isAudio = false
 
@@ -56,34 +58,45 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let { title, thumbnail, quality, download } = json.data
 
     
-    await conn.sendMessage(m.chat, {
-      text: `> *♻️ Enviando su pedido..*`,
-      contextInfo: {
-        externalAdReply: {
-          title: `${title} | ${quality}`,
-          body: isAudio ? 'Audio en proceso...' : 'Video en proceso...',
-          thumbnailUrl: thumbnail,
-          sourceUrl: url,
-          mediaType: 1,
-          renderLargerThumbnail: true
+    let fkontak = {
+      key: { fromMe: false, participant: "0@s.whatsapp.net", remoteJid: "status@broadcast" },
+      message: {
+        contactMessage: {
+          displayName: nombreBot,
+          vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;Bot;;;\nFN:${nombreBot}\nTEL;type=CELL;type=VOICE;waid=50493732693:+504 93732693\nEND:VCARD`,
+          jpegThumbnail: null
         }
       }
-    }, { quoted: m })
+    }
 
-    
+   
+    let dur = videoInfo.seconds || 0
+    let h = Math.floor(dur / 3600)
+    let m_ = Math.floor((dur % 3600) / 60)
+    let s = dur % 60
+    let duration = [h, m_, s].map(v => v.toString().padStart(2, '0')).join(':')
+
+    // Mensaje decorado
+    let caption = `
+> 🎬 *${title}*
+> ⏱️ Duración: ${duration}
+> 🔊 Calidad: ${quality || (isAudio ? '128kbps' : '720p')}`
+
+    await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
+
     if (isAudio) {
       await conn.sendMessage(m.chat, {
         audio: { url: download },
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
         ptt: true
-      }, { quoted: m })
+      }, { quoted: fkontak })
     } else {
       await conn.sendMessage(m.chat, {
         video: { url: download },
         mimetype: 'video/mp4',
         fileName: `${title}.mp4`
-      }, { quoted: m })
+      }, { quoted: fkontak })
     }
 
     await m.react('✅')
