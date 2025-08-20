@@ -77,14 +77,10 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     let duration = [h, m_, s].map(v => v.toString().padStart(2, '0')).join(':')
 
     // Mensaje decorado con miniatura
-    let caption = `🍃 *Pedido Listo* 🍿
-
+    let caption = `
 > 🎬 *${title}*
 > ⏱️ Duración: ${duration}
-> 🔊 Calidad: ${quality || (isAudio ? '128kbps' : '720p')}
-
-🥞 *Enviando desde:* ${nombreBot}
-> 🥞 *Bot en constante evolución.*`
+> 🔊 Calidad: ${quality || (isAudio ? '128kbps' : '720p')}`
 
     await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
