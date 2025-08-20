@@ -1,38 +1,28 @@
-let handler = async (m, { conn, text }) => {
-  if (!text || !text.endsWith('@g.us')) {
-    return m.reply('Debes escribir el ID del grupo, ejemplo:\n.delprimary 120363xxxxx@g.us')
+let handler = async (m, { conn }) => {
+  if (!m.isGroup) return m.reply('❌ Este comando solo funciona en grupos.')
+
+  const groupId = m.chat
+  const metadata = await conn.groupMetadata(groupId)
+  const participants = metadata.participants
+  const userInGroup = participants.find(p => p.id === m.sender)
+
+  if (!userInGroup) return m.reply('No estás en este grupo.')
+
+  // validar admin
+  if (!userInGroup.admin && userInGroup.role !== 'admin' && userInGroup.role !== 'superadmin') {
+    return m.reply('❌ No sos admin, no podés asignar bot primario.')
   }
 
-  const groupId = text.trim()
+  if (!global.db.data.chats[groupId]) global.db.data.chats[groupId] = {}
 
-  // Verifica si el bot está en ese grupo
-  try {
-    const participants = await conn.groupMetadata(groupId).then(res => res.participants)
-    const userInGroup = participants.find(p => p.id === m.sender)
+  global.db.data.chats[groupId].primaryBot = conn.user.jid
+  global.db.data.chats[groupId].allBots = false
 
-    if (!userInGroup) return m.reply('No estás en ese grupo, no podés modificarlo.')
-
-    if (!userInGroup.admin && userInGroup.role !== 'admin' && userInGroup.role !== 'superadmin') {
-      return m.reply('No sos admin en ese grupo, no podés borrar el bot principal.')
-    }
-
-    if (!global.db.data.chats[groupId]) global.db.data.chats[groupId] = {}
-
-    if (!global.db.data.chats[groupId].primaryBot) {
-      return m.reply('Ese grupo no tiene un bot principal asignado.')
-    }
-
-    delete global.db.data.chats[groupId].primaryBot
-
-    m.reply(`✅ Se eliminó el bot principal del grupo:\n*${groupId}*`)
-  } catch (e) {
-    console.error(e)
-    m.reply('No pude acceder a ese grupo. Asegúrate de que el bot esté dentro del grupo y el ID sea correcto.')
-  }
+  m.reply(`✅ Este bot ahora es el *Bot Primario* en el grupo:\n*${metadata.subject}*`)
 }
 
-handler.help = ['delprimary <IDgrupoxxxx@g.us>']
+handler.help = ['setprimary']
 handler.tags = ['serbot']
-handler.command = ['delprimary']
+handler.command = ['setprimary']
 
 export default handler
