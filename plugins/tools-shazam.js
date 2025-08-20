@@ -21,8 +21,8 @@ let handler = async (m, { conn, usedPrefix, command }) => {
      conn.reply(m.chat, txt, m)
   } else return conn.reply(m.chat, `Etiqueta un audio o video de poca duración con el comando *${usedPrefix + command}* para ver que música contiene.`, m)
 }
-handler.help = ['whatmusic <audio/video>']
+handler.help = ['whatmusic2']
 handler.tags = ['tools']
-handler.command = ['shazam', 'whatmusic']
+handler.command = ['shazam', 'whatmusic2']
 handler.register = false
 export default handler
