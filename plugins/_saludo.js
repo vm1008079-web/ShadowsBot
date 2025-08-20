@@ -1,5 +1,7 @@
-// >>⟩ Editado por Ado 
-// >>⟩ Creador original GianPoolS
+// >>⟩ Editado por Ado < github.com/Ado-rgb
+// >>⟩ Creador original GianPoolS < github.com/GianPoolS >
+
+// ^°^ No quites créditos...
 import fetch from 'node-fetch'
 
 const handler = async (m, { conn }) => {
