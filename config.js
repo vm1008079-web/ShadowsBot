@@ -9,9 +9,9 @@ global.owner = [
 global.mods = []
 global.prems = []
 
-global.namebot = 🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂'
+global.namebot = '🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂'
 global.packname = '𝖬𝗂𝖼𝗁𝗂 ° 𝖶𝖺 🧃'
-global.author = 🍿 𝖬𝖺𝖽𝖾 𝖻𝗒 𝖠𝖽𝗈'
+global.author = '🍿 𝖬𝖺𝖽𝖾 𝖻𝗒 𝖠𝖽𝗈'
 global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀'
 
 global.libreria = 'Baileys'
