@@ -8,10 +8,19 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
     texto = args.slice(0).join(" ")
   } else if (m.quoted && m.quoted.text) {
     texto = m.quoted.text
-  } else throw `🌸 *Uso correcto:*\n\n> ${usedPrefix + command} <texto o responde a un mensaje>\n\nEjemplo:\n> ${usedPrefix + command} Me encanta programar 💻`
+  } else {
+    return conn.sendMessage(m.chat, {
+      text: `🌸 *Uso correcto:*\n\n> ${usedPrefix + command} <texto o responde a un mensaje>\n\nEjemplo:\n> ${usedPrefix + command} Me encanta programar 💻`,
+      ...fkontak()
+    })
+  }
 
   let quote = await crearFrase(m.name, texto)
-  await conn.sendFile(m.chat, quote, '', `🍂 *Cita generada* 🍂\n\n👤 *Autor:* ${m.name}\n\n📌 *Solicitado por:* ${m.name}`, m)
+  await conn.sendMessage(m.chat, {
+    image: { url: quote },
+    caption: `🍂 *Cita generada* 🍂\n\n👤 *Autor:* ${m.name}\n📌 *Solicitado por:* ${m.name}`,
+    ...fkontak()
+  })
 }
 
 handler.tags = ["tools"]
@@ -22,9 +31,7 @@ export default handler
 
 async function crearFrase(autor, mensaje) {
   const host = "https://quozio.com/"
-  let path = ""
-
-  path = "api/v1/quotes"
+  let path = "api/v1/quotes"
   const body = JSON.stringify({
     author: autor,
     quote: mensaje,
@@ -48,4 +55,21 @@ async function crearFrase(autor, mensaje) {
   const imageUrl = await fetch(host + path).then(res => res.json()).then(val => val["medium"])
 
   return imageUrl
+}
+
+// fkontak tipo contacto
+function fkontak() {
+  let nombreBot = "QUOZIO FUN 🧃"
+  return {
+    quoted: {
+      key: { fromMe: false, participant: "0@s.whatsapp.net", remoteJid: "status@broadcast" },
+      message: {
+        contactMessage: {
+          displayName: nombreBot,
+          vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;Bot;;;\nFN:${nombreBot}\nTEL;type=CELL;type=VOICE;waid=50493732693:+504 93732693\nEND:VCARD`,
+          jpegThumbnail: null
+        }
+      }
+    }
+  }
 }
