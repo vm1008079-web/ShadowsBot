@@ -12,7 +12,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   try {
     await m.react('🕓')
 
-    // Nombre del bot dinámico
+    
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
     let nombreBot = global.namebot || '⎯⎯⎯⎯⎯⎯ Bot Principal ⎯⎯⎯⎯⎯⎯'
@@ -23,7 +23,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       } catch {}
     }
 
-    // Buscar video
+    
     let url = args[0]
     let videoInfo = null
 
@@ -40,7 +40,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (videoInfo.seconds > 37890) return m.reply('⛔ El video supera el límite de 63 minutos.')
 
-    // API personalizada
+    
     let apiUrl = ''
     let isAudio = false
 
@@ -58,7 +58,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     let { title, thumbnail, quality, download } = json.data
 
-    // Fkontak dinámico
+    
     let fkontak = {
       key: { fromMe: false, participant: "0@s.whatsapp.net", remoteJid: "status@broadcast" },
       message: {
@@ -70,14 +70,14 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    // Duración en hh:mm:ss
+    
     let dur = videoInfo.seconds || 0
     let h = Math.floor(dur / 3600)
     let m_ = Math.floor((dur % 3600) / 60)
     let s = dur % 60
     let duration = [h, m_, s].map(v => v.toString().padStart(2, '0')).join(':')
 
-    // Mensaje decorado con miniatura
+    
     let caption = `🧃 *${title}*
 ⛅ Duración: *${duration}*`
 
@@ -90,7 +90,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     }, { quoted: fkontak })
 
     if (isAudio) {
-      // Enviar como nota de voz
+      
       await conn.sendMessage(m.chat, {
         audio: { url: download },
         mimetype: 'audio/mpeg',
@@ -98,7 +98,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         ptt: true
       }, { quoted: fkontak })
     } else {
-      // Enviar video como DOCUMENTO
+      
       await conn.sendMessage(m.chat, {
         document: { url: download },
         mimetype: 'video/mp4',
