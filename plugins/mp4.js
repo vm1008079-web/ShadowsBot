@@ -38,7 +38,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       if (search?.title) videoInfo = search
     }
 
-    if (videoInfo.seconds > 3780) return m.reply('⛔ El video supera el límite de 63 minutos.')
+    if (videoInfo.seconds > 37890) return m.reply('⛔ El video supera el límite de 63 minutos.')
 
     // API personalizada
     let apiUrl = ''
