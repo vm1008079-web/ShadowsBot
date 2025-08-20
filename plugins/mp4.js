@@ -47,7 +47,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     if (command == 'play' || command == 'ytmp3') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(url)}`
       isAudio = true
-    } else if (command == 'play2' || command == 'ytmp4') {
+    } else if (command == 'play4' || command == 'ytmp4') {
       apiUrl = `https://myapiadonix.vercel.app/api/ytmp4?url=${encodeURIComponent(url)}`
     } else return m.reply('❌ Comando no reconocido.')
 
