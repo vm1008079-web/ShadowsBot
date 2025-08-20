@@ -11,7 +11,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   try {
     await m.react('🕓')
 
-    
+    // Nombre del bot dinámico
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = path.join('./JadiBots', botActual, 'config.json')
     let nombreBot = global.namebot || '⎯⎯⎯⎯⎯⎯ Bot Principal ⎯⎯⎯⎯⎯⎯'
@@ -22,7 +22,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       } catch {}
     }
 
-   
+    // Buscar video
     let url = args[0]
     let videoInfo = null
 
@@ -57,7 +57,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     let { title, thumbnail, quality, download } = json.data
 
-    
+    // Fkontak dinámico
     let fkontak = {
       key: { fromMe: false, participant: "0@s.whatsapp.net", remoteJid: "status@broadcast" },
       message: {
@@ -69,20 +69,30 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-   
+    // Duración en hh:mm:ss
     let dur = videoInfo.seconds || 0
     let h = Math.floor(dur / 3600)
     let m_ = Math.floor((dur % 3600) / 60)
     let s = dur % 60
     let duration = [h, m_, s].map(v => v.toString().padStart(2, '0')).join(':')
 
-    // Mensaje decorado
-    let caption = `
+    // Mensaje decorado con miniatura
+    let caption = `🍃 *Pedido Listo* 🍿
+
 > 🎬 *${title}*
 > ⏱️ Duración: ${duration}
-> 🔊 Calidad: ${quality || (isAudio ? '128kbps' : '720p')}`
+> 🔊 Calidad: ${quality || (isAudio ? '128kbps' : '720p')}
 
-    await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
+🥞 *Enviando desde:* ${nombreBot}
+> 🥞 *Bot en constante evolución.*`
+
+    await conn.sendMessage(m.chat, {
+      image: { url: thumbnail },
+      caption,
+      contextInfo: {
+        mentionedJid: [m.sender]
+      }
+    }, { quoted: fkontak })
 
     if (isAudio) {
       await conn.sendMessage(m.chat, {
