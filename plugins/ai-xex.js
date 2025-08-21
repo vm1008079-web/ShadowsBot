@@ -8,16 +8,19 @@ const yt = {
     get randomCookie() {
         const length = 26
         const charset = '0123456789abcdefghijklmnopqrstuvwxyz'
-        return Array.from({ length }, () => charset[Math.floor(Math.random() * charset.length)]).join("")
+        const charsetArray = charset.split("")
+        const pickRandom = (array) => array[Math.floor(Math.random() * array.length)]
+        return Array.from({ length }, () => pickRandom(charsetArray)).join("")
     },
 
     formatHandling(userFormat) {
         const validFormat = ['audio', 'best_video', '144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p']
-        if (!validFormat.includes(userFormat)) throw Error(`Formato inválido! Usa: ${validFormat.join(', ')}`)
+        if (!validFormat.includes(userFormat)) throw Error(`Formato inválido!. Usa: ${validFormat.join(', ')}`)
         let isVideo = false, quality = null
         if (userFormat != 'audio') {
             isVideo = true
-            quality = userFormat == 'best_video' ? '10000' : userFormat.match(/\d+/)[0]
+            if (userFormat == 'best_video') quality = '10000'
+            else quality = userFormat.match(/\d+/)[0]
         }
         return { isVideo, quality }
     },
@@ -35,46 +38,42 @@ const yt = {
         }
 
         const hit = async (method, path, body, returnType = 'text') => {
-            const url = `${this.url.origin}${path}`
-            const opts = { method, body, headers }
-            const r = await fetch(url, opts)
-            if (!r.ok) throw Error(`${r.status} ${r.statusText}\n${await r.text()}`)
-            return returnType == "json" ? await r.json() : await r.text()
+            try {
+                const url = `${this.url.origin}${path}`
+                const opts = { method, body, headers }
+                const r = await fetch(url, opts)
+                if (!r.ok) throw Error(`${r.status} ${r.statusText}\n${await r.text()}`)
+                return returnType == "json" ? await r.json() : await r.text()
+            } catch (e) {
+                throw Error(`Error en request ${path}: ${e.message}`)
+            }
         }
 
-        // 1ra request (para obtener payload inicial)
+        // first hit
         const html = await hit('get', `${pathButton}?url=${youtubeUrl}`)
-        let match = html.match(/data: (.+?)\n\s*success/ms)
-        if (!match) throw Error(`No se pudo obtener payload inicial. Quizá el video no está soportado.`)
-
-        let m1 = match[1].replace('},', '}').trim()
+        let m1 = html.match(/data: (.+?)\n\t\t\t\tsuccess/ms)?.[1].replace('},', '}').trim()
+        if (!m1) throw Error(`No se pudo extraer payload inicial. El video no está soportado.`)
         if (f.isVideo) m1 = m1.replace(`$('#height').val()`, f.quality)
+        const payload = eval("(" + m1 + ")")
 
-        let payload
-        try {
-            payload = eval("(" + m1 + ")")
-        } catch (e) {
-            throw Error(`Error al parsear payload inicial: ${e.message}`)
-        }
-
-        // 2da request (para iniciar conversión)
+        // second hit
         headers.referer = `${this.url.origin}${pathButton}?url=${youtubeUrl}`
         headers.origin = this.url.origin
         headers["x-requested-with"] = "XMLHttpRequest"
         const j2 = await hit('post', pathConvert, new URLSearchParams(payload), 'json')
 
-        // Chequeo de progreso
+        // progress checking
         let j3, fetchCount = 0
         const MAX_FETCH_ATTEMPT = 60
         do {
             fetchCount++
             j3 = await hit('get', `${pathConvert}?jobid=${j2.jobid}&time=${Date.now()}`, null, 'json')
             if (j3.dlurl) return j3
-            if (j3.error) throw Error(`Error en conversión:\n${JSON.stringify(j3, null, 2)}`)
+            if (j3.error) throw Error(`El video no se pudo convertir.\n${JSON.stringify(j3, null, 2)}`)
             await new Promise(re => setTimeout(re, 3000))
         } while (fetchCount < MAX_FETCH_ATTEMPT)
 
-        throw Error(`Tiempo de espera alcanzado sin obtener link de descarga`)
+        throw Error(`Se alcanzó el tiempo máximo sin obtener link de descarga.`)
     }
 }
 
