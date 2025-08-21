@@ -1,4 +1,4 @@
-import axios from 'axios'
+/*import axios from 'axios'
 import * as cheerio from 'cheerio'
 
 function shuffle(arr) {
@@ -90,4 +90,4 @@ END:VCARD`
 handler.help = ['mediafiresearch']
 handler.tags = ['search']
 handler.command = ['mediafiresearch']
-export default handler
+export default handler/*
