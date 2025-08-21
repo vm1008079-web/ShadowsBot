@@ -14,13 +14,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         const mediaUrls = result.url;
         const metadata = result.metadata;
 
-        const caption = `I N S T A G R A M DL 🧃`.trim();
+        const caption = `*I N S T A G R A M - DL* 🧃`.trim();
 
         for (const mediaUrl of mediaUrls) {
             await conn.sendFile(m.chat, mediaUrl, "", caption, m);
         }
     } catch (error) {
-        m.reply("An error occurred. Please try again later.");
+        m.reply("Ocurrio un error.");
     }
 };
 
