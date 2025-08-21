@@ -3,10 +3,10 @@ import cheerio from "cheerio";
 import qs from "qs";
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
-    if (!text) return m.reply(`• *Example*: ${usedPrefix + command} *[Instagram URL]*`);
-    if (!text.includes('instagram.com')) return m.reply(`• *Example*: ${usedPrefix + command} *[Instagram URL]*`);
+    if (!text) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[Instagram URL]*`);
+    if (!text.includes('instagram.com')) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[Instagram URL]*`);
 
-    m.reply("Please wait...");
+    m.reply("Aguarda un momento...");
     try {
         const result = await Instagram(text);
         if (!result.url || result.url.length === 0) return m.reply("*No media found.*");
