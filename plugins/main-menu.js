@@ -56,7 +56,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         limit: p.limit,
         premium: p.premium,
       }))
-    
+
     let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = './storage/img/menu.jpg'
@@ -117,9 +117,22 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const isURL = /^https?:\/\//i.test(bannerFinal)
     const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
+    // Creamos PDF falso
+    const fakePDF = Buffer.from('%PDF-1.4\n%Fake PDF\n', 'utf-8')
+
     await conn.sendMessage(
       m.chat,
-      { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos..', headerType: 4, mentionedJid: conn.parseMention(text) },
+      {
+        ...imageContent,
+        caption: text.trim(),
+        footer: '🦖 Menu de comandos..',
+        headerType: 4,
+        mentionedJid: conn.parseMention(text),
+        // Adjuntamos PDF
+        document: fakePDF,
+        mimetype: 'application/pdf',
+        fileName: 'Menu de comandos.pdf'
+      },
       { quoted: fkontak }
     )
 
