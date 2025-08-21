@@ -59,7 +59,7 @@ async function mfsearch(query) {
 let handler = async (m, { conn, text, usedPrefix }) => {
   if (!text) return m.reply(`🍁 *Usa el comando así:* ${usedPrefix}mediafiresearch <nombre del archivo>`)
 
-  await m.reply('> 🧃 Buscando archivos en *Mediafire*...', fkontak)
+  await m.reply('> 🧃 Buscando archivos en *Mediafire*...')
 
   try {
     const results = await mfsearch(text)
