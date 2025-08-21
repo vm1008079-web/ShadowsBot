@@ -111,8 +111,8 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 }
 
-handler.help = ['play', 'ytmp3', 'play2', 'ytmp4']
+handler.help = ['play', 'ytmp3', 'play2']
 handler.tags = ['downloader']
-handler.command = ['play', 'play2', 'ytmp3', 'ytmp4']
+handler.command = ['play', 'play2', 'ytmp3']
 
 export default handler
