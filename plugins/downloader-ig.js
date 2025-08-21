@@ -6,7 +6,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!text) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[URL de Instagram]*`);
     if (!text.includes('instagram.com')) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[URL de Instagram]*`);
 
-    m.reply("Espera un momento...");
+    m.reply("Aguarda un momento...");
     try {
         const resultado = await Instagram(text);
         if (!resultado.url || resultado.url.length === 0) return m.reply("*No se encontró ningún archivo multimedia.*");
