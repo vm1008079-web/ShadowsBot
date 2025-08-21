@@ -21,21 +21,20 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     try {
         let q = m.quoted
         let mime = (q.msg || q).mimetype || ''
-        let content = await q.download?.()
-
+        let content = q.download ? await q.download() : null
         let firma = "🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂\n\n"
 
         if (q.text) {
             await conn.sendMessage(groupId, { text: firma + q.text })
-        } else if (/image/.test(mime)) {
+        } else if (/image/.test(mime) && content) {
             await conn.sendMessage(groupId, { image: content, caption: firma + (q.caption || '') })
-        } else if (/video/.test(mime)) {
+        } else if (/video/.test(mime) && content) {
             await conn.sendMessage(groupId, { video: content, caption: firma + (q.caption || '') })
-        } else if (/audio/.test(mime)) {
+        } else if (/audio/.test(mime) && content) {
             await conn.sendMessage(groupId, { audio: content, mimetype: mime, ptt: true })
-        } else if (/sticker/.test(mime)) {
+        } else if (/sticker/.test(mime) && content) {
             await conn.sendMessage(groupId, { sticker: content })
-        } else if (/document/.test(mime)) {
+        } else if (/document/.test(mime) && content) {
             await conn.sendMessage(groupId, { document: content, mimetype: mime, fileName: q.msg?.fileName || 'file' })
         } else {
             return m.reply('⚠️ Tipo de mensaje no soportado todavía.')
