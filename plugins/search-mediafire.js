@@ -1,4 +1,4 @@
-/*import axios from 'axios'
+import axios from 'axios'
 import cheerio from 'cheerio'
 
 // 🌀 Función para mezclar resultados
@@ -99,4 +99,3 @@ handler.tags = ['search']
 handler.command = ['mediafiresearch']
 handler.register = false
 export default handler
-*/
