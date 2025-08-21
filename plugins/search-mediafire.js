@@ -1,16 +1,14 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 
-// 🌀 Función para mezclar resultados
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    [arr[i], arr[j]] = [arr[j], arr[i]]
   }
   return arr
 }
 
-// 🔰 Buscar archivos en MediaFireTrend
 async function mfsearch(query) {
   if (!query) throw new Error('🪭 Debes escribir algo para buscar.')
 
@@ -20,7 +18,7 @@ async function mfsearch(query) {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
     })
     html = resp.data
-  } catch (err) {
+  } catch {
     throw new Error('🦖 MediafireTrend no responde (Error 503)')
   }
 
@@ -31,62 +29,69 @@ async function mfsearch(query) {
 
   if (!links.length) throw new Error('🐛 No se encontraron resultados.')
 
-  const result = await Promise.all(links.map(async (link) => {
-    try {
-      const { data } = await axios.get(`https://mediafiretrend.com${link}`, {
-        headers: { 'User-Agent': 'Mozilla/5.0' }
-      })
-      const $ = cheerio.load(data)
-      const raw = $('div.info tbody tr:nth-child(4) td:nth-child(2) script').text()
-      const match = raw.match(/unescape\(['"`]([^'"`]+)['"`]\)/)
-      const decoded = cheerio.load(decodeURIComponent(match?.[1] || ''))
+  const result = await Promise.all(
+    links.map(async (link) => {
+      try {
+        const { data } = await axios.get(`https://mediafiretrend.com${link}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        })
+        const $page = cheerio.load(data)
+        const raw = $page('div.info tbody tr:nth-child(4) td:nth-child(2) script').text()
+        const match = raw.match(/unescape\(['"`]([^'"`]+)['"`]\)/)
+        const decodedUrl = match ? decodeURIComponent(match[1]) : null
 
-      return {
-        filename: $('tr:nth-child(2) td:nth-child(2) b').text().trim(),
-        filesize: $('tr:nth-child(3) td:nth-child(2)').text().trim(),
-        url: decoded('a').attr('href'),
-        source_url: $('tr:nth-child(5) td:nth-child(2)').text().trim(),
-        source_title: $('tr:nth-child(6) td:nth-child(2)').text().trim()
+        return {
+          filename: $page('tr:nth-child(2) td:nth-child(2) b').text().trim() || 'Sin nombre',
+          filesize: $page('tr:nth-child(3) td:nth-child(2)').text().trim() || 'Desconocido',
+          url: decodedUrl || '',
+          source_url: $page('tr:nth-child(5) td:nth-child(2)').text().trim() || '',
+          source_title: $page('tr:nth-child(6) td:nth-child(2)').text().trim() || ''
+        }
+      } catch {
+        return null
       }
-    } catch {
-      return null
-    }
-  }))
+    })
+  )
 
   return result.filter(v => v && v.url)
 }
 
-// 🎋 Handler del comando
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply('🍁 *Usa el comando así:* .mediafiresearch config ff')
+let handler = async (m, { conn, text, usedPrefix }) => {
+  if (!text) return m.reply(`🍁 *Usa el comando así:* ${usedPrefix}mediafiresearch <nombre del archivo>`)
 
-  await m.reply('🦞 Buscando archivos en *Mediafire*...')
+  await m.reply('> 🧃 Buscando archivos en *Mediafire*...', fkontak)
 
   try {
-    let results = await mfsearch(text)
+    const results = await mfsearch(text)
 
     if (!results.length) return m.reply('🐥 No se encontró nada con esa búsqueda.')
 
-    conn.mfsearch = conn.mfsearch || {}
-    conn.mfsearch[m.sender] = {
-      data: results,
-      timeout: setTimeout(() => delete conn.mfsearch[m.sender], 10 * 60 * 1000)
+    const fkontak = {
+      key: { 
+        fromMe: false, 
+        participant: "0@s.whatsapp.net", 
+        remoteJid: "status@broadcast" 
+      },
+      message: {
+        contactMessage: {
+          displayName: "MediaFire Search 🍁",
+          vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;MediaFire Bot;;;
+FN:MediaFire Bot
+TEL;type=CELL;type=VOICE;waid=1234567890:+1234567890
+EMAIL;type=INTERNET:fake@mediafire.com
+END:VCARD`
+        }
+      }
     }
 
-    const top3 = results.slice(0, 3)
-    const buttons = top3.map((v, i) => ({
-      buttonId: `${usedPrefix}mediafire ${v.url}`,
-      buttonText: { displayText: `📦 ${i + 1}. ${v.filename.slice(0, 25)}` },
-      type: 1
-    }))
+    let textResults = `🎋 *Resultados para:* ${text}\n\n🪭 Archivos encontrados en Mediafire:\n\n`
+    results.slice(0, 10).forEach((v, i) => {
+      textResults += `📦 ${i + 1}. ${v.filename}\n💾 Tamaño: ${v.filesize}\n🔗 URL: ${v.url}\n\n`
+    })
 
-    await conn.sendMessage(m.chat, {
-      text: `🎋 *Resultados para:* ${text}\n\n🪭 Archivos encontrados en Mediafire.\n🦁 Elige uno para descargar:`,
-      footer: `🫟 Mostrando los 3 mejores de ${results.length} resultados`,
-      buttons,
-      headerType: 1,
-      ...global.rcanal 
-    }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: textResults, ...fkontak }, { quoted: m })
 
   } catch (e) {
     console.error(e)
