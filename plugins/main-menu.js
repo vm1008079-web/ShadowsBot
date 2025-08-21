@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
+import PDFDocument from 'pdfkit'
 
 const tags = {
   serbot: '🫟 SUBBOTS',
@@ -32,8 +33,8 @@ const defaultMenu = {
 %readmore
 `.trimStart(),
 
-  header: '\n\`%category 🥞\`',
-  body: '\`🧃\` *%cmd* %islimit %isPremium',
+  header: '\n%category 🥞',
+  body: '  • %cmd %islimit %isPremium',
   footer: '',
   after: '\n🍂 Creado por Ado.',
 }
@@ -57,21 +58,6 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         premium: p.premium,
       }))
 
-    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂","jpegThumbnail":Buffer.alloc(0) }}}
-    let nombreBot = global.namebot || 'Bot'
-    
-    // ===== FOTO PERSONALIZADA DEL SUBBOT =====
-    let bannerFinal = './storage/img/menu.jpg' // fallback
-    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
-    const configPath = join('./JadiBots', botActual, 'config.json')
-    if (fs.existsSync(configPath)) {
-      try {
-        const config = JSON.parse(fs.readFileSync(configPath))
-        if (config.name) nombreBot = config.name
-        if (config.banner) bannerFinal = config.banner // siempre la personalizada
-      } catch {}
-    }
-
     const tipo = conn.user.jid === global.conn.user.jid ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅' : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
     const menuConfig = conn.menu || defaultMenu
 
@@ -80,7 +66,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       ...Object.keys(tags).map(tag => {
         const cmds = help
           .filter(menu => menu.tags?.includes(tag))
-          .map(menu => menu.help.map(h => 
+          .map(menu => menu.help.map(h =>
             menuConfig.body
               .replace(/%cmd/g, menu.prefix ? h : `${_p}${h}`)
               .replace(/%islimit/g, menu.limit ? '⭐' : '')
@@ -94,7 +80,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const replace = {
       '%': '%',
       p: _p,
-      botname: nombreBot,
+      botname: global.namebot || 'Bot',
       taguser: '@' + m.sender.split('@')[0],
       exp: exp - min,
       maxexp: xp,
@@ -115,30 +101,50 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       (_, name) => String(replace[name])
     )
 
+    // ===== FOTO PERSONALIZADA DEL SUBBOT =====
+    let bannerFinal = './storage/img/menu.jpg' // fallback
+    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
+    const configPath = join('./JadiBots', botActual, 'config.json')
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath))
+        if (config.banner) bannerFinal = config.banner
+      } catch {}
+    }
     const isURL = /^https?:\/\//i.test(bannerFinal)
     const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
-    // ===== PDF FALSO =====
-    const fakePDF = Buffer.from('%PDF-1.4\n%Fake PDF\n', 'utf-8')
+    // ===== PDF REAL CON COMANDOS =====
+    const doc = new PDFDocument({ margin: 30, size: 'A4' })
+    const buffers = []
+    doc.on('data', buffers.push.bind(buffers))
+    doc.on('end', async () => {
+      const pdfData = Buffer.concat(buffers)
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        ...imageContent,
-        caption: text.trim(),
-        footer: '🦖 Menu de comandos..',
-        headerType: 4,
-        mentionedJid: conn.parseMention(text),
-        document: fakePDF,
-        mimetype: 'application/pdf',
-        fileName: '🥞 Menu de comandos'
-      },
-      { quoted: fkontak }
-    )
+      await conn.sendMessage(
+        m.chat,
+        {
+          ...imageContent,
+          caption: text,
+          footer: '🦖 Menu de comandos..',
+          headerType: 4,
+          mentionedJid: conn.parseMention(text),
+          document: pdfData,
+          mimetype: 'application/pdf',
+          fileName: 'Menu de comandos.pdf'
+        },
+        { quoted: m }
+      )
+    })
+
+    doc.fontSize(16).text(global.namebot || 'Bot', { align: 'center' })
+    doc.moveDown(0.5)
+    doc.fontSize(12).text(text)
+    doc.end()
 
   } catch (e) {
-    console.error('❌ Error en el menú:', e)
-    conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
+    console.error('❌ Error en el menú + PDF:', e)
+    conn.reply(m.chat, '❎ Lo sentimos, hubo un error generando el menú.', m)
   }
 }
 
