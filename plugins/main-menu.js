@@ -56,7 +56,8 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         limit: p.limit,
         premium: p.premium,
       }))
-
+    
+    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = './storage/img/menu.jpg'
 
@@ -119,7 +120,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     await conn.sendMessage(
       m.chat,
       { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos..', headerType: 4, mentionedJid: conn.parseMention(text) },
-      { quoted: m }
+      { quoted: fkontak }
     )
 
   } catch (e) {
