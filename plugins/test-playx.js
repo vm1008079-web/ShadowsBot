@@ -6,7 +6,7 @@ let handler = async (m, { conn, text, usedPrefix, command, participants, groupMe
   let users = m.sender.split`@`[0]
   let fkontak3 = {
     key: { remoteJid: "120363000000000000@g.us", fromMe: false, id: "MichiBot-MD", participant: "0@s.whatsapp.net" },
-    message: { conversation: "⭐ MichiBot-MD ⭐" }
+    message: { conversation: "🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂" }
   }
   let [_, code] = grupo.match(linkRegex) || []
 
