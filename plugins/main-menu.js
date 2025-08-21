@@ -59,15 +59,16 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
-    let bannerFinal = './storage/img/menu.jpg'
-
+    
+    // ===== FOTO PERSONALIZADA DEL SUBBOT =====
+    let bannerFinal = './storage/img/menu.jpg' // fallback
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = join('./JadiBots', botActual, 'config.json')
     if (fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath))
         if (config.name) nombreBot = config.name
-        if (config.banner) bannerFinal = config.banner
+        if (config.banner) bannerFinal = config.banner // siempre la personalizada
       } catch {}
     }
 
@@ -117,7 +118,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const isURL = /^https?:\/\//i.test(bannerFinal)
     const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
 
-    // Creamos PDF falso
+    // ===== PDF FALSO =====
     const fakePDF = Buffer.from('%PDF-1.4\n%Fake PDF\n', 'utf-8')
 
     await conn.sendMessage(
@@ -128,10 +129,9 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         footer: '🦖 Menu de comandos..',
         headerType: 4,
         mentionedJid: conn.parseMention(text),
-        // Adjuntamos PDF
         document: fakePDF,
         mimetype: 'application/pdf',
-        fileName: 'Menu de comandos.pdf'
+        fileName: '🥞 Menu de comandos'
       },
       { quoted: fkontak }
     )
@@ -146,7 +146,7 @@ handler.command = ['menu', 'help', 'hélp', 'menú', 'ayuda']
 handler.register = false
 export default handler
 
-// Utilidades
+// ===== UTILIDADES =====
 const more = String.fromCharCode(8206)
 const readMore = more.repeat(4001)
 
