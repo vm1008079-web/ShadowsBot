@@ -13,7 +13,7 @@ const handler = async (m, { conn }) => {
     ''
   ).toLowerCase().trim()
 
-  const saludos = ['hola', 'hila', 'holi', 'ola', 'oa', 'hi', 'hl']
+  const saludos = ['hola', 'hila', 'holi', 'ola', 'oa', 'hi', 'hl', 'hh']
   const gracias = ['gracias', 'grasias', 'muchas gracias']
 
   const isHola = saludos.includes(msgText)
@@ -54,7 +54,7 @@ const handler = async (m, { conn }) => {
   }
 }
 
-handler.customPrefix = /^(hola|hila|holi|ola|oa|hi|hl|gracias|grasias|muchas gracias)$/i
+handler.customPrefix = /^(hola|hila|holi|ola|oa|hi|hl|gracias|grasias|hh|muchas gracias)$/i
 handler.command = new RegExp()
 
 export default handler
