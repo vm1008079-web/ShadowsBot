@@ -1,5 +1,5 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+//import cheerio from 'cheerio'
 
 // 🌀 Función para mezclar resultados
 function shuffle(arr) {
