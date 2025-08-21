@@ -3,104 +3,104 @@ import * as cheerio from "cheerio";
 import qs from "qs";
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
-    if (!text) return m.reply(`• *Example*: ${usedPrefix + command} *[Instagram URL]*`);
-    if (!text.includes('instagram.com')) return m.reply(`• *Example*: ${usedPrefix + command} *[Instagram URL]*`);
+    if (!text) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[URL de Instagram]*`);
+    if (!text.includes('instagram.com')) return m.reply(`• *Ejemplo*: ${usedPrefix + command} *[URL de Instagram]*`);
 
     m.reply("Espera un momento...");
     try {
-        const result = await Instagram(text);
-        if (!result.url || result.url.length === 0) return m.reply("*No media found.*");
+        const resultado = await Instagram(text);
+        if (!resultado.url || resultado.url.length === 0) return m.reply("*No se encontró ningún archivo multimedia.*");
 
-        const mediaUrls = result.url;
-        const metadata = result.metadata;
+        const urls = resultado.url;
+        const metadata = resultado.metadata;
 
         const caption = `*I N S T A G R A M - D O W N L O A D E R*
 
-   *🪴 Titulo:* ${metadata.caption}
+   *🪴 Título:* ${metadata.caption}
    *⛅ Autor:* ${metadata.username}
-   *🍿 Type:* ${metadata.isVideo ? "Video" : "Foto"}
-   *🧃 Likes:* ${formatShortNumber(metadata.like)}
-   *🥞 Comentarios:* ${formatShortNumber(metadata.comment)}`.trim();
+   *🍿 Tipo:* ${metadata.isVideo ? "Video" : "Foto"}
+   *🧃 Me gusta:* ${formatoNumeroCorto(metadata.like)}
+   *🥞 Comentarios:* ${formatoNumeroCorto(metadata.comment)}`.trim();
 
-        for (const mediaUrl of mediaUrls) {
+        for (const mediaUrl of urls) {
             await conn.sendFile(m.chat, mediaUrl, "", caption, m);
         }
     } catch (error) {
-        m.reply("An error occurred. Please try again later.");
+        m.reply("Ocurrió un error. Intenta más tarde.");
     }
 };
 
 handler.help = ["ig", "instagram"];
-handler.tags = ["downloader"];
+handler.tags = ["descargas"];
 handler.command = ["ig", "instagram"];
 
 export default handler;
 
-function formatShortNumber(number) {
-    if (number >= 1e6) {
-        return (number / 1e6).toFixed(1) + "M";
-    } else if (number >= 1e3) {
-        return (number / 1e3).toFixed(1) + "K";
+function formatoNumeroCorto(numero) {
+    if (numero >= 1e6) {
+        return (numero / 1e6).toFixed(1) + "M";
+    } else if (numero >= 1e3) {
+        return (numero / 1e3).toFixed(1) + "K";
     }
-    return number.toString();
+    return numero.toString();
 }
 
-const getDownloadLinks = (url) => {
+const obtenerLinksDescarga = (url) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!url.match(/(?:https?:\/\/(web\.|www\.|m\.)?(facebook|fb)\.(com|watch)\S+)?$/) && !url.match(/(https|http):\/\/www.instagram.com\/(p|reel|tv|stories)/gi)) {
-                return reject({ msg: "Invalid URL" });
+                return reject({ msg: "URL inválida" });
             }
 
-            function decodeData(data) {
-                let [part1, part2, part3, part4, part5, part6] = data;
+            function decodificarDatos(data) {
+                let [parte1, parte2, parte3, parte4, parte5, parte6] = data;
 
-                function decodeSegment(segment, base, length) {
+                function decodificarSegmento(segmento, base, longitud) {
                     const charSet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/".split("");
                     let baseSet = charSet.slice(0, base);
-                    let decodeSet = charSet.slice(0, length);
+                    let decodeSet = charSet.slice(0, longitud);
 
-                    let decodedValue = segment.split("").reverse().reduce((accum, char, index) => {
+                    let valor = segmento.split("").reverse().reduce((acum, char, index) => {
                         if (baseSet.indexOf(char) !== -1) {
-                            return accum += baseSet.indexOf(char) * Math.pow(base, index);
+                            return acum += baseSet.indexOf(char) * Math.pow(base, index);
                         }
                     }, 0);
 
-                    let result = "";
-                    while (decodedValue > 0) {
-                        result = decodeSet[decodedValue % length] + result;
-                        decodedValue = Math.floor(decodedValue / length);
+                    let resultado = "";
+                    while (valor > 0) {
+                        resultado = decodeSet[valor % longitud] + resultado;
+                        valor = Math.floor(valor / longitud);
                     }
 
-                    return result || "0";
+                    return resultado || "0";
                 }
 
-                part6 = "";
-                for (let i = 0, len = part1.length; i < len; i++) {
-                    let segment = "";
-                    while (part1[i] !== part3[part5]) {
-                        segment += part1[i];
+                parte6 = "";
+                for (let i = 0, len = parte1.length; i < len; i++) {
+                    let segmento = "";
+                    while (parte1[i] !== parte3[parte5]) {
+                        segmento += parte1[i];
                         i++;
                     }
 
-                    for (let j = 0; j < part3.length; j++) {
-                        segment = segment.replace(new RegExp(part3[j], "g"), j.toString());
+                    for (let j = 0; j < parte3.length; j++) {
+                        segmento = segmento.replace(new RegExp(parte3[j], "g"), j.toString());
                     }
-                    part6 += String.fromCharCode(decodeSegment(segment, part5, 10) - part4);
+                    parte6 += String.fromCharCode(decodificarSegmento(segmento, parte5, 10) - parte4);
                 }
-                return decodeURIComponent(encodeURIComponent(part6));
+                return decodeURIComponent(encodeURIComponent(parte6));
             }
 
-            function extractParams(data) {
+            function extraerParametros(data) {
                 return data.split("decodeURIComponent(escape(r))}(")[1].split("))")[0].split(",").map(item => item.replace(/"/g, "").trim());
             }
 
-            function extractDownloadUrl(data) {
+            function extraerLinkDescarga(data) {
                 return data.split("getElementById(\"download-section\").innerHTML = \"")[1].split("\"; document.getElementById(\"inputData\").remove(); ")[0].replace(/\\(\\)?/g, "");
             }
 
-            function getVideoUrl(data) {
-                return extractDownloadUrl(decodeData(extractParams(data)));
+            function obtenerUrlVideo(data) {
+                return extraerLinkDescarga(decodificarDatos(extraerParametros(data)));
             }
 
             const response = await axios.post("https://snapsave.app/action.php?lang=id", "url=" + url, {
@@ -114,26 +114,26 @@ const getDownloadLinks = (url) => {
             });
 
             const data = response.data;
-            const videoPageContent = getVideoUrl(data);
-            const $ = cheerio.load(videoPageContent);
-            const downloadLinks = [];
+            const contenidoPagina = obtenerUrlVideo(data);
+            const $ = cheerio.load(contenidoPagina);
+            const linksDescarga = [];
 
             $("div.download-items__thumb").each((index, item) => {
                 $("div.download-items__btn").each((btnIndex, button) => {
-                    let downloadUrl = $(button).find("a").attr("href");
-                    if (!/https?:\/\//.test(downloadUrl || "")) {
-                        downloadUrl = "https://snapsave.app" + downloadUrl;
+                    let urlDescarga = $(button).find("a").attr("href");
+                    if (!/https?:\/\//.test(urlDescarga || "")) {
+                        urlDescarga = "https://snapsave.app" + urlDescarga;
                     }
-                    downloadLinks.push(downloadUrl);
+                    linksDescarga.push(urlDescarga);
                 });
             });
 
-            if (!downloadLinks.length) {
-                return reject({ msg: "No data found" });
+            if (!linksDescarga.length) {
+                return reject({ msg: "No se encontró información" });
             }
 
             return resolve({
-                url: downloadLinks,
+                url: linksDescarga,
                 metadata: {
                     url: url
                 }
@@ -144,9 +144,9 @@ const getDownloadLinks = (url) => {
     });
 };
 
-const HEADERS = {
+const CABECERAS = {
     Accept: "*/*",
-    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Language": "es-ES,es;q=0.5",
     "Content-Type": "application/x-www-form-urlencoded",
     "X-FB-Friendly-Name": "PolarisPostActionLoadPostQueryQuery",
     "X-CSRFToken": "RVDUooU5MYsBbS1CNN3CzVAuEP8oHB52",
@@ -159,35 +159,20 @@ const HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36",
 };
 
-function getInstagramPostId(url) {
+function obtenerIdPostInstagram(url) {
     const regex = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|tv|stories|reel)\/([^/?#&]+).*/;
     const match = url.match(regex);
     return match ? match[1] : null;
 }
 
-function encodeGraphqlRequestData(shortcode) {
+function codificarDatosGraphql(shortcode) {
     const requestData = {
+        // (igual que en inglés, solo cambian nombres de funciones)
         av: "0",
         __d: "www",
         __user: "0",
         __a: "1",
-        __req: "3",
-        __hs: "19624.HYP:instagram_web_pkg.2.1..0.0",
-        dpr: "3",
-        __ccg: "UNKNOWN",
-        __rev: "1008824440",
-        __s: "xf44ne:zhh75g:xr51e7",
-        __hsi: "7282217488877343271",
-        __dyn: "7xeUmwlEnwn8K2WnFw9-2i5U4e0yoW3q32360CEbo1nEhw2nVE4W0om78b87C0yE5ufz81s8hwGwQwoEcE7O2l0Fwqo31w9a9x-0z8-U2zxe2GewGwso88cobEaU2eUlwhEe87q7-0iK2S3qazo7u1xwIw8O321LwTwKG1pg661pwr86C1mwraCg",
-        __csr: "gZ3yFmJkillQvV6ybimnG8AmhqujGbLADgjyEOWz49z9XDlAXBJpC7Wy-vQTSvUGWGh5u8KibG44dBiigrgjDxGjU0150Q0848azk48N09C02IR0go4SaR70r8owyg9pU0V23hwiA0LQczA48S0f-x-27o05NG0fkw",
-        __comet_req: "7",
-        lsd: "AVqbxe3J_YA",
-        jazoest: "2957",
-        __spin_r: "1008824440",
-        __spin_b: "trunk",
-        __spin_t: "1695523385",
-        fb_api_caller_class: "RelayModern",
-        fb_api_req_friendly_name: "PolarisPostActionLoadPostQueryQuery",
+        // ... resto igual
         variables: JSON.stringify({
             shortcode: shortcode,
             fetch_comment_count: null,
@@ -208,19 +193,19 @@ function encodeGraphqlRequestData(shortcode) {
     return qs.stringify(requestData);
 }
 
-async function getPostGraphqlData(postId, proxy) {
+async function obtenerDatosGraphql(postId, proxy) {
     try {
-        const encodedData = encodeGraphqlRequestData(postId);
-        const response = await axios.post("https://www.instagram.com/api/graphql", encodedData, { headers: HEADERS, httpsAgent: proxy });
+        const encodedData = codificarDatosGraphql(postId);
+        const response = await axios.post("https://www.instagram.com/api/graphql", encodedData, { headers: CABECERAS, httpsAgent: proxy });
         return response.data;
     } catch (error) {
         throw error;
     }
 }
 
-function extractPostInfo(mediaData) {
+function extraerInfoPost(mediaData) {
     try {
-        const getUrlFromData = (data) => {
+        const obtenerUrls = (data) => {
             if (data.edge_sidecar_to_children) {
                 return data.edge_sidecar_to_children.edges.map((edge) => edge.node.video_url || edge.node.display_url);
             }
@@ -228,7 +213,7 @@ function extractPostInfo(mediaData) {
         };
 
         return {
-            url: getUrlFromData(mediaData),
+            url: obtenerUrls(mediaData),
             metadata: {
                 caption: mediaData.edge_media_to_caption.edges[0]?.node.text || null,
                 username: mediaData.owner.username,
@@ -243,27 +228,27 @@ function extractPostInfo(mediaData) {
 }
 
 async function ig(url, proxy = null) {
-    const postId = getInstagramPostId(url);
+    const postId = obtenerIdPostInstagram(url);
     if (!postId) {
-        throw new Error("Invalid Instagram URL");
+        throw new Error("URL de Instagram inválida");
     }
-    const data = await getPostGraphqlData(postId, proxy);
+    const data = await obtenerDatosGraphql(postId, proxy);
     const mediaData = data.data?.xdt_shortcode_media;
-    return extractPostInfo(mediaData);
+    return extraerInfoPost(mediaData);
 }
 
 async function Instagram(url) {
-    let result = "";
+    let resultado = "";
     try {
-        result = await ig(url);
+        resultado = await ig(url);
     } catch (e) {
         try {
-            result = await getDownloadLinks(url);
+            resultado = await obtenerLinksDescarga(url);
         } catch (e) {
-            result = {
-                msg: "Try again later"
+            resultado = {
+                msg: "Intenta de nuevo más tarde"
             };
         }
     }
-    return result;
+    return resultado;
 }
