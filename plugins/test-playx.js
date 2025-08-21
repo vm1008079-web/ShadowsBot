@@ -7,21 +7,12 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   key: { 
     fromMe: false, 
     participant: "0@s.whatsapp.net", 
-    remoteJid: "status@broadcast" 
+    remoteJid: "0@s.whatsapp.net" 
   },
   message: {
     extendedTextMessage: {
-      text: "⭐ MichiBot-MD ⭐", 
-      contextInfo: {
-        externalAdReply: {
-          title: "⭐ MichiBot-MD ⭐",
-          body: "", 
-          thumbnailUrl: null,
-          sourceUrl: null,
-          mediaType: 1,
-          renderLargerThumbnail: false
-        }
-      }
+      text: "⭐ Michi Ai Bot ⭐",
+      contextInfo: { mentionedJid: [] } 
     }
   }
 }
