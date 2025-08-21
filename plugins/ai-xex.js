@@ -42,30 +42,39 @@ const yt = {
             return returnType == "json" ? await r.json() : await r.text()
         }
 
-        // 1st request
+        // 1ra request (para obtener payload inicial)
         const html = await hit('get', `${pathButton}?url=${youtubeUrl}`)
-        let m1 = html.match(/data: (.+?)\n\t\t\t\tsuccess/ms)?.[1].replace('},', '}').trim()
-        if (f.isVideo) m1 = m1.replace(`$('#height').val()`, f.quality)
-        const payload = eval("(" + m1 + ")")
+        let match = html.match(/data: (.+?)\n\s*success/ms)
+        if (!match) throw Error(`No se pudo obtener payload inicial. Quizá el video no está soportado.`)
 
-        // 2nd request
+        let m1 = match[1].replace('},', '}').trim()
+        if (f.isVideo) m1 = m1.replace(`$('#height').val()`, f.quality)
+
+        let payload
+        try {
+            payload = eval("(" + m1 + ")")
+        } catch (e) {
+            throw Error(`Error al parsear payload inicial: ${e.message}`)
+        }
+
+        // 2da request (para iniciar conversión)
         headers.referer = `${this.url.origin}${pathButton}?url=${youtubeUrl}`
         headers.origin = this.url.origin
         headers["x-requested-with"] = "XMLHttpRequest"
         const j2 = await hit('post', pathConvert, new URLSearchParams(payload), 'json')
 
-        // Progress
+        // Chequeo de progreso
         let j3, fetchCount = 0
         const MAX_FETCH_ATTEMPT = 60
         do {
             fetchCount++
             j3 = await hit('get', `${pathConvert}?jobid=${j2.jobid}&time=${Date.now()}`, null, 'json')
             if (j3.dlurl) return j3
-            if (j3.error) throw Error(`Error: ${JSON.stringify(j3, null, 2)}`)
+            if (j3.error) throw Error(`Error en conversión:\n${JSON.stringify(j3, null, 2)}`)
             await new Promise(re => setTimeout(re, 3000))
         } while (fetchCount < MAX_FETCH_ATTEMPT)
 
-        throw Error(`Tiempo de espera alcanzado`)
+        throw Error(`Tiempo de espera alcanzado sin obtener link de descarga`)
     }
 }
 
@@ -75,7 +84,11 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         m.react('⏳')
         let res = await yt.download(args[0], '360p')
         let title = res.title || "video"
-        await conn.sendMessage(m.chat, { video: { url: res.dlurl }, fileName: `${title}.mp4`, caption: `✅ Aquí está tu video:\n${title}` }, { quoted: m })
+        await conn.sendMessage(m.chat, { 
+            video: { url: res.dlurl }, 
+            fileName: `${title}.mp4`, 
+            caption: `✅ Aquí está tu video:\n${title}` 
+        }, { quoted: m })
         m.react('✅')
     } catch (e) {
         m.reply(`❌ Error: ${e.message}`)
