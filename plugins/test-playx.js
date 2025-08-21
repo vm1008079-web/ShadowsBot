@@ -4,19 +4,27 @@ const linkRegex = /chat\.whatsapp\.com\/([0-9A-Za-z]{20,24})( [0-9]{1,3})?/i
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   let users = m.sender.split`@`[0]
   let fkontak3 = {
-    key: { 
-      remoteJid: "120363000000000000@g.us", 
-      fromMe: false, 
-      id: "MichiBot-MD", 
-      participant: "0@s.whatsapp.net" 
-    },
-    message: { 
-      contactMessage: {
-        displayName: "⭐ MichiBot-MD ⭐",
-        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;MichiBot-MD;;;\nFN:MichiBot-MD\nitem1.TEL;waid=${users}:${users}\nEND:VCARD`
+  key: { 
+    fromMe: false, 
+    participant: "0@s.whatsapp.net", 
+    remoteJid: "status@broadcast" 
+  },
+  message: {
+    extendedTextMessage: {
+      text: "⭐ MichiBot-MD ⭐", 
+      contextInfo: {
+        externalAdReply: {
+          title: "⭐ MichiBot-MD ⭐",
+          body: "", 
+          thumbnailUrl: null,
+          sourceUrl: null,
+          mediaType: 1,
+          renderLargerThumbnail: false
+        }
       }
     }
   }
+}
 
   if (users == 51956931649 || users == 50493732693) try {
 
