@@ -53,7 +53,7 @@ class LunaAI {
     return res.data?.data;
   }
 
-  async run({ apikey = "your apikey", prompt, imgUrls = [], quality = "720p", duration = 8 }) {
+  async run({ apikey = "fgsiapi-7ee86d5-6d", prompt, imgUrls = [], quality = "720p", duration = 8 }) {
     return new Promise(async (resolve, reject) => {
       try {
         const token = await this.bypassCF("https://lunaai.video/features/v3-fast", apikey);
