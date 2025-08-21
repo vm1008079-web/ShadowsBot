@@ -1,95 +1,85 @@
-import axios from 'axios';
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'
 
-const handler = async (msg, { conn, args, usedPrefix, command }) => {
-  const text = args.join(' ');
-  const chatId = msg.key.remoteJid;
+const yt = {
+    get url() {
+        return { origin: 'https://convert.ytmp3.wf' }
+    },
 
-  if (!text) {
-    return conn.sendMessage(chatId, {
-      text: `Habla con el pndj de xex`
-    }, { quoted: msg });
-  }
+    get randomCookie() {
+        const length = 26
+        const charset = '0123456789abcdefghijklmnopqrstuvwxyz'
+        return Array.from({ length }, () => charset[Math.floor(Math.random() * charset.length)]).join("")
+    },
 
-  try {
-    await conn.sendMessage(chatId, { react: { text: '🕳️', key: msg.key } });
+    formatHandling(userFormat) {
+        const validFormat = ['audio', 'best_video', '144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p']
+        if (!validFormat.includes(userFormat)) throw Error(`Formato inválido! Usa: ${validFormat.join(', ')}`)
+        let isVideo = false, quality = null
+        if (userFormat != 'audio') {
+            isVideo = true
+            quality = userFormat == 'best_video' ? '10000' : userFormat.match(/\d+/)[0]
+        }
+        return { isVideo, quality }
+    },
 
-    const name = msg.pushName || 'Usuario';
-    const prompt = await getPrompt();
-    let result = '';
+    async download(youtubeUrl, userFormat = '360p') {
+        const f = this.formatHandling(userFormat)
+        const pathButton = f.isVideo ? '/vidbutton/' : '/button/'
+        const pathConvert = f.isVideo ? '/vidconvert/' : '/convert/'
+        const cookie = `PHPSESSID=${this.randomCookie}`
 
+        const headers = {
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "cookie": cookie,
+            "referer": this.url.origin
+        }
+
+        const hit = async (method, path, body, returnType = 'text') => {
+            const url = `${this.url.origin}${path}`
+            const opts = { method, body, headers }
+            const r = await fetch(url, opts)
+            if (!r.ok) throw Error(`${r.status} ${r.statusText}\n${await r.text()}`)
+            return returnType == "json" ? await r.json() : await r.text()
+        }
+
+        // 1st request
+        const html = await hit('get', `${pathButton}?url=${youtubeUrl}`)
+        let m1 = html.match(/data: (.+?)\n\t\t\t\tsuccess/ms)?.[1].replace('},', '}').trim()
+        if (f.isVideo) m1 = m1.replace(`$('#height').val()`, f.quality)
+        const payload = eval("(" + m1 + ")")
+
+        // 2nd request
+        headers.referer = `${this.url.origin}${pathButton}?url=${youtubeUrl}`
+        headers.origin = this.url.origin
+        headers["x-requested-with"] = "XMLHttpRequest"
+        const j2 = await hit('post', pathConvert, new URLSearchParams(payload), 'json')
+
+        // Progress
+        let j3, fetchCount = 0
+        const MAX_FETCH_ATTEMPT = 60
+        do {
+            fetchCount++
+            j3 = await hit('get', `${pathConvert}?jobid=${j2.jobid}&time=${Date.now()}`, null, 'json')
+            if (j3.dlurl) return j3
+            if (j3.error) throw Error(`Error: ${JSON.stringify(j3, null, 2)}`)
+            await new Promise(re => setTimeout(re, 3000))
+        } while (fetchCount < MAX_FETCH_ATTEMPT)
+
+        throw Error(`Tiempo de espera alcanzado`)
+    }
+}
+
+let handler = async (m, { conn, args, usedPrefix, command }) => {
+    if (!args[0]) throw `⚠️ Uso: ${usedPrefix + command} <enlace de YouTube>`
     try {
-      result = await luminaiQuery(text, name, prompt);
-      result = cleanResponse(result);
+        m.react('⏳')
+        let res = await yt.download(args[0], '360p')
+        let title = res.title || "video"
+        await conn.sendMessage(m.chat, { video: { url: res.dlurl }, fileName: `${title}.mp4`, caption: `✅ Aquí está tu video:\n${title}` }, { quoted: m })
+        m.react('✅')
     } catch (e) {
-      console.error('Error Luminai:', e);
-      try {
-        result = await perplexityQuery(text, prompt);
-      } catch (e) {
-        console.error('Error Perplexity:', e);
-        throw new Error('No se obtuvo respuesta de los servicios');
-      }
+        m.reply(`❌ Error: ${e.message}`)
     }
-
-    const responseMsg = `${result}`;
-
-    await conn.sendMessage(chatId, {
-      text: responseMsg
-    }, { quoted: msg });
-
-    await conn.sendMessage(chatId, { react: { text: '😂', key: msg.key } });
-
-  } catch (error) {
-    console.error(error);
-    await conn.sendMessage(chatId, {
-      text: `❌ Error: ${error.message}`
-    }, { quoted: msg });
-
-    await conn.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
-  }
-};
-
-async function getPrompt() {
-  try {
-    const res = await fetch('https://raw.githubusercontent.com/elrebelde21/LoliBot-MD/main/src/text-chatgpt.txt');
-    return await res.text();
-  } catch {
-    return 'Eres un asistente inteligente';
-  }
 }
-
-function cleanResponse(text) {
-  if (!text) return '';
-  return text
-    .replace(/Maaf, terjadi kesalahan saat memproses permintaan Anda/g, '')
-    .replace(/Generated by BLACKBOX\.AI.*?https:\/\/www\.blackbox\.ai/g, '')
-    .replace(/and for API requests replace https:\/\/www\.blackbox\.ai with https:\/\/api\.blackbox\.ai/g, '')
-    .trim();
-}
-
-async function luminaiQuery(q, user, prompt) {
-  const { data } = await axios.post('https://luminai.my.id', {
-    content: q,
-    user: user,
-    prompt: prompt,
-    webSearchMode: true
-  });
-  return data.result;
-}
-
-async function perplexityQuery(q, prompt) {
-  const { data } = await axios.get('https://api.perplexity.ai/chat', {
-    params: {
-      query: q,
-      context: prompt
-    }
-  });
-  return data.response;
-}
-
-handler.help = ['ask'];
-handler.command = ['ask'];
-handler.tags = ['ia'];
-handler.register = false
-
-export default handler;
+handler.command = /^video$/i
+export default handler
