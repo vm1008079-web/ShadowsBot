@@ -16,7 +16,7 @@ let handler = async (m, { conn, text, usedPrefix, command, participants, groupMe
     let res = await conn.groupAcceptInvite(code)
     await conn.sendMessage(res, { 
       text: text, 
-      mentions: (await conn.groupMetadata(`${res}`)).participants.map(v => v.id) 
+      //mentions: (await conn.groupMetadata(`${res}`)).participants.map(v => v.id) 
     }, { quoted: fkontak3 })
     await m.reply(`✅ *MENSAJE ENVIADO ✅* `)
 
