@@ -58,11 +58,19 @@ export async function handler(chatUpdate) {
     try {
         m = smsg(this, m) || m;
         if (!m) return;
-
+        
         //  SOLUCION LID :D
         const sender = normalizeJid(m.sender);
         const chat = normalizeJid(m.chat);
         const selfJid = normalizeJid(this.user?.id || this.user?.jid);
+        
+        // --- LÓGICA DE LECTURA RÁPIDA ---
+        // Se coloca aquí para marcar como leído inmediatamente.
+        const tempSettings = global.db.data.settings[selfJid] || {};
+        if (tempSettings.autoread) {
+           await this.readMessages([m.key]);
+        }
+        // --- FIN DE LECTURA RÁPIDA ---
 
         m.exp = 0;
         m.coin = false;
@@ -151,7 +159,7 @@ export async function handler(chatUpdate) {
                 };
             }
 
-           
+
             settings = global.db.data.settings[selfJid];
             if (!settings || typeof settings !== 'object') {
                 global.db.data.settings[selfJid] = {
@@ -162,9 +170,9 @@ export async function handler(chatUpdate) {
             } else {
                  const defaultSettings = { self: false, restrict: true, jadibotmd: true, antiPrivate: false, autoread: false, status: 0 };
                  for (const key in defaultSettings) {
-                     if (!(key in settings)) {
-                         settings[key] = defaultSettings[key];
-                     }
+                      if (!(key in settings)) {
+                           settings[key] = defaultSettings[key];
+                      }
                  }
             }
 
@@ -172,7 +180,7 @@ export async function handler(chatUpdate) {
             console.error(e);
         }
 
-       
+
         const userDb = global.db.data.users[sender] || {};
         const ownerJids = global.owner.map(([number]) => numberToJid(number));
         const modJids = global.mods.map(number => numberToJid(number));
@@ -189,7 +197,7 @@ export async function handler(chatUpdate) {
         if (opts['swonly'] && m.chat !== 'status@broadcast') return;
         if (typeof m.text !== 'string') m.text = '';
 
-         
+
         if (m.isGroup) {
             let chatDb = global.db.data.chats[chat];
             if (chatDb?.primaryBot) {
@@ -214,7 +222,7 @@ export async function handler(chatUpdate) {
 
         m.exp += Math.ceil(Math.random() * 10);
 
-       
+
         let participants = [];
         let user = {};
         let bot = {};
@@ -466,9 +474,8 @@ export async function handler(chatUpdate) {
             console.log(m, m.quoted, e);
         }
 
-        if (settings && settings.autoread) {
-           await this.readMessages([m.key]);
-        }
+        // La lógica de lectura ahora está al principio para mayor velocidad.
+        // No es necesario tenerla aquí.
 
         if (db.data.chats[m.chat] && db.data.chats[m.chat].reaction && m.text.match(/(ción|dad|aje|oso|izar|mente|pero|tion|age|ous|ate|and|but|ify|ai|yuki|a|s)/gi)) {
             let emot = pickRandom(["🍟", "😃", "😄", "😁", "😆", "🍓", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "🌺", "🌸", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🌟", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "💫", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😶‍🌫️", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🫣", "🤭", "🤖", "🍭", "🤫", "🫠", "🤥", "😶", "📇", "😐", "💧", "😑", "🫨", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😮‍💨", "😵", "😵‍💫", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👺", "🧿", "🌩", "👻", "😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾", "🫶", "👍", "✌️", "🙏", "🫵", "🤏", "🤌", "☝️", "🖕", "🙏", "🫵", "🫂", "🐱", "🤹‍♀️", "🤹‍♂️", "🗿", "✨", "⚡", "🔥", "🌈", "🩷", "❤️", "🧡", "💛", "💚", "🩵", "💙", "💜", "🖤", "🩶", "🤍", "🤎", "💔", "❤️‍🔥", "❤️‍🩹", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "🚩", "👊", "⚡️", "💋", "🫰", "💅", "👑", "🐣", "🐤", "🐈"]);
