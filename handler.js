@@ -295,13 +295,16 @@ continue
 }
 const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
 // === NUEVO CÓDIGO PARA PREFIJO OPCIONAL ===
+// === NUEVO CÓDIGO PARA PREFIJO OPCIONAL ===
 let _prefixes = plugin.customPrefix ? [plugin.customPrefix] : conn.prefix ? [conn.prefix] : Array.isArray(global.prefix) ? global.prefix : [global.prefix]
 let usedPrefix = ''
 let commandMatched = false
 
 for (let pre of _prefixes) {
-    if (m.text.startsWith(pre)) {
-        usedPrefix = pre
+    // Si el prefijo es RegExp lo convertimos a string
+    let preStr = pre instanceof RegExp ? pre.source.replace(/\\(.)/g, '$1') : pre
+    if (m.text.startsWith(preStr)) {
+        usedPrefix = preStr
         commandMatched = true
         break
     }
