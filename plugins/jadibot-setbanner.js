@@ -3,7 +3,7 @@ import path from 'path'
 import axios from 'axios'
 import FormData from 'form-data'
 
-const handler = async (m, { usedPrefix, command }) => {
+const handler = async (m, { conn, usedPrefix, command }) => {
   const senderNumber = m.sender.replace(/[^0-9]/g, '')
   const botPath = path.join('./JadiBots', senderNumber)
   const configPath = path.join(botPath, 'config.json')
@@ -12,18 +12,17 @@ const handler = async (m, { usedPrefix, command }) => {
     return m.reply('✧ Este comando es sólo para los sub bots.')
   }
 
- 
   const quoted = m.quoted
   if (!quoted || !quoted.message || !quoted.message.imageMessage) {
     return m.reply(`> 📸 Responde a una imagen usando *${usedPrefix + command}* para establecer el banner.`)
   }
 
   try {
-    
-    const stream = await conn.downloadMediaMessage(quoted) 
+    // Descargar la imagen
+    const stream = await conn.downloadMediaMessage(quoted)
     const buffer = Buffer.from(await stream.arrayBuffer())
 
-    
+    // Subir a Catbox
     const form = new FormData()
     form.append('reqtype', 'fileupload')
     form.append('fileToUpload', buffer, 'banner.png')
@@ -34,7 +33,7 @@ const handler = async (m, { usedPrefix, command }) => {
 
     const bannerURL = res.data
 
-    
+    // Guardar en config.json
     const config = fs.existsSync(configPath)
       ? JSON.parse(fs.readFileSync(configPath))
       : {}
