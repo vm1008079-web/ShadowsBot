@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import path, { join } from 'path'
 import { unwatchFile, watchFile } from 'fs'
 import chalk from 'chalk'
+import fetch from 'node-fetch'
 
 const {
     proto,
@@ -47,15 +48,16 @@ export async function handler(chatUpdate) {
 
     if (global.db.data == null) await global.loadDatabase()
 
+    // Mover la definición de selfJid, senderJid y chatJid fuera del try
+    const selfJid = normalizeJid(this.user.jid)
+    const senderJid = normalizeJid(m.sender)
+    const chatJid = normalizeJid(m.chat)
+    
     try {
         m = smsg(this, m) || m
         if (!m) return
         m.exp = 0
         m.coin = false
-
-        const selfJid = normalizeJid(this.user.jid)
-        const senderJid = normalizeJid(m.sender)
-        const chatJid = normalizeJid(m.chat)
 
         try {
             if (global.db.data.users[senderJid] === undefined) {
