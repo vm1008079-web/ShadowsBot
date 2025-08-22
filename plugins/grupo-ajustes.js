@@ -3,71 +3,39 @@ import path from "path"
 
 const DIGITS = (s = "") => String(s || "").replace(/\D/g, "")
 
-function findParticipantByDigits(parts = [], digits = "") {
-  if (!digits) return null
-  return parts.find(
-    p => DIGITS(p?.id || "") === digits || DIGITS(p?.jid || "") === digits
-  ) || null
-}
-
-export const handler = async (msg, { conn, text }) => {
-  const chatId   = msg.key.remoteJid
-  const isGroup  = chatId.endsWith("@g.us")
-  const isFromMe = !!msg.key.fromMe
-
-  const senderRaw = msg.key.participant || msg.key.remoteJid
-  const senderNum = DIGITS(typeof msg.realJid === "string" ? msg.realJid : senderRaw)
-
-  if (!isGroup) {
-    await conn.sendMessage(chatId, { text: "❌ *Este comando solo funciona en grupos.*" }, { quoted: msg })
-    return
-  }
-
-  // owners y bot
-  const ownerPath = path.resolve("owner.json")
-  const owners = fs.existsSync(ownerPath) ? JSON.parse(fs.readFileSync(ownerPath, "utf-8")) : []
-  const isOwner = Array.isArray(owners) && owners.some(([id]) => id === senderNum)
-
-  const botRaw = conn.user?.id || ""
-  const botNum = DIGITS(botRaw.split(":")[0])
-  const isBot  = botNum === senderNum
-
-  let metadata
+async function isAdminOrOwner(m, conn) {
   try {
-    metadata = await conn.groupMetadata(chatId)
-  } catch (e) {
-    console.error("[grupo] metadata error:", e)
-    await conn.sendMessage(chatId, { text: "❌ No pude leer la metadata del grupo." }, { quoted: msg })
-    return
+    const groupMetadata = await conn.groupMetadata(m.chat)
+    const participant = groupMetadata.participants.find(p => p.id === m.sender)
+    return participant?.admin || m.fromMe
+  } catch {
+    return false
   }
-
-  const participantes = Array.isArray(metadata?.participants) ? metadata.participants : []
-  const authorP = findParticipantByDigits(participantes, senderNum)
-  const isAdmin = !!authorP && (authorP.admin === "admin" || authorP.admin === "superadmin")
-
-  if (!isAdmin && !isOwner && !isBot && !isFromMe) {
-    await conn.sendMessage(chatId, {
-      text: "⛔ *Solo administradores u owners pueden usar este comando.*"
-    }, { quoted: msg })
-    return
-  }
-
-  // texto de comando
-  const comando = (text || "").toLowerCase().trim()
-
-  if (comando === "grupo abrir") {
-    await conn.groupSettingUpdate(chatId, "not_announcement")
-    await conn.sendMessage(chatId, { text: "✅ *El grupo ha sido abierto, ahora todos pueden escribir.*" }, { quoted: msg })
-  } else if (comando === "grupo cerrar") {
-    await conn.groupSettingUpdate(chatId, "announcement")
-    await conn.sendMessage(chatId, { text: "🔒 *El grupo ha sido cerrado, solo admins pueden escribir.*" }, { quoted: msg })
-  } else {
-    await conn.sendMessage(chatId, { text: "📌 Usa:\n- *grupo abrir*\n- *grupo cerrar*" }, { quoted: msg })
-  }
-
-  await conn.sendMessage(chatId, { react: { text: "🧔🏻", key: msg.key } }).catch(() => {})
 }
 
-handler.command = /^(grupo)$/i
+const handler = async (m, { conn, text }) => {
+  if (!m.isGroup) return m.reply('🔒 Este comando solo funciona en grupos.')
+
+  const admin = await isAdminOrOwner(m, conn)
+  if (!admin) return m.reply('❌ Solo admins pueden abrir o cerrar el grupo.')
+
+  const command = (text || '').toLowerCase().trim()
+
+  if (command === "grupo abrir") {
+    await conn.groupSettingUpdate(m.chat, "not_announcement") // abre el grupo
+    await conn.sendMessage(m.chat, { text: "✅ El grupo ha sido abierto, todos pueden escribir." }, { quoted: m })
+  } else if (command === "grupo cerrar") {
+    await conn.groupSettingUpdate(m.chat, "announcement") // cierra el grupo
+    await conn.sendMessage(m.chat, { text: "🔒 El grupo ha sido cerrado, solo admins pueden escribir." }, { quoted: m })
+  } else {
+    await conn.sendMessage(m.chat, { text: "📌 Usa:\n- grupo abrir\n- grupo cerrar" }, { quoted: m })
+  }
+}
+
+handler.command = ['grupo']
+handler.group = true
+handler.register = false
+handler.tags = ['group']
+handler.help = ['grupo abrir', 'grupo cerrar']
 
 export default handler
