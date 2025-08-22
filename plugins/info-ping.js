@@ -9,19 +9,19 @@ let handler = async (m, { conn }) => {
     let child = stdout.toString("utf-8");
     let ssd = child.replace(/Memory:/, "Ram:");
 
-    const buttons = [
+    /*const buttons = [
       {
         buttonId: `.speed`, // el comando que se ejecutará al hacer clic
         buttonText: { displayText: "⚡ Ver velocidad" },
         type: 1
       }
-    ];
+    ];*/
 
     conn.sendMessage(m.chat, {
       text: `${ssd}\n乂  *Speed* : ${latensi.toFixed(4)} _ms_`,
-      footer: '📊 Información del sistema',
-      buttons: buttons,
-      headerType: 1
+      //footer: '📊 Información del sistema',
+      //buttons: buttons,
+      //headerType: 1
     }, { quoted: m });
   });
 };
