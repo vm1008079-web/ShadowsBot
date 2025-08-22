@@ -1,114 +1,27 @@
-import { join, dirname } from 'path'
-import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-import { setupMaster, fork } from 'cluster'
 import { watchFile, unwatchFile } from 'fs'
-import cfonts from 'cfonts'
+import { spawn } from 'child_process'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const require = createRequire(__dirname)
+let child
 
-console.clear()
+function start() {
+    if (child) child.kill() 
 
-function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms))
+    console.clear()
+    console.log('✨ Michi-WaBot ✨\n')
+
+    child = spawn('node', ['main.js'], { stdio: 'inherit' })
+
+    child.on('exit', (code) => {
+        console.log(`⚠️ Proceso terminado con código ${code}`)
+    })
 }
 
-async function rocketLaunch(lines = 12) {
-    const rocket = '🚀'
-    const explosion = ['💥', '🔥', '✨', '🌟']
-    for (let i = lines; i > 0; i--) {
-        console.clear()
-        for (let j = 0; j < i; j++) console.log('')
-        console.log(`       ${rocket}`)
-        await sleep(80)
-    }
-    for (let i = 0; i < 4; i++) {
-        console.clear()
-        console.log(`       ${explosion[i]}  ${explosion[(i + 1) % 4]}  ${explosion[(i + 2) % 4]}`)
-        await sleep(150)
-    }
-}
 
-async function typeText(text, delay = 30) {
-    for (const char of text) {
-        process.stdout.write(char)
-        await sleep(delay)
-    }
-    process.stdout.write('\n')
-}
+watchFile('main.js', () => {
+    unwatchFile('main.js')
+    console.log('\n🔄 main.js actualizado, reiniciando...\n')
+    start()
+})
 
-async function loadingBar() {
-    const frames = ['[      ]', '[=     ]', '[==    ]', '[===   ]', '[====  ]', '[===== ]', '[======]']
-    for (let i = 0; i < 3; i++) {
-        for (const frame of frames) {
-            const color = ['\x1b[36m', '\x1b[35m', '\x1b[33m', '\x1b[32m'][i % 4]
-            process.stdout.write(`\r⚡ Iniciando Michi Wa Bot ${frame} ⚡\x1b[0m`)
-            await sleep(120)
-        }
-    }
-    console.log('\n')
-}
-
-async function epicLogo() {
-    const gradients = [
-        ['cyan', 'magenta'],
-        ['yellow', 'red'],
-        ['green', 'white'],
-        ['blue', 'magenta']
-    ]
-    for (let i = 0; i < 6; i++) {
-        console.clear()
-        cfonts.say('✧ MICHÍ WA ✧', {
-            font: 'block',
-            align: 'center',
-            gradient: gradients[i % gradients.length],
-            env: 'node'
-        })
-        cfonts.say('💎 MADE BY ADO 📍', {
-            font: 'console',
-            align: 'center',
-            gradient: gradients[(i + 1) % gradients.length],
-            env: 'node'
-        })
-        await sleep(400)
-    }
-}
-
-let isWorking = false
-
-async function launch(scripts) {
-    if (isWorking) return
-    isWorking = true
-
-    await rocketLaunch()
-    await typeText('🔥 Preparando scripts...')
-    await loadingBar()
-    await epicLogo()
-
-    for (const script of scripts) {
-        const args = [join(__dirname, script), ...process.argv.slice(2)]
-
-        setupMaster({
-            exec: args[0],
-            args: args.slice(1),
-        })
-
-        let child = fork()
-
-        child.on('exit', (code) => {
-            console.log(`⚠️ Proceso terminado con código ${code}`)
-            isWorking = false
-            launch(scripts)
-
-            if (code === 0) return
-            watchFile(args[0], () => {
-                unwatchFile(args[0])
-                console.log('🔄 Archivo actualizado, reiniciando...')
-                launch(scripts)
-            })
-        })
-    }
-}
-
-launch(['main.js'])
+// Inicia por primera vez
+start()
