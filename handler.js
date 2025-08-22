@@ -146,6 +146,10 @@ premiumTime: 0,
 let chat = global.db.data.chats[m.chat]
 if (typeof chat !== 'object')
 global.db.data.chats[m.chat] = {}
+// 🔹 Filtro de bot primario
+const chatData = global.db.data.chats[m.chat] || {}
+const primaryBot = chatData.primaryBot
+if (primaryBot && primaryBot !== this.user.jid && m.sender !== this.user.jid) return
 if (chat) {
 if (!('isBanned' in chat))
 chat.isBanned = false
@@ -294,29 +298,20 @@ if (plugin.tags && plugin.tags.includes('admin')) {
 continue
 }
 const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-// === NUEVO CÓDIGO PARA PREFIJO OPCIONAL ===
-// === NUEVO CÓDIGO PARA PREFIJO OPCIONAL ===
-let _prefixes = plugin.customPrefix ? [plugin.customPrefix] : conn.prefix ? [conn.prefix] : Array.isArray(global.prefix) ? global.prefix : [global.prefix]
-let usedPrefix = ''
-let commandMatched = false
-
-for (let pre of _prefixes) {
-    // Si el prefijo es RegExp lo convertimos a string
-    let preStr = pre instanceof RegExp ? pre.source.replace(/\\(.)/g, '$1') : pre
-    if (m.text.startsWith(preStr)) {
-        usedPrefix = preStr
-        commandMatched = true
-        break
-    }
-}
-
-// Si no tiene prefijo, usamos string vacío para permitir comandos sin prefijo
-if (!commandMatched) usedPrefix = ''
-
-let noPrefix = usedPrefix ? m.text.slice(usedPrefix.length) : m.text
-let [command, ...args] = noPrefix.trim().split` `.filter(v => v)
-command = (command || '').toLowerCase()
-let text = args.join(' ')
+let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
+let match = (_prefix instanceof RegExp ? 
+[[_prefix.exec(m.text), _prefix]] :
+Array.isArray(_prefix) ?
+_prefix.map(p => {
+let re = p instanceof RegExp ?
+p :
+new RegExp(str2Regex(p))
+return [re.exec(m.text), re]
+}) :
+typeof _prefix === 'string' ?
+[[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] :
+[[[], new RegExp]]
+).find(p => p[1])
 if (typeof plugin.before === 'function') {
 if (await plugin.before.call(this, m, {
 match,
