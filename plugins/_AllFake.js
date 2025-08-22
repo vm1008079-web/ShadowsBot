@@ -20,11 +20,10 @@ export async function before(m, { conn }) {
     const canales = [global.idcanal, global.idcanal2]
     const newsletterJidRandom = canales[Math.floor(Math.random() * canales.length)]
 
-    const isForwardedRandom = Math.random() < 0.5
-
+    
     global.rcanal = {
       contextInfo: {
-        isForwarded: isForwardedRandom,
+        isForwarded: true,
         forwardingScore: 1,
         forwardedNewsletterMessageInfo: {
           newsletterJid: newsletterJidRandom,
