@@ -1,6 +1,6 @@
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!m.isGroup) throw `✳️ Este comando solo se puede usar en grupos`
-  if (!m.isAdmin && !m.isOwner) throw `✳️ Solo admins pueden usar este comando`
+  if (!m.isGroup) return conn.reply(m.chat, `✳️ Este comando solo se puede usar en grupos`, m)
+  if (!m.isAdmin && !m.isOwner) return conn.reply(m.chat, `✳️ Solo admins pueden usar este comando`, m)
 
   if (!args[0]) {
     return conn.reply(m.chat, `✳️ Usa:\n\n${usedPrefix + command} *abrir*\n${usedPrefix + command} *cerrar*`, m)
