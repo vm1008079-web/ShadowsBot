@@ -1,5 +1,3 @@
-// handler.js — JID-FIRST puro (@s.whatsapp.net) sin LID
-
 import { smsg } from './lib/simple.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
@@ -73,13 +71,20 @@ export async function handler(chatUpdate) {
   if (global.db.data == null) await global.loadDatabase()
 
   try {
-    // serializa & fuerza JID telefónico en m.chat / m.sender
-    m = smsg(this, m) || m
-    if (!m) return
-    m.chat = normalizeJid(m.chat)
-    m.sender = normalizeJid(m.sender)
-    m.exp = 0
-    m.coin = false
+    // ---- [INICIO DE LA CORRECCIÓN] ----
+    // Serializa el mensaje
+    const M = smsg(this, m) || m
+    if (!M) return
+    
+    // Crea un nuevo objeto 'm' con las propiedades de 'M', pero con 'chat' y 'sender' normalizados
+    m = {
+      ...M, // Copia todas las propiedades de M
+      chat: normalizeJid(M.chat), // Sobrescribe 'chat' con la versión normalizada
+      sender: normalizeJid(M.sender), // Sobrescribe 'sender' con la versión normalizada
+      exp: 0,
+      coin: false
+    }
+    // ---- [FIN DE LA CORRECCIÓN] ----
 
     const conn = this
     const opts = global.opts || {}
