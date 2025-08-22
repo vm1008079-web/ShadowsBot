@@ -9,7 +9,7 @@ var handler = async (m, { conn }) => {
   await conn.reply(m.chat, `Iniciando eliminación de archivos de sesión excepto creds.json...`, m)
   m.react('⌛') // usa el emoji que quieras para "espera"
 
-  const sessionPath = './sessions/'
+  const sessionPath = './Sessions/'
 
   try {
     if (!existsSync(sessionPath)) {
