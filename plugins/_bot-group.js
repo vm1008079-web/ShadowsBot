@@ -1,24 +1,28 @@
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!m.isGroup) return m.reply('❌ Solo funciona en grupos wey');
-    if (!text) return m.reply(`⚠️ Menciona al wey que quieres promover\nEjemplo: ${usedPrefix + command} @usuario`);
+let handler = async (m, { conn, args, usedPrefix, command }) => {
+  if (!m.isGroup) throw `✳️ Este comando solo se puede usar en grupos`
+  if (!m.isAdmin && !m.isOwner) throw `✳️ Solo admins pueden usar este comando`
 
-    // Extraer las menciones del mensaje
-    let mentions = m.mentionedJid;
-    if (!mentions || mentions.length === 0) return m.reply('❌ Debes mencionar a alguien wey');
+  if (!args[0]) {
+    return conn.reply(m.chat, `✳️ Usa:\n\n${usedPrefix + command} *abrir*\n${usedPrefix + command} *cerrar*`, m)
+  }
 
-    try {
-        for (let user of mentions) {
-            await conn.groupParticipantsUpdate(m.chat, [user], 'promote');
-        }
-        m.reply(`✅ Listo wey, promovido(s) a admin: ${mentions.map(u => '@' + u.split('@')[0]).join(', ')}`, null, { mentions });
-    } catch (err) {
-        console.log(err);
-        m.reply('❌ No pude promover al wey, revisa que soy admin y que el usuario está en el grupo');
-    }
-};
+  let action = args[0].toLowerCase()
 
-handler.command = /^(promote|subir)$/i;
-handler.group = true;
-handler.admin = true;
+  if (action === "abrir") {
+    await conn.groupSettingUpdate(m.chat, 'not_announcement')
+    conn.reply(m.chat, `✅ El grupo ha sido *abierto*`, m)
+  } else if (action === "cerrar") {
+    await conn.groupSettingUpdate(m.chat, 'announcement')
+    conn.reply(m.chat, `✅ El grupo ha sido *cerrado*`, m)
+  } else {
+    conn.reply(m.chat, `✳️ Opción no válida\n\nUsa:\n${usedPrefix + command} *abrir*\n${usedPrefix + command} *cerrar*`, m)
+  }
+}
 
-export default handler;
+handler.help = ['grupo *abrir/cerrar*']
+handler.tags = ['group']
+handler.command = /^grupo$/i
+handler.admin = true
+handler.group = true
+
+export default handler
