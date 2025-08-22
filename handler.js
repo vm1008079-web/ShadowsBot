@@ -1,4 +1,4 @@
-// 🔧 Versión completa y corregida de handler.js
+
 
 import { smsg } from './lib/simple.js'
 import { format } from 'util'
@@ -39,9 +39,9 @@ export async function handler(chatUpdate) {
     global.db.data.chats[m.chat] = global.db.data.chats[m.chat] || {}
     global.db.data.settings[this.user.jid] = global.db.data.settings[this.user.jid] || {}
 
-    let userData = global.db.data.users[m.sender]
-    let chat = global.db.data.chats[m.chat]
-    let settings = global.db.data.settings[this.user.jid]
+    const user = global.db.data.users[m.sender]
+    const chat = global.db.data.chats[m.chat]
+    const settings = global.db.data.settings[this.user.jid]
 
     const defaultUser = {
       exp: 0, coin: 10, joincount: 1, diamond: 3, lastadventure: 0, health: 100,
@@ -51,7 +51,7 @@ export async function handler(chatUpdate) {
       name: m.name, age: -1, regTime: -1, afk: -1, afkReason: '', banned: false,
       useDocument: false, bank: 0, level: 0, role: 'Nuv', premium: false, premiumTime: 0
     }
-    for (let prop in defaultUser) if (!(prop in userData)) userData[prop] = defaultUser[prop]
+    for (let prop in defaultUser) if (!(prop in user)) user[prop] = defaultUser[prop]
 
     const defaultChat = {
       isBanned: false, sAutoresponder: '', welcome: true, autolevelup: false,
@@ -84,7 +84,7 @@ export async function handler(chatUpdate) {
   const isROwner = global.owner.map(([n]) => n.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
   const isOwner = isROwner || m.fromMe
   const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
-  const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || userData.premium
+  const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || user.premium
 
   if (m.isBaileys || opts['nyimak']) return
   if (!isROwner && opts['self']) return
@@ -173,9 +173,9 @@ export async function handler(chatUpdate) {
       if (plugin.private && m.isGroup) return this.reply(m.chat, '🔒 Solo en Chat Privado puedes usar este comando.', m)
       if (plugin.admin && !isAdmin) return this.reply(m.chat, '⚔️ Solo los Admins del Grupo pueden usar este comando.', m)
       if (plugin.botAdmin && !isBotAdmin) return this.reply(m.chat, '🤖 El bot debe ser admin para ejecutar este comando.', m)
-      if (plugin.register && !userData.registered) return this.reply(m.chat, '> 🔰 Debes estar registrado para usar este comando.', m)
-      if (plugin.level && userData.level < plugin.level) return this.reply(m.chat, `❮✦❯ Nivel requerido: *${plugin.level}*\nTu nivel: *${userData.level}*\nUsa *${usedPrefix}levelup* para subir de nivel.`, m)
-      if (plugin.coin && userData.coin < plugin.coin) return this.reply(m.chat, `❮✦❯ No tienes suficientes monedas (${plugin.coin}) para usar este comando.`, m)
+      if (plugin.register && !user.registered) return this.reply(m.chat, '> 🔰 Debes estar registrado para usar este comando.', m)
+      if (plugin.level && user.level < plugin.level) return this.reply(m.chat, `❮✦❯ Nivel requerido: *${plugin.level}*\nTu nivel: *${user.level}*\nUsa *${usedPrefix}levelup* para subir de nivel.`, m)
+      if (plugin.coin && user.coin < plugin.coin) return this.reply(m.chat, `❮✦❯ No tienes suficientes monedas (${plugin.coin}) para usar este comando.`, m)
 
       try {
         await plugin.call(this, m, {
