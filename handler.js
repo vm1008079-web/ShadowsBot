@@ -17,7 +17,8 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function()
     resolve()
 }, ms))
 
-const DIGITS = v => v.replace(/[^0-9]/g, '')
+// Agrega una verificación para asegurar que v es un string antes de llamar a replace
+const DIGITS = v => typeof v === 'string' ? v.replace(/[^0-9]/g, '') : ''
 const numberToJid = num => DIGITS(num) + '@s.whatsapp.net'
 const looksPhoneJid = v => typeof v === 'string' && v.endsWith('@s.whatsapp.net') && DIGITS(v).length > 5
 const normalizeJid = id => {
@@ -48,7 +49,12 @@ export async function handler(chatUpdate) {
 
     if (global.db.data == null) await global.loadDatabase()
 
-    // Mover la definición de selfJid, senderJid y chatJid fuera del try
+    // Verificar si this.user y m.sender son válidos antes de normalizar
+    if (!this.user || !this.user.jid || !m.sender || !m.chat) {
+        console.error("Error: this.user o m.sender están indefinidos. No se puede procesar el mensaje.");
+        return;
+    }
+    
     const selfJid = normalizeJid(this.user.jid)
     const senderJid = normalizeJid(m.sender)
     const chatJid = normalizeJid(m.chat)
@@ -529,7 +535,7 @@ export async function handler(chatUpdate) {
             console.log(m, m.quoted, e)
         }
 
-        if (global.db.data.settings[selfJid].autoread) await this.readMessages([m.key])
+        if (global.db.data.settings[selfJid]?.autoread) await this.readMessages([m.key])
 
         if (global.db.data.chats[chatJid]?.reaction && m.text.match(/(ción|dad|aje|oso|izar|mente|pero|tion|age|ous|ate|and|but|ify|ai|yuki|a|s)/gi)) {
             let emot = pickRandom(["🍟", "😃", "😄", "😁", "😆", "🍓", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "🌺", "🌸", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🌟", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "💫", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😶‍🌫️", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🫣", "🤭", "🤖", "🍭", "🤫", "🫠", "🤥", "😶", "📇", "😐", "💧", "😑", "🫨", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😮‍💨", "😵", "😵‍💫", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👺", "🧿", "🌩", "👻", "😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾", "🫶", "👍", "✌️", "🙏", "🫵", "🤏", "🤌", "☝️", "🖕", "🙏", "🫵", "🫂", "🐱", "🤹‍♀️", "🤹‍♂️", "🗿", "✨", "⚡", "🔥", "🌈", "🩷", "❤️", "🧡", "💛", "💚", "🩵", "💙", "💜", "🖤", "🩶", "🤍", "🤎", "💔", "❤️‍🔥", "❤️‍🩹", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "🚩", "👊", "⚡️", "💋", "🫰", "💅", "👑", "🐣", "🐤", "🐈"])
@@ -585,7 +591,3 @@ global.dfail = (type, m, conn, usedPrefix, command) => {
                 .map(conn => conn)])]
             for (const userr of users) {
                 userr.subreloadHandler(false)
-            }
-        }
-    })
-}
