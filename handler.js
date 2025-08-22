@@ -485,7 +485,7 @@ global.dfail = (type, m, conn, usedPrefix, command) => {
 
     const msg = {
         rowner: '🔐 Solo el Creador del Bot puede usar este comando.',
-        owner: '👑 Solo el Creador y Sub Bots pueden usar este comando.',
+        owner: '👑 Solo el creador puede usar este comando.',
         mods: '🛡️ Solo los Moderadores pueden usar este comando.',
         premium: '💎 Solo usuarios Premium pueden usar este comando.',
         group: '「✧」 Este comando es sólo para grupos.',
