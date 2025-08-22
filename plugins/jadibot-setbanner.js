@@ -13,12 +13,26 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   }
 
   const quoted = m.quoted
-  if (!quoted || !quoted.message || !quoted.message.imageMessage) {
-    return m.reply(`> 📸 Responde a una imagen usando *${usedPrefix + command}* para establecer el banner.`)
+  let imageMsg
+
+  if (quoted) {
+    // Intentar obtener el mensaje directamente
+    imageMsg = quoted.message?.imageMessage 
+               || quoted.message?.documentMessage 
+               || quoted.message?.stickerMessage
+               || quoted.message?.videoMessage
+
+    // Validar que tenga mimetype de imagen
+    if (imageMsg && imageMsg.mimetype && imageMsg.mimetype.startsWith('image/')) {
+      // todo bien
+    } else {
+      return m.reply(`> 📸 Responde a una imagen (jpg/png/webp/gif) usando *${usedPrefix + command}* para establecer el banner.`)
+    }
+  } else {
+    return m.reply(`> 📸 Responde a una imagen (jpg/png/webp/gif) usando *${usedPrefix + command}* para establecer el banner.`)
   }
 
   try {
-    // Descargar la imagen
     const stream = await conn.downloadMediaMessage(quoted)
     const buffer = Buffer.from(await stream.arrayBuffer())
 
