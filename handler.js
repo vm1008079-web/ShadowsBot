@@ -1,6 +1,6 @@
 // ---> Código original de Michi-Wa 
 // Hecho por Ado 
-// ( Solución Lid )
+
 
 import { smsg } from './lib/simple.js';
 import { format } from 'util';
