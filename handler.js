@@ -591,3 +591,7 @@ global.dfail = (type, m, conn, usedPrefix, command) => {
                 .map(conn => conn)])]
             for (const userr of users) {
                 userr.subreloadHandler(false)
+            }
+        }
+    })
+}
