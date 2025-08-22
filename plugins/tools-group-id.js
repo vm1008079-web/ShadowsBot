@@ -33,7 +33,7 @@ const handler = async (m, { conn }) => {
         const listaThumbnails = json2.data;
         const listaCombinada = listaJuegos.map((v, i) => ({ ...v, ...listaThumbnails[i] }));
 
-        // Enviar como álbum
+        
         const mensajes = await Promise.all(
             listaCombinada.map(async (v, i) => {
                 const buffer = await axios.get(v.imageUrl, { responseType: 'arraybuffer' }).then(r => Buffer.from(r.data));
