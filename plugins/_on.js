@@ -33,7 +33,7 @@ const handler = async (m, { conn, command, args, isAdmin, isOwner }) => {
   if (type === 'antilink') {
     chat.antilink = enable
     if(!chat.antilinkWarns) chat.antilinkWarns = {}
-    if(!enable) chat.antilinkWarns = {} // resetea advertencias si se apaga antilink
+    if(!enable) chat.antilinkWarns = {}
     return m.reply(`✅ Antilink ${enable ? 'activado' : 'desactivado'}.`)
   }
 
@@ -106,7 +106,6 @@ handler.before = async (m, { conn }) => {
       chat.antilinkWarns[m.sender]++
 
       if (chat.antilinkWarns[m.sender] < 3) {
-        // solo elimina el mensaje con link y manda advertencia
         try {
           await conn.sendMessage(m.chat, {
             text: `🚫 Hey ${userTag}, no se permiten links aquí. Esta es tu advertencia ${chat.antilinkWarns[m.sender]}/3.`,
@@ -128,7 +127,6 @@ handler.before = async (m, { conn }) => {
           }, { quoted: m })
         }
       } else {
-        // tercera advertencia: elimina y expulsa
         try {
           await conn.sendMessage(m.chat, {
             text: `🚫 ${userTag} alcanzó 3 advertencias por enviar links. Ahora serás expulsado.`,
@@ -172,47 +170,45 @@ handler.before = async (m, { conn }) => {
       profilePic = defaultImage
     }
 
-    if (m.messageStubType === 27) {
+    const isLeaving = [28, 32].includes(m.messageStubType)
+    const externalAdReply = {
+      showAdAttribution: true,
+      title: `${isLeaving ? '🍿 Adiós' : '🍿 Bienvenido'}`,
+      body: `🧃 Grupo con ${groupSize} miembros`,
+      mediaType: 2,
+      mediaUrl: profilePic,
+      thumbnail: await (await fetch(profilePic)).arrayBuffer(),
+      sourceUrl: `https://wa.me/${userId.split('@')[0]}`
+    }
+
+    if (!isLeaving) {
       const txtWelcome = '🌟 BIENVENIDO/A 🌟'
       const bienvenida = `
 👋 Hola ${userMention}!
 
 🙌 Te damos la bienvenida a *${groupMetadata.subject}*  
 👥 Somos *${groupSize}* personas en esta comunidad.
-
 📌 Porfa sigue las reglas para que todos la pasemos chido.
-
-🛠️ Si necesitas ayuda, habla con algun admin.
-
-✨ ¡Disfruta y participa activamente!
-
-*──────────*
+🛠️ Si necesitas ayuda, habla con algún admin.
+🌤️ Disfruta de tu estadia.
 `.trim()
 
       await conn.sendMessage(m.chat, {
-        image: { url: profilePic },
-        caption: `${txtWelcome}\n\n${bienvenida}`,
-        contextInfo: { mentionedJid: [userId] }
+        text: `${txtWelcome}\n\n${bienvenida}`,
+        contextInfo: { mentionedJid: [userId], externalAdReply }
       })
-    }
-
-    if (m.messageStubType === 28 || m.messageStubType === 32) {
+    } else {
       const txtBye = '👋 HASTA PRONTO 👋'
       const despedida = `
 ⚠️ El usuario ${userMention} ha salido de *${groupMetadata.subject}*  
 👥 Quedamos *${groupSize}* miembros.
-
 🙏 Gracias por tu tiempo y esperamos verte de nuevo pronto.
-
-💬 Recuerda que las puertas siempre están abiertas.
-
-*──────────*
+💬 Recuerda que las puertas siempre están abiertas
 `.trim()
 
       await conn.sendMessage(m.chat, {
-        image: { url: profilePic },
-        caption: `${txtBye}\n\n${despedida}`,
-        contextInfo: { mentionedJid: [userId] }
+        text: `${txtBye}\n\n${despedida}`,
+        contextInfo: { mentionedJid: [userId], externalAdReply }
       })
     }
   }
