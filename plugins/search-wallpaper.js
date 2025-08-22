@@ -84,8 +84,7 @@ let handler = async (m, { conn, args }) => {
 }
 
 handler.help = ['wallpapersearch']
-handler.tags = ['downloader']
+handler.tags = ['search']
 handler.command = ['wallpapersearch']
-handler.limit = true
 
 export default handler
