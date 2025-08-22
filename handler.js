@@ -8,7 +8,7 @@ import fetch from 'node-fetch';
 
 const { proto, jidDecode, areJidsSameUser } = (await import('@whiskeysockets/baileys')).default;
 
-// --- JID UTILITIES ---
+// --- JID UTILITIES --
 const DIGITS = (v) => (v || '').replace(/\D/g, '');
 const numberToJid = (num) => `${DIGITS(num)}@s.whatsapp.net`;
 const looksPhoneJid = (v) => typeof v === 'string' && /^\d+@s\.whatsapp\.net$/.test(v);
