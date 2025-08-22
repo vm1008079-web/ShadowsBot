@@ -1,3 +1,7 @@
+// ---> Código original de Michi-Wa 
+// Hecho por Ado 
+// ( Solución Lid )
+
 import { smsg } from './lib/simple.js';
 import { format } from 'util';
 import { fileURLToPath } from 'url';
@@ -8,7 +12,7 @@ import fetch from 'node-fetch';
 
 const { proto, jidDecode, areJidsSameUser } = (await import('@whiskeysockets/baileys')).default;
 
-// --- JID UTILITIES --
+
 const DIGITS = (v) => (v || '').replace(/\D/g, '');
 const numberToJid = (num) => `${DIGITS(num)}@s.whatsapp.net`;
 const looksPhoneJid = (v) => typeof v === 'string' && /^\d+@s\.whatsapp\.net$/.test(v);
@@ -32,7 +36,7 @@ const sameUser = (a, b) => {
     }
     return DIGITS(normA) === DIGITS(normB);
 };
-// --- END JID UTILITIES ---
+
 
 const isNumber = x => typeof x === 'number' && !isNaN(x);
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function () {
@@ -48,21 +52,21 @@ export async function handler(chatUpdate) {
     let m = chatUpdate.messages[chatUpdate.messages.length - 1];
     if (!m) return;
     if (global.db.data == null) await global.loadDatabase();
-    
-    let settings; // Declare settings here to be available in finally block
-    
+
+    let settings; 
+
     try {
         m = smsg(this, m) || m;
         if (!m) return;
 
-        // --- JID NORMALIZATION (using new variables) ---
+        //  SOLUCION LID :D
         const sender = normalizeJid(m.sender);
         const chat = normalizeJid(m.chat);
         const selfJid = normalizeJid(this.user?.id || this.user?.jid);
-        
+
         m.exp = 0;
         m.coin = false;
-        
+
         try {
             let user = global.db.data.users[sender];
             if (typeof user !== 'object') global.db.data.users[sender] = {};
@@ -146,8 +150,8 @@ export async function handler(chatUpdate) {
                     antiLag: false, per: [],
                 };
             }
-            
-            // --- ROBUST SETTINGS INITIALIZATION ---
+
+           
             settings = global.db.data.settings[selfJid];
             if (!settings || typeof settings !== 'object') {
                 global.db.data.settings[selfJid] = {
@@ -168,7 +172,7 @@ export async function handler(chatUpdate) {
             console.error(e);
         }
 
-        // --- ROLE DETECTION (JID-first) ---
+       
         const userDb = global.db.data.users[sender] || {};
         const ownerJids = global.owner.map(([number]) => numberToJid(number));
         const modJids = global.mods.map(number => numberToJid(number));
@@ -178,14 +182,14 @@ export async function handler(chatUpdate) {
         const isROwner = isOwner;
         const isMods = isOwner || modJids.some(mod => sameUser(mod, sender));
         const isPrems = isOwner || premJids.some(prem => sameUser(prem, sender)) || userDb.premium === true;
-        
+
         if (m.isBaileys) return;
         if (opts['nyimak']) return;
         if (settings.self && !isOwner) return;
         if (opts['swonly'] && m.chat !== 'status@broadcast') return;
         if (typeof m.text !== 'string') m.text = '';
 
-        // --- PRIMARY BOT GATE (JID-first) ---
+         
         if (m.isGroup) {
             let chatDb = global.db.data.chats[chat];
             if (chatDb?.primaryBot) {
@@ -207,10 +211,10 @@ export async function handler(chatUpdate) {
                 await delay(time);
             }, time);
         }
-        
+
         m.exp += Math.ceil(Math.random() * 10);
-        
-        // --- ADMIN DETECTION (JID-first) ---
+
+       
         let participants = [];
         let user = {};
         let bot = {};
@@ -226,10 +230,10 @@ export async function handler(chatUpdate) {
                 jid: normalizeJid(p.id),
                 admin: p.admin
             }));
-            
+
             user = participants.find(p => sameUser(p.jid, sender)) || {};
             bot = participants.find(p => sameUser(p.jid, selfJid)) || {};
-            
+
             isRAdmin = user?.admin === "superadmin";
             isAdmin = isRAdmin || user?.admin === "admin";
             isBotAdmin = !!bot?.admin;
@@ -237,7 +241,7 @@ export async function handler(chatUpdate) {
 
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins');
         let usedPrefix = '';
-        
+
         for (let name in global.plugins) {
             let plugin = global.plugins[name];
             if (!plugin) continue;
@@ -272,7 +276,7 @@ export async function handler(chatUpdate) {
                 [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] :
                 [[[], new RegExp]]
             ).find(p => p[1]);
-            
+
             if (typeof plugin.before === 'function') {
                 if (await plugin.before.call(this, m, {
                     match, conn: this, participants, groupMetadata, user, bot,
@@ -282,7 +286,7 @@ export async function handler(chatUpdate) {
                 continue;
             }
             if (typeof plugin !== 'function') continue;
-            
+
             if ((usedPrefix = (match[0] || '')[0])) {
                 let noPrefix = m.text.replace(usedPrefix, '');
                 let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
@@ -302,15 +306,15 @@ export async function handler(chatUpdate) {
                     false;
 
                 global.comando = command;
-                
+
                 if ((m.id.startsWith('NJX-') || (m.id.startsWith('BAE5') && m.id.length === 16) || (m.id.startsWith('B24E') && m.id.length === 20))) return;
 
                 if (!isAccept) {
                     continue;
                 }
-                
+
                 m.plugin = name;
-                
+
                 if (chat in global.db.data.chats || sender in global.db.data.users) {
                     let chatDb = global.db.data.chats[chat];
                     let userDb = global.db.data.users[sender];
@@ -324,7 +328,7 @@ export async function handler(chatUpdate) {
                     if (name != 'grupo-unbanchat.js' && chatDb?.isBanned) return;
                     if (name != 'owner-unbanuser.js' && userDb?.banned) return;
                 }
-                
+
                 let hl = _prefix;
                 let adminMode = global.db.data.chats[chat].modoadmin;
                 let mini = `${plugins.botAdmin || plugins.admin || plugins.group || plugins || noPrefix || hl || m.text.slice(0, 1) == hl || plugins.command}`;
@@ -367,11 +371,11 @@ export async function handler(chatUpdate) {
                     fail('unreg', m, this, usedPrefix, command);
                     continue;
                 }
-                
+
                 m.isCommand = true;
                 let xp = 'exp' in plugin ? parseInt(plugin.exp) : 10;
                 m.exp += xp;
-                
+
                 if (!isPrems && plugin.coin && global.db.data.users[sender].coin < plugin.coin * 1) {
                     this.reply(chat, `❮✦❯ Se agotaron tus ${moneda}`, m);
                     continue;
@@ -380,14 +384,14 @@ export async function handler(chatUpdate) {
                     this.reply(chat, `❮✦❯ Se requiere el nivel: *${plugin.level}*\n\n• Tu nivel actual es: *${userDb.level}*\n\n• Usa este comando para subir de nivel:\n*${usedPrefix}levelup*`, m);
                     continue;
                 }
-                
+
                 let extra = {
                     match, usedPrefix, noPrefix, _args, args, command, text,
                     conn: this, participants, groupMetadata, user, bot,
                     isROwner, isOwner, isRAdmin, isAdmin, isBotAdmin, isPrems,
                     chatUpdate, __dirname: ___dirname, __filename
                 };
-                
+
                 try {
                     await plugin.call(this, m, extra);
                     if (!isPrems) m.coin = m.coin || plugin.coin || false;
@@ -421,9 +425,9 @@ export async function handler(chatUpdate) {
             const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id);
             if (quequeIndex !== -1) this.msgqueque.splice(quequeIndex, 1);
         }
-        
+
         if (m) {
-            const sender = normalizeJid(m.sender); // Ensure normalized sender for final DB update
+            const sender = normalizeJid(m.sender); 
             let utente = global.db.data.users[sender];
             if (utente && utente.muto == true) {
                 let bang = m.key.id;
@@ -434,7 +438,7 @@ export async function handler(chatUpdate) {
                 utente.exp += m.exp;
                 utente.coin -= m.coin * 1;
             }
-            
+
             let stats = global.db.data.stats;
             if (m.plugin) {
                 let now = +new Date;
@@ -446,7 +450,7 @@ export async function handler(chatUpdate) {
                 });
                 if (!isNumber(stat.total)) stat.total = 0;
                 if (!isNumber(stat.success)) stat.success = 0;
-                
+
                 stat.total += 1;
                 stat.last = now;
                 if (m.error == null) {
@@ -455,13 +459,13 @@ export async function handler(chatUpdate) {
                 }
             }
         }
-        
+
         try {
             if (!opts['noprint']) await (await import(`./lib/print.js`)).default(m, this);
         } catch (e) {
             console.log(m, m.quoted, e);
         }
-        
+
         if (settings && settings.autoread) {
            await this.readMessages([m.key]);
         }
@@ -478,7 +482,7 @@ global.dfail = (type, m, conn, usedPrefix, command) => {
     let edadaleatoria = ['10', '28', '20', '40', '18', '21', '15', '11', '9', '17', '25'].getRandom();
     let user2 = m.pushName || 'Anónimo';
     let verifyaleatorio = ['registrar', 'reg', 'verificar', 'verify', 'register'].getRandom();
-    
+
     const msg = {
         rowner: '🔐 Solo el Creador del Bot puede usar este comando.',
         owner: '👑 Solo el Creador y Sub Bots pueden usar este comando.',
@@ -486,20 +490,20 @@ global.dfail = (type, m, conn, usedPrefix, command) => {
         premium: '💎 Solo usuarios Premium pueden usar este comando.',
         group: '「✧」 Este comando es sólo para grupos.',
         private: '🔒 Solo en Chat Privado puedes usar este comando.',
-        admin: '⚔️ Solo los Admins del Grupo pueden usar este comando.',
+        admin: '🌤️ Solo los admins del grupo pueden usar este comando.',
         botAdmin: 'El bot debe ser Admin para ejecutar esto.',
         unreg: '> 🔰 Debes estar Registrado para usar este comando.\n\n Ejemplo : #reg Ado.55',
         restrict: '⛔ Esta función está deshabilitada.'
     }[type];
-    
+
     if (msg)
         return conn.reply(m.chat, msg, m, { contextInfo: rcanal }).then(() => conn.sendMessage(m.chat, { react: { text: '✖️', key: m.key } }));
-    
+
     let file = global.__filename(import.meta.url, true);
     watchFile(file, async () => {
         unwatchFile(file);
         console.log(chalk.magenta("Se actualizo 'handler.js'"));
-        
+
         if (global.conns && global.conns.length > 0) {
             const users = [...new Set([...global.conns
                 .filter(conn => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED)
