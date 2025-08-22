@@ -28,6 +28,10 @@ export async function handler(chatUpdate) {
             return
         m.exp = 0
         m.diamond = false
+        // 🔹 Filtro de bot primario
+const chatData = global.db.data.chats[m.chat] || {}
+const primaryBot = chatData.primaryBot
+if (primaryBot && primaryBot !== this.user.jid && m.sender !== this.user.jid) return
         try {
             global.db.data.users[m.chat] = global.db.data.users[m.chat] || {}
 let user = global.db.data.users[m.chat][m.sender]
