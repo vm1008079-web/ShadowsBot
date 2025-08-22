@@ -31,7 +31,6 @@ if (!fs.existsSync(process.env.TMPDIR)) {
 import './config.js';
 import { createRequire } from 'module';
 
-// Usar el caché de la librería para mejorar la velocidad
 const cache = new NodeCache();
 
 const { proto } = (await import('@whiskeysockets/baileys')).default;
@@ -86,16 +85,14 @@ global.prefix = new RegExp(
 global.db = new Low(new JSONFile(`storage/databases/database.json`));
 
 // --- Optimización de la base de datos ---
-// Variables y funciones para el control de la escritura en la base de datos
 global.isDatabaseModified = false;
 global.lastDatabaseWrite = Date.now();
-const writeInterval = 30 * 1000; // 30 segundos
+const writeInterval = 5 * 1000; // Escribe cada 5 segundos si hay cambios
 
 global.markDatabaseModified = () => {
   global.isDatabaseModified = true;
 };
 
-// Se mantiene el uso de Lowdb y Lodash
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ)
@@ -142,7 +139,7 @@ const question = (texto) => new Promise((resolver) => rl.question(texto, resolve
 const logger = pino({
   timestamp: () => `,"time":"${new Date().toJSON()}"`,
 }).child({ class: 'client' });
-logger.level = 'silent'; // O 'warn' para ver solo advertencias
+logger.level = 'silent';
 
 const connectionOptions = {
   version: version,
@@ -153,12 +150,12 @@ const connectionOptions = {
     keys: makeCacheableSignalKeyStore(state.keys, logger),
   },
   browser: Browsers.ubuntu('Chrome'),
-  markOnlineOnclientect: false,
+  markOnlineOnConnect: false,
   generateHighQualityLinkPreview: true,
-  syncFullHistory: true,
-  retryRequestDelayMs: 250, // Aumentado para reducir la carga en conexiones inestables
+  syncFullHistory: false, // CAMBIO: Optimización para evitar la carga de historial completo
+  retryRequestDelayMs: 250,
   transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 50 },
-  maxMsgRetryCount: 20, // Aumentado para evitar re-envíos innecesarios
+  maxMsgRetryCount: 20,
   appStateMacVerification: {
     patch: false,
     snapshot: false,
@@ -182,10 +179,6 @@ try {
   process.exit(1);
 }
 
-/**
- * Función para reconectar un sub-bot y asignarle un manejador de mensajes.
- * @param {string} botPath - Ruta completa a la carpeta de sesión del sub-bot.
- */
 async function reconnectSubBot(botPath) {
   console.log(chalk.yellow(`[DEBUG] 🔄 Intentando reconectar sub-bot en: ${path.basename(botPath)}`));
   try {
@@ -205,9 +198,9 @@ async function reconnectSubBot(botPath) {
         keys: makeCacheableSignalKeyStore(subBotState.keys, logger),
       },
       browser: Browsers.ubuntu('Chrome'),
-      markOnlineOnclientect: false,
+      markOnlineOnConnect: false,
       generateHighQualityLinkPreview: true,
-      syncFullHistory: true,
+      syncFullHistory: false, // CAMBIO: Optimización para sub-bots
       retryRequestDelayMs: 250,
       transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 50 },
       maxMsgRetryCount: 20,
@@ -260,9 +253,6 @@ async function reconnectSubBot(botPath) {
   }
 }
 
-/**
- * Función para iniciar la reconexión de todos los sub-bots.
- */
 async function startSubBots() {
   const rutaJadiBot = join(__dirname, './JadiBots');
 
@@ -317,7 +307,6 @@ async function handleLogin() {
     let phoneNumber = await question(chalk.yellow('🌤️ Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
     phoneNumber = phoneNumber.replace(/\D/g, '');
 
-    // Se unifica el tratamiento del número para México
     if (phoneNumber.startsWith('52') && (phoneNumber.length === 12 || phoneNumber.length === 10)) {
         phoneNumber = `521${phoneNumber.slice(2)}`;
     } else if (phoneNumber.startsWith('0')) {
@@ -354,18 +343,16 @@ conn.well = false;
 
 if (!opts['test']) {
   if (global.db) {
-    // Optimización de la base de datos: solo escribe si hay cambios.
     setInterval(async () => {
-      if (global.isDatabaseModified) {
+      if (global.isDatabaseModified && (Date.now() - global.lastDatabaseWrite > writeInterval)) {
         console.log(chalk.gray(`[INFO] 💾 Escribiendo cambios en la base de datos...`));
         await global.db.write();
-        global.isDatabaseModified = false; // Resetear la bandera
+        global.isDatabaseModified = false;
         global.lastDatabaseWrite = Date.now();
         console.log(chalk.gray(`[INFO] ✅ Base de datos actualizada.`));
       }
-    }, writeInterval);
+    }, 1000);
     
-    // Limpieza de temporales en un intervalo separado
     setInterval(() => {
         if (opts['autocleartmp']) {
           const tmp = [tmpdir(), 'tmp', 'serbot'];
@@ -373,7 +360,7 @@ if (!opts['test']) {
             spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']);
           });
         }
-    }, 60 * 1000); // Cada minuto
+    }, 60 * 1000);
   }
 }
 
@@ -383,7 +370,6 @@ function clearTmp() {
   tmp.forEach((dirname) => readdirSync(dirname).forEach((file) => filename.push(join(dirname, file))));
   return filename.map((file) => {
     const stats = statSync(file);
-    // Elimina archivos de 1 minuto
     if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 1) { 
         console.log(chalk.gray(`[INFO] 🗑️ Eliminando archivo temporal: ${file}`));
         unlinkSync(file);
@@ -392,20 +378,17 @@ function clearTmp() {
   });
 }
 
-// Limpiar la carpeta temporal con más frecuencia (cada 3 minutos).
 setInterval(() => {
   if (global.stopped === 'close' || !conn || !conn.user) return;
   console.log(chalk.gray(`[INFO] 🗑️ Limpiando carpeta temporal...`));
   clearTmp();
-}, 180000); // 180000 ms = 3 minutos
+}, 180000);
 
-// Optimización de memoria
-// Se mantiene la recolección de basura
 if (typeof global.gc === 'function') {
   setInterval(() => {
     console.log(chalk.gray(`[INFO] ♻️ Ejecutando recolección de basura...`));
     global.gc();
-  }, 180000); // Cada 3 minutos (180000 ms), más frecuente para baja memoria.
+  }, 180000);
 } else {
   console.log(chalk.yellow(`[WARN] ⚠️ La recolección de basura no está disponible. Para habilitarla, ejecuta Node.js con la bandera --expose-gc.`));
 }
@@ -444,7 +427,6 @@ async function connectionUpdate(update) {
       case DisconnectReason.connectionLost:
       case DisconnectReason.timedOut:
         conn.logger.warn(chalk.yellow(`⚠️ Conexión principal perdida o cerrada, reconectando...`));
-        // Espera un tiempo antes de intentar reconectar para evitar un bucle
         setTimeout(() => global.reloadHandler(true).catch(console.error), 5000); 
         break;
       case DisconnectReason.connectionReplaced:
