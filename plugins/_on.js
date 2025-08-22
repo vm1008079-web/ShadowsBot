@@ -1,5 +1,3 @@
-//--> Hecho por Ado-rgb (github.com/Ado-rgb)
-// •|• No quites créditos..
 import fetch from 'node-fetch'
 
 let linkRegex = /chat\.whatsapp\.com\/[0-9A-Za-z]{20,24}/i
@@ -172,12 +170,13 @@ handler.before = async (m, { conn }) => {
 
     const isLeaving = [28, 32].includes(m.messageStubType)
     const externalAdReply = {
-      showAdAttribution: true,
+      forwardingScore: 999,
+      isForwarded: true,
       title: `${isLeaving ? '🍿 Adiós' : '🍿 Bienvenido'}`,
       body: `🧃 Grupo con ${groupSize} miembros`,
-      mediaType: 2,
-      mediaUrl: profilePic,
-      thumbnail: await (await fetch(profilePic)).arrayBuffer(),
+      mediaType: 1,
+      renderLargerThumbnail: true,
+      thumbnailUrl: profilePic,
       sourceUrl: `https://wa.me/${userId.split('@')[0]}`
     }
 
