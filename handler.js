@@ -296,42 +296,47 @@ export async function handler(chatUpdate) {
         if (plugin.tags && plugin.tags.includes('admin')) {
           continue
         }
+
+      // --- INICIO DE LA LÓGICA CORREGIDA PARA COMANDOS SIN PREFIJO ---
       const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
       let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
-      
-      // Corregimos la inicialización de variables
-      let command, text, noPrefix, _args = [], args = [];
+      let command, noPrefix, _args, text;
+      let args = [];
+      let match = null;
+      let isPrefixed = false;
 
-      let match = (_prefix instanceof RegExp ?
-        [[_prefix.exec(m.text), _prefix]] :
-        Array.isArray(_prefix) ?
-        _prefix.map(p => {
-          let re = p instanceof RegExp ?
-            p :
-            new RegExp(str2Regex(p))
-          return [re.exec(m.text), re]
-        }) :
-        typeof _prefix === 'string' ?
-        [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] :
-        [[[], new RegExp]]
-      ).find(p => p[1])
-
-      if ((usedPrefix = (match[0] || '')[0])) {
-        noPrefix = m.text.replace(usedPrefix, '')
-        let [cmd, ...cmdArgs] = noPrefix.trim().split` `.filter(v => v)
-        command = cmd?.toLowerCase()
-        args = cmdArgs
-        _args = noPrefix.trim().split` `.slice(1)
-        text = _args.join` `
-      } else {
-        noPrefix = m.text
-        let [cmd, ...cmdArgs] = noPrefix.trim().split` `.filter(v => v)
-        command = cmd?.toLowerCase()
-        args = cmdArgs
-        _args = noPrefix.trim().split` `.slice(1)
-        text = _args.join` `
-        usedPrefix = ''
+      // Intentar encontrar un prefijo
+      if (Array.isArray(_prefix)) {
+        usedPrefix = _prefix.find(p => m.text.startsWith(p));
+        if(usedPrefix) isPrefixed = true;
+      } else if (typeof _prefix === 'string') {
+        usedPrefix = m.text.startsWith(_prefix) ? _prefix : null;
+        if(usedPrefix) isPrefixed = true;
+      } else if (_prefix instanceof RegExp) {
+        const regexMatch = m.text.match(_prefix);
+        if (regexMatch) {
+          usedPrefix = regexMatch[0];
+          match = [_prefix.exec(m.text), _prefix];
+          isPrefixed = true;
+        }
       }
+      
+      // Si se encuentra un prefijo, extraer el comando después de él
+      if (isPrefixed) {
+        noPrefix = m.text.slice(usedPrefix.length).trim();
+      } else {
+        // Si no hay prefijo, el mensaje completo es el posible comando
+        noPrefix = m.text.trim();
+        usedPrefix = '';
+      }
+
+      // Separar el comando del resto del texto
+      const parts = noPrefix.split(/\s+/);
+      command = parts[0]?.toLowerCase();
+      args = parts.slice(1);
+      _args = parts.slice(1);
+      text = _args.join(' ');
+      // --- FIN DE LA LÓGICA CORREGIDA ---
 
       if (typeof plugin.before === 'function') {
         if (await plugin.before.call(this, m, {
@@ -355,7 +360,6 @@ export async function handler(chatUpdate) {
       }
       if (typeof plugin !== 'function')
         continue
-
       let fail = plugin.fail || global.dfail
       let isAccept = plugin.command instanceof RegExp ?
         plugin.command.test(command) :
