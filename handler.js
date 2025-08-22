@@ -17,7 +17,7 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function()
     resolve()
 }, ms))
 
-// Agrega una verificación para asegurar que v es un string antes de llamar a replace
+// Corrección para evitar el error 'replace'
 const DIGITS = v => typeof v === 'string' ? v.replace(/[^0-9]/g, '') : ''
 const numberToJid = num => DIGITS(num) + '@s.whatsapp.net'
 const looksPhoneJid = v => typeof v === 'string' && v.endsWith('@s.whatsapp.net') && DIGITS(v).length > 5
@@ -49,9 +49,9 @@ export async function handler(chatUpdate) {
 
     if (global.db.data == null) await global.loadDatabase()
 
-    // Verificar si this.user y m.sender son válidos antes de normalizar
+    // Verificación de existencia de las propiedades antes de usarlas
     if (!this.user || !this.user.jid || !m.sender || !m.chat) {
-        console.error("Error: this.user o m.sender están indefinidos. No se puede procesar el mensaje.");
+        console.error("Error: 'this.user' o 'm.sender' están indefinidos. No se puede procesar el mensaje.");
         return;
     }
     
