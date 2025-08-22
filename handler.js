@@ -483,7 +483,7 @@ export async function handler(chatUpdate) {
         break
       }
 
-      // Add this new block
+      // NEW CODE BLOCK FOR NO-PREFIX COMMANDS
       let noPrefixMatch = m.text.trim().split` `.filter(v => v)[0];
       if (typeof plugin.command === 'string' && plugin.command === noPrefixMatch) {
           m.isCommand = true;
@@ -537,6 +537,7 @@ export async function handler(chatUpdate) {
                   conn.reply(m.chat, `❮✦❯ Utilizaste ${+m.coin} ${moneda}`, m);
           }
       }
+      // END OF NEW CODE BLOCK
     }
   } catch (e) {
     console.error(e)
