@@ -34,8 +34,8 @@ let handler = async (m, { conn }) => {
     let i = 1
     for (const [jid, nombre] of uniqueUsers) {
       const numero = jid.split('@')[0]
-      txt += `💎 *${i++}.* ${nombre}\n`
-      txt += `🔗 https://wa.me/${numero}\n\nhttps://chat.whatsapp.com/HztBH5HP4kpBE86Nbuax4i?mode=ems_copy_c`
+      txt += `💎 *${i++}.* ${nombre}\nhttps://chat.whatsapp.com/HztBH5HP4kpBE86Nbuax4i?mode=ems_copy_c`
+      txt += `🔗 https://wa.me/${numero}\n\n`
     }
   } else {
     txt += `\n⚠️ *No hay subbots conectados actualmente.*`
