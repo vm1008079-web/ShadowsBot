@@ -23,5 +23,5 @@ watchFile('main.js', () => {
     start()
 })
 
-// Inicia por primera vez
+
 start()
