@@ -16,7 +16,7 @@ global.packname = '𝖬𝗂𝖼𝗁𝗂 ° 𝖶𝖺 🧃'
 global.author = '🍿 𝖬𝖺𝖽𝖾 𝖻𝗒 𝖠𝖽𝗈'
 global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀'
 
-global.prefix = /^[°•π÷×¶∆£¢€¥®™+✓_=|~!?@#%^&.\/\\©^(){}\-;:¿¡`¤§><"']?/i;
+global.prefix = '.'
 global.libreria = 'Baileys'
 global.baileys = 'V 6.7.16'
 global.vs = '2.2.0'
