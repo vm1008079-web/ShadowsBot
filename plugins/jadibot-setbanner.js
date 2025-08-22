@@ -1,7 +1,17 @@
 import fs from 'fs'
 import path from 'path'
-import axios from 'axios'
+import fetch from 'node-fetch'
 import FormData from 'form-data'
+
+async function uploadImage(buffer) {
+  const form = new FormData()
+  form.append('fileToUpload', buffer, 'banner.png')
+  form.append('reqtype', 'fileupload')
+
+  const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form })
+  if (!res.ok) throw new Error('❌ Error al subir la imagen')
+  return await res.text()
+}
 
 const handler = async (m, { conn, usedPrefix, command }) => {
   const senderNumber = m.sender.replace(/[^0-9]/g, '')
@@ -9,56 +19,55 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   const configPath = path.join(botPath, 'config.json')
 
   if (!fs.existsSync(botPath)) {
-    return m.reply('✧ Este comando es sólo para los sub bots.')
-  }
-
-  const quoted = m.quoted
-  let imageMsg
-
-  if (quoted) {
-    // Intentar obtener el mensaje directamente
-    imageMsg = quoted.message?.imageMessage 
-               || quoted.message?.documentMessage 
-               || quoted.message?.stickerMessage
-               || quoted.message?.videoMessage
-
-    // Validar que tenga mimetype de imagen
-    if (imageMsg && imageMsg.mimetype && imageMsg.mimetype.startsWith('image/')) {
-      // todo bien
-    } else {
-      return m.reply(`> 📸 Responde a una imagen (jpg/png/webp/gif) usando *${usedPrefix + command}* para establecer el banner.`)
-    }
-  } else {
-    return m.reply(`> 📸 Responde a una imagen (jpg/png/webp/gif) usando *${usedPrefix + command}* para establecer el banner.`)
+    return m.reply('✧ Este comando es solo para los sub bots.')
   }
 
   try {
-    const stream = await conn.downloadMediaMessage(quoted)
-    const buffer = Buffer.from(await stream.arrayBuffer())
+    await m.react('🕓')
 
-    // Subir a Catbox
-    const form = new FormData()
-    form.append('reqtype', 'fileupload')
-    form.append('fileToUpload', buffer, 'banner.png')
+    let q = m.quoted ? m.quoted : m
+    let mime = (q.msg || q).mimetype || q.mediaType || ''
 
-    const res = await axios.post('https://catbox.moe/user/api.php', form, {
-      headers: form.getHeaders()
-    })
+    if (!mime) {
+      return conn.sendMessage(m.chat, {
+        text: `❀ Por favor, responde a una imagen usando *${usedPrefix + command}*`,
+      }, { quoted: m })
+    }
 
-    const bannerURL = res.data
+    if (!/image\/(jpe?g|png|webp)/.test(mime)) {
+      return conn.sendMessage(m.chat, {
+        text: `✧ El formato (${mime}) no es compatible, usa JPG, PNG o WEBP.`,
+      }, { quoted: m })
+    }
+
+    await conn.sendMessage(m.chat, {
+      text: `✧ Subiendo tu banner, espera...`,
+    }, { quoted: m })
+
+    let img = await q.download?.()
+    if (!img) throw new Error('❌ No se pudo descargar la imagen.')
+
+    let uploadedUrl = await uploadImage(img)
 
     // Guardar en config.json
     const config = fs.existsSync(configPath)
       ? JSON.parse(fs.readFileSync(configPath))
       : {}
 
-    config.banner = bannerURL
+    config.banner = uploadedUrl
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
-    m.reply(`☁︎ Banner actualizado correctamente:\n${bannerURL}`)
+    await conn.sendMessage(m.chat, {
+      text: `☁︎ Banner actualizado correctamente:\n${uploadedUrl}`,
+    }, { quoted: m })
+
+    await m.react('✅')
   } catch (e) {
     console.error(e)
-    m.reply('❌ No se pudo subir el banner.')
+    await m.react('✖️')
+    await conn.sendMessage(m.chat, {
+      text: '❌ No se pudo subir el banner, inténtalo más tarde.',
+    }, { quoted: m })
   }
 }
 
