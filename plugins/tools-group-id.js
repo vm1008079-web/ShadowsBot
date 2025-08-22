@@ -4,10 +4,10 @@ Autor: Ado 🦖
 */
 import axios from 'axios';
 
-const handler = async (m, { conn }) => {
+let handler = async (m, { conn }) => {
     try {
-        m.reply('⏳ Obteniendo top juegos de Roblox...');
-
+        m.react("🕒");
+        
         const api1 = new URL('https://apis.roblox.com/explore-api/v1/get-sort-content');
         api1.search = new URLSearchParams({
             sessionId: '17996246-1290-440d-b789-d49484115b9a',
@@ -33,21 +33,19 @@ const handler = async (m, { conn }) => {
         const listaThumbnails = json2.data;
         const listaCombinada = listaJuegos.map((v, i) => ({ ...v, ...listaThumbnails[i] }));
 
-        
-        const mensajes = await Promise.all(
+        // Preparar álbum
+        const medias = await Promise.all(
             listaCombinada.map(async (v, i) => {
                 const buffer = await axios.get(v.imageUrl, { responseType: 'arraybuffer' }).then(r => Buffer.from(r.data));
                 const caption = `${i + 1} | ${v.name}\n👥 Jugadores: ${v.playerCount.toLocaleString('es-ES')}\n👍 Likes: ${(
-                    (v.totalUpVotes / (v.totalUpVotes + v.totalDownVotes)) *
-                    100
+                    (v.totalUpVotes / (v.totalUpVotes + v.totalDownVotes)) * 100
                 ).toFixed()}%\n🎮 Jugar ahora: https://www.roblox.com/games/${v.rootPlaceId}`;
-                return { url: buffer, caption };
+                return { type: 'image', data: { url: buffer }, caption };
             })
         );
 
-        for (const msg of mensajes) {
-            await conn.sendFile(m.chat, msg.url, `${msg.caption}.png`, msg.caption, m);
-        }
+        await conn.sendSylphy(m.chat, medias, { caption: '◜ Roblox Top Playing ◞', quoted: m });
+        m.react("✅");
 
     } catch (e) {
         m.reply(`❌ Ocurrió un error: ${e.message}`);
