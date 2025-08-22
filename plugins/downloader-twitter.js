@@ -1,3 +1,6 @@
+// >>⟩ Creador Original GianPoolS < github.com/GianPoolS >
+// >>⟩ Editado por Ado < github.com/Ado-rgb >
+
 import fg from 'api-dylux'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
