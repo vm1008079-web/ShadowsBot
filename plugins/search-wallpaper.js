@@ -1,108 +1,91 @@
-// Editado y arreglado por github.com/Ado-rgb
 import axios from 'axios'
-import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
+import cheerio from 'cheerio'
 
-const handler = async (m, { conn, text, command }) => {
-  if (!text) {
-    return conn.reply(
-      m.chat,
-      '📌 Por favor, indique el término que desea buscar. Ejemplo:\n*.wallpaper naturaleza*',
-      m
-    )
-  }
-
-  await m.react('🕒')
-  await conn.reply(m.chat, '> Buscando imágenes, por favor espere...', m)
-
-  const apiUrl = `https://delirius-apiofc.vercel.app/search/wallpapers?q=${encodeURIComponent(text)}`
-  try {
-    const { data } = await axios.get(apiUrl)
-    const results = data?.data || []
-
-    if (!results.length) {
-      return conn.reply(
-        m.chat,
-        `⚠️ No se encontraron resultados para el término: *${text}*`,
-        m
-      )
-    }
-
-    const cards = []
-    const namebot = global.namebot || 'Asistente'
-
-    for (const [i, item] of results.entries()) {
-      if (i >= 5) break
-
-      const imageUrl = item.image
-      const link = item.thumbnail?.startsWith('http') ? item.thumbnail : imageUrl
-
-      cards.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({
-          text: `Resultado ${i + 1}: ${item.title}`
-        }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({
-          text: namebot
-        }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
-          title: item.title,
-          hasMediaAttachment: true,
-          imageMessage: await createImageMsg(imageUrl, conn)
-        }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-          buttons: [{
-            name: 'cta_url',
-            buttonParamsJson: JSON.stringify({
-              display_text: '🌐 Ver imagen completa',
-              url: link
-            })
-          }]
-        })
-      })
-    }
-
-    const carousel = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: proto.Message.InteractiveMessage.Body.fromObject({
-              text: `🖼️ Resultados encontrados para: *${text}*`
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.fromObject({
-              text: 'Actuales Resultados'
-            }),
-            header: proto.Message.InteractiveMessage.Header.fromObject({
-              hasMediaAttachment: false
-            }),
-            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-              cards
-            })
-          })
+class WallpaperSearch {
+    constructor() {
+        this.base = 'https://wallpapersearch.com'
+        this.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
         }
-      }
-    }, { quoted: m })
+    }
 
-    await conn.relayMessage(m.chat, carousel.message, { messageId: carousel.key.id })
-
-  } catch (err) {
-    console.error('[Wallpaper Error]:', err)
-    conn.reply(
-      m.chat,
-      '❌ Ha ocurrido un error al procesar la solicitud. Intente nuevamente más tarde.',
-      m
-    )
-  }
+    async search(query) {
+        if (!query) return '❌ Falta la palabra de búsqueda.'
+        try {
+            let { data } = await axios.get(`${this.base}/search/?q=${query}`, { headers: this.headers })
+            const $ = cheerio.load(data)
+            let res = []
+            $('.wallpaper-item').each((i, e) => {
+                res.push({
+                    thumbnail: $(e).find('img').attr('src'),
+                    title: $(e).find('.title').text().trim(),
+                    url: $(e).find('a').attr('href')
+                })
+            })
+            return res
+        } catch (e) {
+            return `❌ Error: ${e.message}`
+        }
+    }
 }
 
-async function createImageMsg(url, conn) {
-  const { imageMessage } = await generateWAMessageContent({
-    image: { url }
-  }, { upload: conn.waUploadToServer })
-  return imageMessage
+let handler = async (m, { conn, args }) => {
+    const wallpaper = new WallpaperSearch()
+    const tipo = args[0]
+
+    const fkontak = { 
+        key: { fromMe: false, participant: "0@s.whatsapp.net", remoteJid: "0@s.whatsapp.net" },
+        message: { contactMessage: { displayName: "🍿 Wallpaper Search", vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:🍿 Wallpaper Search\nTEL;TYPE=CELL:0000000000\nEND:VCARD" } } 
+    }
+
+    if (!tipo) {
+        return conn.sendMessage(m.chat, `🌟 Comandos de Wallpaper Search 🌟
+
+📌 Mostrar wallpapers por categoría:
+• .wallpapersearch popular
+• .wallpapersearch featured
+• .wallpapersearch random
+• .wallpapersearch collection
+
+🔍 Buscar wallpaper:
+• .wallpapersearch search naturaleza
+• .wallpapersearch search autos
+
+📥 Descargar wallpaper:
+1. Busca o elige un enlace de los resultados.
+2. Luego usa:
+• .wallpapersearch dl [enlace]
+
+💡 Nota: Se enviarán enlaces directos para descargar imágenes en alta calidad.`, { quoted: fkontak })
+    }
+
+    if (tipo === 'search') {
+        if (!args[1]) return m.reply('❌ Escribe una palabra para buscar.\nEjemplo:\n.wallpapersearch search ocean')
+        let query = args.slice(1).join(' ')
+        let data = await wallpaper.search(query)
+        if (typeof data === 'string') return m.reply(data)
+        let resultados = data.slice(0, 5).map((item, i) => `*${i + 1}. ${item.title}*\n🔗 ${item.url}`).join('\n\n')
+        return conn.sendMessage(m.chat, `🔎 *Resultados de búsqueda:* ${query}\n\n${resultados}\n\n📥 Para descargar usa:\n.wallpapersearch dl [enlace]`, { quoted: fkontak })
+    }
+
+    if (tipo === 'dl') {
+        if (!args[1]) return m.reply('❌ Envía un enlace válido.\nEjemplo:\n.wallpapersearch dl https://wallpapersearch.com/...')
+        let url = args[1]
+        let { data } = await axios.get(url, { headers: wallpaper.headers })
+        const $ = cheerio.load(data)
+        const main = $('.main-image img')
+        const title = $('h1.title').text().trim()
+        const thumbnail = $(main).attr('src')
+        let msg = `✅ *${title}*\n\n🖼 Vista previa:\n${thumbnail}`
+        return conn.sendMessage(m.chat, msg, { quoted: fkontak })
+    }
+
+    return m.reply('❌ Comando desconocido. Envía `.wallpapersearch` para ver el uso.')
 }
 
-handler.command = ['wallpaper']
-handler.help = ['wallpaper']
-handler.tags = ['search']
-handler.register = false
+handler.help = ['wallpapersearch']
+handler.tags = ['downloader']
+handler.command = ['wallpapersearch']
+handler.limit = true
 
 export default handler
