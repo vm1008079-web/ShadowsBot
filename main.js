@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs';
 import path, { join } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'process';
@@ -20,6 +20,7 @@ import qrcode from 'qrcode-terminal';
 import { spawn } from 'child_process';
 import { setInterval } from 'timers';
 
+// Mejorar la configuración de TLS y la ruta temporal
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 process.env.TMPDIR = path.join(process.cwd(), 'tmp');
 
@@ -29,6 +30,9 @@ if (!fs.existsSync(process.env.TMPDIR)) {
 
 import './config.js';
 import { createRequire } from 'module';
+
+// Usar el caché de la librería para mejorar la velocidad
+const cache = new NodeCache();
 
 const { proto } = (await import('@whiskeysockets/baileys')).default;
 const {
@@ -81,15 +85,17 @@ global.prefix = new RegExp(
 
 global.db = new Low(new JSONFile(`storage/databases/database.json`));
 
-// --- INICIO DE CAMBIO PARA OPTIMIZACIÓN ---
-// Variable para rastrear si la base de datos ha sido modificada.
+// --- Optimización de la base de datos ---
+// Variables y funciones para el control de la escritura en la base de datos
 global.isDatabaseModified = false;
-// Función para marcar la base de datos como modificada.
+global.lastDatabaseWrite = Date.now();
+const writeInterval = 30 * 1000; // 30 segundos
+
 global.markDatabaseModified = () => {
   global.isDatabaseModified = true;
 };
-// --- FIN DE CAMBIO PARA OPTIMIZACIÓN ---
 
+// Se mantiene el uso de Lowdb y Lodash
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ)
@@ -116,16 +122,12 @@ global.loadDatabase = async function loadDatabase() {
   };
   global.db.chain = lodash.chain(global.db.data);
 
-  // --- INICIO DE CAMBIO PARA OPTIMIZACIÓN ---
-  // Sobrescribir los métodos de la base de datos para que marquen los cambios.
   const originalSet = global.db.chain.set.bind(global.db.chain);
   global.db.chain.set = (...args) => {
     const result = originalSet(...args);
     global.markDatabaseModified();
     return result;
   };
-  // También se pueden envolver otras operaciones de escritura si es necesario.
-  // --- FIN DE CAMBIO PARA OPTIMIZACIÓN ---
 };
 
 global.authFile = `sessions`;
@@ -136,10 +138,11 @@ const { version } = await fetchLatestBaileysVersion();
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const question = (texto) => new Promise((resolver) => rl.question(texto, resolver));
 
+// Reducir la verbosidad del logger de Baileys
 const logger = pino({
   timestamp: () => `,"time":"${new Date().toJSON()}"`,
 }).child({ class: 'client' });
-logger.level = 'fatal';
+logger.level = 'silent'; // O 'warn' para ver solo advertencias
 
 const connectionOptions = {
   version: version,
@@ -153,9 +156,9 @@ const connectionOptions = {
   markOnlineOnclientect: false,
   generateHighQualityLinkPreview: true,
   syncFullHistory: true,
-  retryRequestDelayMs: 10,
-  transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 10 },
-  maxMsgRetryCount: 15,
+  retryRequestDelayMs: 250, // Aumentado para reducir la carga en conexiones inestables
+  transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 50 },
+  maxMsgRetryCount: 20, // Aumentado para evitar re-envíos innecesarios
   appStateMacVerification: {
     patch: false,
     snapshot: false,
@@ -189,7 +192,7 @@ async function reconnectSubBot(botPath) {
     const { state: subBotState, saveCreds: saveSubBotCreds } = await useMultiFileAuthState(botPath);
 
     if (!subBotState.creds.registered) {
-      console.warn(chalk.yellow(`[DEBUG] ⚠️ Advertencia: El sub-bot en ${path.basename(botPath)} no está registrado. Salto la conexión.`));
+      console.warn(chalk.yellow(`[DEBUG] ⚠️ Advertencia: El sub-bot en ${path.basename(botPath)} no está registrado. Saltando conexión.`));
       return;
     }
 
@@ -205,9 +208,9 @@ async function reconnectSubBot(botPath) {
       markOnlineOnclientect: false,
       generateHighQualityLinkPreview: true,
       syncFullHistory: true,
-      retryRequestDelayMs: 10,
-      transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 10 },
-      maxMsgRetryCount: 15,
+      retryRequestDelayMs: 250,
+      transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 50 },
+      maxMsgRetryCount: 20,
       appStateMacVerification: {
         patch: false,
         snapshot: false,
@@ -228,12 +231,9 @@ async function reconnectSubBot(botPath) {
         const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
         console.error(chalk.red(`[DEBUG] ❌ Sub-bot desconectado en ${path.basename(botPath)}. Razón: ${reason}`));
 
-        // --- INICIO DE CAMBIO IMPORTANTE: Manejo de desconexión permanente ---
         if (reason === DisconnectReason.loggedOut || reason === 401) {
           console.log(chalk.red(`❌ [DEBUG] Desconexión permanente detectada. Eliminando sesión del sub-bot en ${path.basename(botPath)}.`));
-          // Eliminar de global.conns
           global.conns = global.conns.filter(conn => conn.user?.jid !== subBotConn.user?.jid);
-          // Eliminar carpeta de sesión del filesystem
           try {
             rmSync(botPath, { recursive: true, force: true });
             console.log(chalk.red(`✅ [DEBUG] Carpeta de sesión eliminada correctamente: ${botPath}`));
@@ -241,7 +241,6 @@ async function reconnectSubBot(botPath) {
             console.error(chalk.red(`❌ [ERROR] No se pudo eliminar la carpeta de sesión ${botPath}: ${e}`));
           }
         }
-        // --- FIN DE CAMBIO IMPORTANTE ---
       }
     });
     subBotConn.ev.on('creds.update', saveSubBotCreds);
@@ -318,12 +317,11 @@ async function handleLogin() {
     let phoneNumber = await question(chalk.yellow('🌤️ Ingresa el número de WhatsApp donde estará el bot (incluye código país, ej: 521XXXXXXXXXX):\n'));
     phoneNumber = phoneNumber.replace(/\D/g, '');
 
-    if (phoneNumber.startsWith('52') && phoneNumber.length === 12) {
-      phoneNumber = `521${phoneNumber.slice(2)}`;
-    } else if (phoneNumber.startsWith('52') && phoneNumber.length === 10) {
-      phoneNumber = `521${phoneNumber.slice(2)}`;
+    // Se unifica el tratamiento del número para México
+    if (phoneNumber.startsWith('52') && (phoneNumber.length === 12 || phoneNumber.length === 10)) {
+        phoneNumber = `521${phoneNumber.slice(2)}`;
     } else if (phoneNumber.startsWith('0')) {
-      phoneNumber = phoneNumber.replace(/^0/, '');
+        phoneNumber = phoneNumber.replace(/^0/, '');
     }
 
     if (typeof conn.requestPairingCode === 'function') {
@@ -356,23 +354,26 @@ conn.well = false;
 
 if (!opts['test']) {
   if (global.db) {
-    // --- INICIO DE CAMBIO PARA OPTIMIZACIÓN DE BASE DE DATOS ---
     // Optimización de la base de datos: solo escribe si hay cambios.
     setInterval(async () => {
-      if (global.db.data && global.isDatabaseModified) {
+      if (global.isDatabaseModified) {
         console.log(chalk.gray(`[INFO] 💾 Escribiendo cambios en la base de datos...`));
         await global.db.write();
         global.isDatabaseModified = false; // Resetear la bandera
+        global.lastDatabaseWrite = Date.now();
         console.log(chalk.gray(`[INFO] ✅ Base de datos actualizada.`));
       }
-      if (opts['autocleartmp']) {
-        const tmp = [tmpdir(), 'tmp', 'serbot'];
-        tmp.forEach((filename) => {
-          spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']);
-        });
-      }
-    }, 30 * 1000); // Se mantiene el intervalo de 30 segundos, pero ahora es más eficiente.
-    // --- FIN DE CAMBIO PARA OPTIMIZACIÓN DE BASE DE DATOS ---
+    }, writeInterval);
+    
+    // Limpieza de temporales en un intervalo separado
+    setInterval(() => {
+        if (opts['autocleartmp']) {
+          const tmp = [tmpdir(), 'tmp', 'serbot'];
+          tmp.forEach((filename) => {
+            spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']);
+          });
+        }
+    }, 60 * 1000); // Cada minuto
   }
 }
 
@@ -382,22 +383,24 @@ function clearTmp() {
   tmp.forEach((dirname) => readdirSync(dirname).forEach((file) => filename.push(join(dirname, file))));
   return filename.map((file) => {
     const stats = statSync(file);
-    if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 1) return unlinkSync(file); // Más agresivo, elimina archivos de 1 minuto
+    // Elimina archivos de 1 minuto
+    if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 1) { 
+        console.log(chalk.gray(`[INFO] 🗑️ Eliminando archivo temporal: ${file}`));
+        unlinkSync(file);
+    }
     return false;
   });
 }
 
-// --- INICIO DE CAMBIO PARA OPTIMIZACIÓN DE TEMPORALES ---
 // Limpiar la carpeta temporal con más frecuencia (cada 3 minutos).
 setInterval(() => {
   if (global.stopped === 'close' || !conn || !conn.user) return;
   console.log(chalk.gray(`[INFO] 🗑️ Limpiando carpeta temporal...`));
   clearTmp();
 }, 180000); // 180000 ms = 3 minutos
-// --- FIN DE CAMBIO PARA OPTIMIZACIÓN DE TEMPORALES ---
 
-// --- INICIO DE CAMBIO: Optimización de memoria ---
-// Ejecutar el recolector de basura de Node.js a intervalos más frecuentes.
+// Optimización de memoria
+// Se mantiene la recolección de basura
 if (typeof global.gc === 'function') {
   setInterval(() => {
     console.log(chalk.gray(`[INFO] ♻️ Ejecutando recolección de basura...`));
@@ -406,7 +409,6 @@ if (typeof global.gc === 'function') {
 } else {
   console.log(chalk.yellow(`[WARN] ⚠️ La recolección de basura no está disponible. Para habilitarla, ejecuta Node.js con la bandera --expose-gc.`));
 }
-// --- FIN DE CAMBIO ---
 
 async function connectionUpdate(update) {
   const { connection, lastDisconnect, isNewLogin } = update;
@@ -442,7 +444,8 @@ async function connectionUpdate(update) {
       case DisconnectReason.connectionLost:
       case DisconnectReason.timedOut:
         conn.logger.warn(chalk.yellow(`⚠️ Conexión principal perdida o cerrada, reconectando...`));
-        await global.reloadHandler(true).catch(console.error);
+        // Espera un tiempo antes de intentar reconectar para evitar un bucle
+        setTimeout(() => global.reloadHandler(true).catch(console.error), 5000); 
         break;
       case DisconnectReason.connectionReplaced:
         conn.logger.error(
@@ -453,11 +456,11 @@ async function connectionUpdate(update) {
         break;
       case DisconnectReason.restartRequired:
         conn.logger.info(chalk.blue(`🔄 Reinicio necesario del bot principal, reinicia el servidor si hay problemas.`));
-        await global.reloadHandler(true).catch(console.error);
+        setTimeout(() => global.reloadHandler(true).catch(console.error), 5000);
         break;
       default:
         conn.logger.warn(chalk.yellow(`⚠️ Desconexión desconocida del bot principal: ${reason || ''} - Estado: ${connection || ''}`));
-        await global.reloadHandler(true).catch(console.error);
+        setTimeout(() => global.reloadHandler(true).catch(console.error), 5000);
         break;
     }
   }
