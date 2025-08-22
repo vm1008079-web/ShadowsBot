@@ -17,26 +17,22 @@ export async function before(m, { conn }) {
       }
     }
 
-    const botJid = conn.user?.jid || '0000000000@s.whatsapp.net'
+    const canales = [global.idcanal, global.idcanal2]
+    const newsletterJidRandom = canales[Math.floor(Math.random() * canales.length)]
+
+    const isForwardedRandom = true  // siempre aparece como reenviado
 
     global.rcanal = {
-      key: {
-        remoteJid: 'status@broadcast',
-        participant: `${botJid.split('@')[0]}@s.whatsapp.net`,
-      },
-      message: {
-        contactMessage: {
-          displayName: nombreBot,
-          vcard: `BEGIN:VCARD
-VERSION:3.0
-N:${nombreBot};;;;
-FN:${nombreBot}
-TEL;type=CELL;type=VOICE;waid=${botJid.split('@')[0]}:+${botJid.split('@')[0]}
-END:VCARD`
+      contextInfo: {
+        isForwarded: isForwardedRandom,
+        forwardingScore: 1,
+        forwarded: {
+          senderJid: newsletterJidRandom,
+          participant: newsletterJidRandom,
         }
       }
     }
   } catch (e) {
-    console.log('Error al generar fkontak:', e)
+    console.log('Error al generar rcanal:', e)
   }
 }
