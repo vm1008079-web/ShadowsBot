@@ -18,10 +18,10 @@ const handler = async (m, { conn, text }) => {
 
   const command = (text || '').toLowerCase().trim()
 
-  if (command === 'grupo abrir') {
+  if (command === 'abrir') {
     await conn.groupSettingUpdate(m.chat, 'not_announcement') // abre el grupo
     await conn.sendMessage(m.chat, { text: '✅ El grupo ha sido abierto, todos pueden escribir.' }, { quoted: m })
-  } else if (command === 'grupo cerrar') {
+  } else if (command === 'cerrar') {
     await conn.groupSettingUpdate(m.chat, 'announcement') // cierra el grupo
     await conn.sendMessage(m.chat, { text: '🔒 El grupo ha sido cerrado, solo admins pueden escribir.' }, { quoted: m })
   } else {
