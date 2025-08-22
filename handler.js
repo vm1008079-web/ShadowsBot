@@ -1,5 +1,5 @@
 import { smsg } from './lib/simple.js'
-import { format } from 'util' 
+import { format } from 'util'
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
 import { unwatchFile, watchFile } from 'fs'
@@ -27,19 +27,19 @@ export async function handler(chatUpdate) {
     this.uptime = this.uptime || Date.now()
     if (!chatUpdate)
         return
-    
+
     // Usar setImmediate para que la lectura de mensajes no bloquee el hilo principal
     setImmediate(() => this.pushMessage(chatUpdate.messages).catch(console.error));
-    
+
     let m = chatUpdate.messages[chatUpdate.messages.length - 1];
     if (!m) return;
 
     if (global.db.data == null) await global.loadDatabase();
-    
+
     try {
         m = smsg(this, m) || m;
         if (!m) return;
-        
+
         m.exp = 0;
         m.coin = false;
 
@@ -90,7 +90,7 @@ export async function handler(chatUpdate) {
                 level: 0,
                 role: 'Nuv',
                 premium: false,
-                premiumTime: 0,                 
+                premiumTime: 0,
             };
             global.markDatabaseModified();
             user = global.db.data.users[sender]; // Recargar el objeto de usuario
@@ -106,7 +106,7 @@ export async function handler(chatUpdate) {
                 chatCache.set(chat, chatData);
             }
         }
-        
+
         // Si el chat no existe, crearlo y marcar la DB como modificada
         if (isGroup && (!chatData || Object.keys(chatData).length === 0)) {
             global.db.data.chats[chat] = {
@@ -126,7 +126,7 @@ export async function handler(chatUpdate) {
                 antifake: false,
                 reaction: false,
                 nsfw: false,
-                expired: 0, 
+                expired: 0,
                 antiLag: false,
                 per: [],
             };
@@ -167,9 +167,9 @@ export async function handler(chatUpdate) {
         }
 
         if (m.isBaileys) return;
-        if (opts['nyimak'])  return;
+        if (opts['nyimak']) return;
         if (!isROwner && opts['self']) return;
-        if (opts['swonly'] && chat !== 'status@broadcast')  return;
+        if (opts['swonly'] && chat !== 'status@broadcast') return;
         if (typeof m.text !== 'string') m.text = '';
 
         if (isGroup && chatData?.primaryBot && this?.user?.jid !== chatData.primaryBot) {
@@ -193,7 +193,7 @@ export async function handler(chatUpdate) {
             const res = await conn.onWhatsApp(id).catch(() => []);
             return res[0]?.lid || id;
         };
-        
+
         // Optimizar la búsqueda de roles de usuario y bot en el grupo
         const groupMetadata = isGroup ? (conn.chats[chat] || {}).metadata || await this.groupMetadata(chat).catch(_ => null) : {};
         const participants = isGroup ? groupMetadata.participants || [] : [];
@@ -209,7 +209,7 @@ export async function handler(chatUpdate) {
         const isBotAdmin = !!botParticipant?.admin;
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(sender) || user?.premium;
         const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(sender);
-        
+
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins');
 
         let usedPrefix = '';
@@ -233,7 +233,7 @@ export async function handler(chatUpdate) {
 
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
             let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix;
-            let match = (_prefix instanceof RegExp ? 
+            let match = (_prefix instanceof RegExp ?
                 [[_prefix.exec(m.text), _prefix]] :
                 Array.isArray(_prefix) ?
                 _prefix.map(p => {
@@ -252,7 +252,7 @@ export async function handler(chatUpdate) {
             }
 
             if (typeof plugin !== 'function') continue;
-            
+
             if ((usedPrefix = (match[0] || '')[0])) {
                 let noPrefix = m.text.replace(usedPrefix, '');
                 let [command, ...args] = noPrefix.trim().split` `.filter(v => v);
@@ -262,22 +262,22 @@ export async function handler(chatUpdate) {
                 command = (command || '').toLowerCase();
                 let fail = plugin.fail || global.dfail;
                 let isAccept = plugin.command instanceof RegExp ? plugin.command.test(command) : Array.isArray(plugin.command) ? plugin.command.some(cmd => cmd instanceof RegExp ? cmd.test(command) : cmd === command) : typeof plugin.command === 'string' ? plugin.command === command : false;
-                
+
                 global.comando = command;
 
                 if ((m.id.startsWith('NJX-') || (m.id.startsWith('BAE5') && m.id.length === 16) || (m.id.startsWith('B24E') && m.id.length === 20))) return;
                 if (!isAccept) continue;
-                
+
                 m.plugin = name;
-                
+
                 // Mover validaciones de usuario y chat al inicio para un retorno rápido
                 if (user.muto && !isOwner) { // Mover esta validación al inicio del handler
                     let bang = m.key.id;
                     let cancellazzione = m.key.participant;
-                    await this.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: cancellazzione }});
+                    await this.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: cancellazzione } });
                     return;
                 }
-                
+
                 if (isGroup) {
                     if (!['grupo-unbanchat.js'].includes(name) && chatData?.isBanned && !isROwner) return;
                 }
@@ -289,15 +289,15 @@ export async function handler(chatUpdate) {
                 let adminMode = isGroup ? chatData.modoadmin : false;
                 if (adminMode && !isOwner && !isROwner && !isAdmin) return;
 
-                if (plugin.rowner && !isROwner) { fail('rowner', m, this, usedPrefix, command); continue; }
-                if (plugin.owner && !isOwner) { fail('owner', m, this, usedPrefix, command); continue; }
-                if (plugin.mods && !isMods) { fail('mods', m, this, usedPrefix, command); continue; }
-                if (plugin.premium && !isPrems) { fail('premium', m, this, usedPrefix, command); continue; }
-                if (plugin.group && !isGroup) { fail('group', m, this, usedPrefix, command); continue; }
-                if (plugin.botAdmin && !isBotAdmin) { fail('botAdmin', m, this, usedPrefix, command); continue; }
-                if (plugin.admin && !isAdmin) { fail('admin', m, this, usedPrefix, command); continue; }
-                if (plugin.private && isGroup) { fail('private', m, this, usedPrefix, command); continue; }
-                if (plugin.register && !user.registered) { fail('unreg', m, this, usedPrefix, command); continue; }
+                if (plugin.rowner && !isROwner) { fail('rowner', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.owner && !isOwner) { fail('owner', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.mods && !isMods) { fail('mods', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.premium && !isPrems) { fail('premium', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.group && !isGroup) { fail('group', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.botAdmin && !isBotAdmin) { fail('botAdmin', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.admin && !isAdmin) { fail('admin', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.private && isGroup) { fail('private', m, this, usedPrefix, command, isROwner); continue; }
+                if (plugin.register && !user.registered) { fail('unreg', m, this, usedPrefix, command, isROwner); continue; }
 
                 m.isCommand = true;
                 let xp = 'exp' in plugin ? parseInt(plugin.exp) : 10;
@@ -314,7 +314,7 @@ export async function handler(chatUpdate) {
                 let extra = {
                     match, usedPrefix, noPrefix, _args, args, command, text, conn: this, participants, groupMetadata, user: userParticipant, bot: botParticipant, isROwner, isOwner, isRAdmin, isAdmin, isBotAdmin, isPrems, chatUpdate, __dirname: ___dirname, __filename
                 };
-                
+
                 try {
                     await plugin.call(this, m, extra);
                     if (!isPrems) m.coin = m.coin || plugin.coin || false;
@@ -347,9 +347,9 @@ export async function handler(chatUpdate) {
             const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id);
             if (quequeIndex !== -1) this.msgqueque.splice(quequeIndex, 1);
         }
-        
+
         // Optimizar el guardado de XP, monedas y estadísticas
-        if (m) { 
+        if (m) {
             let user = global.db.data.users[m.sender];
             if (user) {
                 user.exp += m.exp;
@@ -362,7 +362,7 @@ export async function handler(chatUpdate) {
                 let now = +new Date();
                 let stats = global.db.data.stats;
                 if (!stats[m.plugin]) stats[m.plugin] = { total: 0, success: 0, last: 0, lastSuccess: 0 };
-                
+
                 stat = stats[m.plugin];
                 stat.total += 1;
                 stat.last = now;
@@ -376,7 +376,7 @@ export async function handler(chatUpdate) {
 
         try {
             if (!opts['noprint']) await (await import(`./lib/print.js`)).default(m, this);
-        } catch (e) { 
+        } catch (e) {
             console.log(m, m.quoted, e);
         }
 
@@ -387,15 +387,14 @@ export async function handler(chatUpdate) {
 
         if (global.db.data.chats[m.chat]?.reaction && m.text.match(/(ción|dad|aje|oso|izar|mente|pero|tion|age|ous|ate|and|but|ify|ai|yuki|a|s)/gi)) {
             const emot = pickRandom(["🍟", "😃", "😄", "😁", "😆", "🍓", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "🌺", "🌸", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🌟", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "💫", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😶‍🌫️", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🫣", "🤭", "🤖", "🍭", "🤫", "🫠", "🤥", "😶", "📇", "😐", "💧", "😑", "🫨", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😮‍💨", "😵", "😵‍💫", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👺", "🧿", "🌩", "👻", "😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾", "🫶", "👍", "✌️", "🙏", "🫵", "🤏", "🤌", "☝️", "🖕", "🙏", "🫵", "🫂", "🐱", "🤹‍♀️", "🤹‍♂️", "🗿", "✨", "⚡", "🔥", "🌈", "🩷", "❤️", "🧡", "💛", "💚", "🩵", "💙", "💜", "🖤", "🩶", "🤍", "🤎", "💔", "❤️‍🔥", "❤️‍🩹", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "🚩", "👊", "⚡️", "💋", "🫰", "💅", "👑", "🐣", "🐤", "🐈"]);
-            if (!m.fromMe) this.sendMessage(m.chat, { react: { text: emot, key: m.key }});
+            if (!m.fromMe) this.sendMessage(m.chat, { react: { text: emot, key: m.key } });
         }
     }
 }
 
-function pickRandom(list) { return list[Math.floor(Math.random() * list.length)]}
+function pickRandom(list) { return list[Math.floor(Math.random() * list.length)] }
 
-global.dfail = (type, m, conn, usedPrefix, command) => { // 'conn' es el tercer argumento
-
+global.dfail = (type, m, conn, usedPrefix, command, isROwner) => { // 'isROwner' se agrega como argumento
     let edadaleatoria = ['10', '28', '20', '40', '18', '21', '15', '11', '9', '17', '25'].getRandom()
     let user2 = m.pushName || 'Anónimo'
     let verifyaleatorio = ['registrar', 'reg', 'verificar', 'verify', 'register'].getRandom()
