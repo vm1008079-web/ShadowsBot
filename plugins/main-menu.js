@@ -8,6 +8,7 @@ const tags = {
   downloader: '⬇️ DESCARGAS',
   tools: '🛠️ HERRAMIENTAS',
   owner: '👑 PROPIETARIO',
+  efectos: '🍿 EFECTOS',
   info: 'ℹ️ INFORMACIÓN',
   game: '🎮 JUEGOS',
   gacha: '🎲 GACHA ANIME',
