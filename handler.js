@@ -50,7 +50,6 @@ if (typeof user !== 'object') {
         afkReason: '',
         banned: false,
         warn: 0,
-        level: 0,
         role: 'Novato',
         autolevelup: false,
         chatbot: false,
@@ -350,10 +349,6 @@ const isBotAdmin = !!bot?.admin
                     this.reply(m.chat, `✳️ Tus diamantes se agotaron\nuse el siguiente comando para comprar más diamantes \n*buy* <cantidad> \n*buyall*`, m)
                     continue // Limit habis
                 }
-                if (plugin.level > _user.level) {
-                    this.reply(m.chat, `✳️ nivel requerido ${plugin.level} para usar este comando. \nTu nivel ${_user.level}`, m)
-                    continue // If the level has not been reached
-                }
                 let extra = {
                     match,
                     usedPrefix,
@@ -565,4 +560,4 @@ watchFile(file, async () => {
     unwatchFile(file)
     console.log(chalk.magenta("✅  Se actualizo 'handler.js'"))
     if (global.reloadHandler) console.log(await global.reloadHandler())
-}) 
+})
