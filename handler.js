@@ -298,9 +298,10 @@ export async function handler(chatUpdate) {
         }
       const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
       let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
+      
+      // Corregimos la inicialización de variables
+      let command, text, noPrefix, _args = [], args = [];
 
-      // INICIO DEL CÓDIGO CORREGIDO PARA MANEJAR PREFIJOS Y SIN PREFIJO
-      let command, text, noPrefix, _args
       let match = (_prefix instanceof RegExp ?
         [[_prefix.exec(m.text), _prefix]] :
         Array.isArray(_prefix) ?
@@ -314,22 +315,23 @@ export async function handler(chatUpdate) {
         [[new RegExp(str2Regex(_prefix)).exec(m.text), new RegExp(str2Regex(_prefix))]] :
         [[[], new RegExp]]
       ).find(p => p[1])
-      
+
       if ((usedPrefix = (match[0] || '')[0])) {
         noPrefix = m.text.replace(usedPrefix, '')
-        let [cmd, ...args] = noPrefix.trim().split` `.filter(v => v)
-        _args = noPrefix.trim().split` `.slice(1)
+        let [cmd, ...cmdArgs] = noPrefix.trim().split` `.filter(v => v)
         command = cmd?.toLowerCase()
+        args = cmdArgs
+        _args = noPrefix.trim().split` `.slice(1)
         text = _args.join` `
       } else {
         noPrefix = m.text
-        let [cmd, ...args] = noPrefix.trim().split` `.filter(v => v)
-        _args = noPrefix.trim().split` `.slice(1)
+        let [cmd, ...cmdArgs] = noPrefix.trim().split` `.filter(v => v)
         command = cmd?.toLowerCase()
+        args = cmdArgs
+        _args = noPrefix.trim().split` `.slice(1)
         text = _args.join` `
         usedPrefix = ''
       }
-      // FIN DEL CÓDIGO CORREGIDO
 
       if (typeof plugin.before === 'function') {
         if (await plugin.before.call(this, m, {
@@ -353,7 +355,7 @@ export async function handler(chatUpdate) {
       }
       if (typeof plugin !== 'function')
         continue
-        
+
       let fail = plugin.fail || global.dfail
       let isAccept = plugin.command instanceof RegExp ?
         plugin.command.test(command) :
