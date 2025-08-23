@@ -1,3 +1,6 @@
+// >>⟩ Creador original GianPoolS < github.com/GianPoolS >
+// >>⟩ No quites los créditos
+
 import fs from 'fs'
 
 const handler = async (m, { conn, usedPrefix }) => {
@@ -44,7 +47,7 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 > rm -rf Sessions
 > npm start`.trim()
 
-    const namebot = 'Bot Oficial ✅' // fijo para evitar errores
+    const namebot = 'MichiBot-MD' // fijo para evitar errores
 
     const buttonMessage = {
       document: { url: `https://github.com/Ado-Rgb` },
