@@ -1,4 +1,4 @@
-// 📁 Creado por Ado.
+
 import fs from "fs"
 import path from "path"
 import crypto from "crypto"
@@ -72,7 +72,7 @@ const yt = {
     const secretKey = "a8d4e2456d59b90c8402fc4f060982aa"
     return crypto.createHmac("SHA256", secretKey).update(dataToSign).digest("hex")
   },
-  async download(videoId, userFormat = "128kbps") {
+  async download(videoId, userFormat = "360p") {
     const { path, quality } = this.handleFormat(userFormat)
     const sessionToken = await this.getSessionToken()
     const timestamp = Date.now().toString()
@@ -94,7 +94,7 @@ const yt = {
     const { data: result } = await this.hit("download", api, { headers, body, method: "post" }, "json")
     return result
   },
-  async searchAndDownload(query, userFormat = "128kbps") {
+  async searchAndDownload(query, userFormat = "360p") {
     this.validateString(query)
     this.handleFormat(userFormat)
     const searchResult = await this.search(query)
@@ -106,38 +106,29 @@ const yt = {
 }
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`⚠️ Usa: *${usedPrefix + command}* nombre de la canción\n\nEjemplo: ${usedPrefix + command} Believer`)
+  if (!text) return m.reply(`⚠️ Usa: *${usedPrefix + command}* nombre del video\n\nEjemplo: ${usedPrefix + command} Alan Walker Faded`)
   
   try {
-    m.react("🎶")
-    const result = await yt.searchAndDownload(text, "128kbps")
+    m.react("📹")
+    const result = await yt.searchAndDownload(text, "360p")
 
-    if (!result?.url) return m.reply("❌ No se pudo descargar el audio.")
-    let audioUrl = result.url
-    let title = result.title || "audio"
+    if (!result?.url) return m.reply("❌ No se pudo descargar el video.")
+    let videoUrl = result.url
+    let title = result.title || "video"
 
     await conn.sendMessage(m.chat, {
-      audio: { url: audioUrl },
-      mimetype: "audio/mpeg",
-      ptt: false,
-      fileName: `${title}.mp3`,
-      contextInfo: {
-        externalAdReply: {
-          title: title,
-          body: "Exito..",
-          mediaType: 2,
-          thumbnailUrl: "https://i.ibb.co/QCsd5gf/music.png",
-          sourceUrl: audioUrl
-        }
-      }
+      video: { url: videoUrl },
+      mimetype: "video/mp4",
+      fileName: `${title}.mp4`,
+      caption: `🎬 ${title}`
     }, { quoted: m })
   } catch (e) {
     m.reply(`❌ Error: ${e.message}`)
   }
 }
 
-handler.help = ["audio <texto>"]
+handler.help = ["video <texto>"]
 handler.tags = ["downloader"]
-handler.command = ["audio"]
+handler.command = ["video"]
 
 export default handler
