@@ -45,6 +45,8 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 > rm -rf sesion
 > npm start`.trim()
 
+    const namebot = 'Bot Oficial ✅' // fijo para evitar errores
+
     const buttonMessage = {
       document: { url: `https://github.com/Ado-Rgb` },
       mimetype: `application/${document}`,
@@ -59,13 +61,13 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
           mediaType: 2,
           previewType: 'pdf',
           title: 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
-          body: 'Bot Oficial',
+          body: namebot,
           thumbnail: fs.readFileSync('./storage/img/menú.jpg'),
           sourceUrl: 'https://www.youtube.com/'
         }
       },
       caption: text,
-      footer: 'Bot Oficial',
+      footer: namebot,
       headerType: 6
     }
 
@@ -78,6 +80,8 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
     console.error(e)
     // reaccion si hubo error
     await m.react('❌')
+    // mensaje con detalle del error
+    await conn.reply(m.chat, `⚠️ Error al ejecutar el comando:\n\n${e.message}`, m)
   }
 }
 
