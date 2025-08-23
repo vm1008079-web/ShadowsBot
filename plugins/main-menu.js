@@ -23,7 +23,7 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🌤️ Hola, soy *%botname* (%tipo)
+🍂 Hola, soy *%botname* (%tipo)
 *%name*, %greeting
 
 > 🪴 Canal: https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
@@ -58,7 +58,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         premium: p.premium,
       }))
 
-    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"Menu Bot","jpegThumbnail":Buffer.alloc(0) }}}
+    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"Menu De Comandos 🥦","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = './storage/img/menu.jpg'
 
