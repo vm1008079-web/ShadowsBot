@@ -39,7 +39,7 @@ export async function before(m, { conn }) {
           title: nombreBot,
           body: global.author,
           thumbnailUrl: bannerFinal,
-          sourceUrl: 'myapiadonix.vercel.app',
+          sourceUrl: null,
           mediaType: 1,
           renderLargerThumbnail: false
         }
