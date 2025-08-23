@@ -12,7 +12,7 @@ global.prems = []
 
 global.namebot = '𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃'
 global.packname = '𝖬𝗂𝖼𝗁𝗂 ° 𝖶𝖺 🥞'
-global.author = '𝖠𝖽𝗈 | 𝖬𝗂𝖼𝗁𝗂 🪸'
+global.author = '𝖠𝖽𝗈 | © 2025 🪸'
 global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀'
 
 
