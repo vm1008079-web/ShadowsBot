@@ -3,11 +3,11 @@ import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
 const tags = {
+  owner: '👑 PROPIETARIO',
   serbot: '🫟 SUBBOTS',
   eco: '💸 ECONOMÍA',
   downloader: '⬇️ DESCARGAS',
   tools: '🛠️ HERRAMIENTAS',
-  owner: '👑 PROPIETARIO',
   efectos: '🍿 EFECTOS',
   info: 'ℹ️ INFORMACIÓN',
   game: '🎮 JUEGOS',
@@ -23,20 +23,20 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🌤 Hola, soy %botname *( %tipo )*
+🌤️ Hola, soy *%botname* (%tipo)
 *%name*, %greeting
 
-🪪 *CANAL :* https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
+🪴 Canal: https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
 
-> 🥮 Fecha = *%date*
+> 🥞 Fecha = *%date*
 > 🍿 Actividad = *%uptime*
 %readmore
 `.trimStart(),
 
-  header: '\n\`%category 🥞\`',
-  body: '\`🧃\` *%cmd* %islimit %isPremium',
+  header: '\n`> %category`',
+  body: '`> *%cmd* %islimit %isPremium`',
   footer: '',
-  after: '\n🍂 Creado por Ado.',
+  after: '\n🌤️ Creado por Ado',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -58,7 +58,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         premium: p.premium,
       }))
 
-    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂","jpegThumbnail":Buffer.alloc(0) }}}
+    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"Menu Bot","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = './storage/img/menu.jpg'
 
@@ -72,12 +72,12 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       } catch {}
     }
 
-    const tipo = conn.user.jid === global.conn.user.jid ? '𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹 🆅' : '𝗦𝘂𝗯𝗕𝗼𝘁 🅱'
+    const tipo = conn.user.jid === global.conn.user.jid ? 'Principal' : 'SubBot'
     const menuConfig = conn.menu || defaultMenu
 
     const _text = [
       menuConfig.before,
-      ...Object.keys(tags).map(tag => {
+      ...Object.keys(tags).sort().map(tag => {
         const cmds = help
           .filter(menu => menu.tags?.includes(tag))
           .map(menu => menu.help.map(h => 
@@ -120,7 +120,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     await conn.sendMessage(
       m.chat,
-      { ...imageContent, caption: text.trim(), footer: '🦖 Menu de comandos..', headerType: 4, mentionedJid: conn.parseMention(text) },
+      { ...imageContent, caption: text.trim(), footer: 'Menu de comandos', headerType: 4, mentionedJid: conn.parseMention(text) },
       { quoted: fkontak }
     )
 
@@ -147,13 +147,13 @@ function clockString(ms) {
 
 const hour = new Date().getHours()
 const greetingMap = {
-  0: 'una linda noche 🌙', 1: 'una linda noche 💤', 2: 'una linda noche 🦉',
-  3: 'una linda mañana ✨', 4: 'una linda mañana 💫', 5: 'una linda mañana 🌅',
-  6: 'una linda mañana 🌄', 7: 'una linda mañana 🌅', 8: 'una linda mañana 💫',
-  9: 'una linda mañana ✨', 10: 'un lindo día 🌞', 11: 'un lindo día 🌨',
-  12: 'un lindo día ❄', 13: 'un lindo día 🌤', 14: 'una linda tarde 🌇',
-  15: 'una linda tarde 🥀', 16: 'una linda tarde 🌹', 17: 'una linda tarde 🌆',
-  18: 'una linda noche 🌙', 19: 'una linda noche 🌃', 20: 'una linda noche 🌌',
-  21: 'una linda noche 🌃', 22: 'una linda noche 🌙', 23: 'una linda noche 🌃',
+  0: 'una noche tranquila 🌙', 1: 'una noche tranquila 🌙', 2: 'una noche tranquila 🌙',
+  3: 'una mañana tranquila ☀️', 4: 'una mañana tranquila ☀️', 5: 'una mañana tranquila ☀️',
+  6: 'una mañana tranquila ☀️', 7: 'una mañana tranquila ☀️', 8: 'una mañana tranquila ☀️',
+  9: 'un buen día ☀️', 10: 'un buen día ☀️', 11: 'un buen día ☀️',
+  12: 'un buen día ☀️', 13: 'un buen día ☀️', 14: 'una tarde tranquila 🌇',
+  15: 'una tarde tranquila 🌇', 16: 'una tarde tranquila 🌇', 17: 'una tarde tranquila 🌇',
+  18: 'una noche tranquila 🌙', 19: 'una noche tranquila 🌙', 20: 'una noche tranquila 🌙',
+  21: 'una noche tranquila 🌙', 22: 'una noche tranquila 🌙', 23: 'una noche tranquila 🌙',
 }
 const greeting = 'Espero que tengas ' + (greetingMap[hour] || 'un buen día')
