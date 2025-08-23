@@ -26,15 +26,15 @@ const defaultMenu = {
 🌤️ Hola, soy *%botname* (%tipo)
 *%name*, %greeting
 
-🪴 Canal: https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
+> 🪴 Canal: https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O
 
-> 🥞 Fecha = *%date*
-> 🍿 Actividad = *%uptime*
+🥞 DATE = *%date*
+🍿 ACTIVITY = *%uptime*
 %readmore
 `.trimStart(),
 
   header: '\n`> %category`',
-  body: '`> *%cmd* %islimit %isPremium`',
+  body: '`🌴 *%cmd* %islimit %isPremium`',
   footer: '',
   after: '\n🌤️ Creado por Ado',
 }
@@ -72,7 +72,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       } catch {}
     }
 
-    const tipo = conn.user.jid === global.conn.user.jid ? 'Principal' : 'SubBot'
+    const tipo = conn.user.jid === global.conn.user.jid ? '𝖯𝗋𝗂𝗇𝖼𝗂𝗉𝖺𝗅' : '𝖲𝗈𝖼𝗄𝖾𝗍'
     const menuConfig = conn.menu || defaultMenu
 
     const _text = [
