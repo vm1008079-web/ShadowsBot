@@ -21,28 +21,27 @@ const handler = async (m, { conn, usedPrefix }) => {
 
 *—◉ 𝙲𝙾𝙼𝙰𝙽𝙳𝙾𝚂 𝚃𝙴𝚁𝙼𝚄𝚇*
 > Comandos:
-- cd && termux-setup-storage
-- apt-get update -y && apt-get upgrade -y
-- pkg install -y git nodejs ffmpeg imagemagick && pkg install yarn 
-- git clone https://github.com/
-- yarn
-- npm install
-- npm update
-- npm start
+1- termux-setup-storage
+2- apt update && apt upgrade -y
+   pkg install -y git nodejs ffmpeg imagemagick
+3- git clone https://github.com/Ado-rgb/Michi-WaBot.git
+4- cd Michi-WaBot
+5- npm install
+6- npm start
 
 ------------------------------------
 
 —◉ ✔️ ACTIVAR EN CASO DE DETENERSE EN TERMUX ✔️
 ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
-> cd 
+> cd Michi-WaBot
 > npm start
 
 ------------------------------------
 
 —◉ 👽 OBTENER OTRO CODIGO QR EN TERMUX 👽
 ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
-> cd 
-> rm -rf sesion
+> cd Michi-WaBot
+> rm -rf Sessions
 > npm start`.trim()
 
     const namebot = 'Bot Oficial ✅' // fijo para evitar errores
