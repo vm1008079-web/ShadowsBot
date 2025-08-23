@@ -62,7 +62,7 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
           previewType: 'pdf',
           title: 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
           body: namebot,
-          thumbnail: fs.readFileSync('./storage/img/menú.jpg'),
+          thumbnail: fs.readFileSync('./storage/img/menu.jpg'),
           sourceUrl: 'https://www.youtube.com/'
         }
       },
