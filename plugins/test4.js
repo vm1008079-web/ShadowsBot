@@ -2,7 +2,7 @@ const handler = async (m, {conn, usedPrefix}) => {
   const doc = ['pdf', 'zip', 'vnd.openxmlformats-officedocument.presentationml.presentation', 'vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'vnd.openxmlformats-officedocument.wordprocessingml.document'];
   const document = doc[Math.floor(Math.random() * doc.length)];
   const text = `*—◉ 𝚃𝚄𝚃𝙾𝚁𝙸𝙰𝙻-𝚃𝙴𝚁𝙼𝚄𝚇*
-> https://youtu.be/yRS4m36Zwkw
+> https://youtu.be
 
 ------------------------------------
 
@@ -45,11 +45,11 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
         'mediaType': 2,
         'previewType': 'pdf',
         'title': 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
-        'body': wm,
-        'thumbnail': imagen1,
+        'body': namebot,
+        'thumbnail': './storage/img/menú.jpg',
         'sourceUrl': 'https://www.youtube.com/'}},
     'caption': text,
-    'footer': wm,
+    'footer': namebot,
     // 'buttons':[
     // {buttonId: `${usedPrefix}menu`, buttonText: {displayText: '𝙼𝙴𝙽𝚄'}, type: 1},
     // {buttonId: `${usedPrefix}donar`, buttonText: {displayText: '𝙳𝙾𝙽𝙰𝚁'}, type: 1}],
