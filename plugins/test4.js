@@ -88,4 +88,6 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 }
 
 handler.command = ['instalarbot']
+handler.help = ['instalarbot']
+handler.tags = ['info']
 export default handler
