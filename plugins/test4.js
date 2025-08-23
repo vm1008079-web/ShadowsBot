@@ -15,8 +15,8 @@ const handler = async (m, { conn, usedPrefix }) => {
     const document = doc[Math.floor(Math.random() * doc.length)]
     
     const text = `*—◉ 𝚃𝚄𝚃𝙾𝚁𝙸𝙰𝙻-𝚃𝙴𝚁𝙼𝚄𝚇*
-> https://youtu.be
-
+> https://youtu.be/Sn6nGxKA4YI
+ 
 ------------------------------------
 
 *—◉ 𝙲𝙾𝙼𝙰𝙽𝙳𝙾𝚂 𝚃𝙴𝚁𝙼𝚄𝚇*
