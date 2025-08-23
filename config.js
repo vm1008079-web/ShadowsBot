@@ -4,16 +4,15 @@ import { fileURLToPath } from 'url'
 
 global.owner = [
   ['50493732693', 'Ado', true],
-  ['156981591593126', 'AdoLid', true],
   ['51956931649'],
 ]
 
 global.mods = []
 global.prems = []
 
-global.namebot = '🪸 𝖠𝖨 - 𝖬𝗂𝖼𝗁𝗂'
-global.packname = '𝖬𝗂𝖼𝗁𝗂 ° 𝖶𝖺 🧃'
-global.author = '🍿 𝖬𝖺𝖽𝖾 𝖻𝗒 𝖠𝖽𝗈'
+global.namebot = '𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃'
+global.packname = '𝖬𝗂𝖼𝗁𝗂 ° 𝖶𝖺 🥞'
+global.author = '𝖠𝖽𝗈 | 𝖬𝗂𝖼𝗁𝗂 🪸'
 global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀'
 
 
