@@ -1,6 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
-import { downloadContentFromMessage } from '@adiwajshing/baileys';
+import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
 class EarthZoomOutAPI {
   constructor() {
