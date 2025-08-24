@@ -4,60 +4,39 @@
 // >>⟩ Creado por GianPoolS < github.com/GianPoolS >
 // >>⟩ no quites los creditos
 
-// >>⟩ Creado por GianPoolS < github.com/GianPoolS >
-// >>⟩ no quites los creditos
-
 let handler = async (m, { conn }) => {
   try {
-    const carousel = {
-      carouselMessage: {
-        cards: [
-          {
-            header: {
-              title: "✨ Primera diapositiva",
-              subtitle: "Imagen 1 con botones",
-              hasMediaAttachment: true,
-              imageMessage: { url: "https://telegra.ph/file/12a9f7b6f8bfb16c74f77.jpg" }
-            },
-            body: { text: "📌 Esta es la primera tarjeta del carrusel" },
-            nativeFlowMessage: {
-              buttons: [
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "🌐 GitHub", url: "https://github.com/GianPoolS" }) },
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "📺 YouTube", url: "https://youtube.com" }) },
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "💬 WhatsApp", url: "https://wa.me/51987654321" }) }
-              ]
-            }
-          },
-          {
-            header: {
-              title: "🚀 Segunda diapositiva",
-              subtitle: "Imagen 2 con botones",
-              hasMediaAttachment: true,
-              imageMessage: { url: "https://telegra.ph/file/7f6c1f0d68f148cd07e4a.jpg" }
-            },
-            body: { text: "✅ Esta es la segunda tarjeta del carrusel" },
-            nativeFlowMessage: {
-              buttons: [
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "🌐 GitHub", url: "https://github.com/GianPoolS" }) },
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "📺 YouTube", url: "https://youtube.com" }) },
-                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "💬 WhatsApp", url: "https://wa.me/51987654321" }) }
-              ]
-            }
-          }
-        ]
-      }
-    }
+    const buttons = [
+      { index: 1, urlButton: { displayText: '🌐 GitHub', url: 'https://github.com/GianPoolS' } },
+      { index: 2, urlButton: { displayText: '📺 YouTube', url: 'https://youtube.com' } },
+      { index: 3, urlButton: { displayText: '💬 WhatsApp', url: 'https://wa.me/51987654321' } }
+    ]
 
-    await conn.sendMessage(m.chat, carousel, { quoted: m })
+    // Primera imagen
+    await conn.sendMessage(m.chat, {
+      image: { url: 'https://telegra.ph/file/12a9f7b6f8bfb16c74f77.jpg' },
+      caption: '✨ Primera diapositiva',
+      footer: '✦ MichiWa (BETA) ✦',
+      templateButtons: buttons
+    }, { quoted: m })
+
+    // Segunda imagen
+    await conn.sendMessage(m.chat, {
+      image: { url: 'https://telegra.ph/file/7f6c1f0d68f148cd07e4a.jpg' },
+      caption: '🚀 Segunda diapositiva',
+      footer: '✦ MichiWa (BETA) ✦',
+      templateButtons: buttons
+    }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    m.reply("❌ Error al enviar el carrusel (story ads).")
+    m.reply("❌ Error al enviar las diapositivas.")
   }
 }
 
 handler.command = /^test3$/i
 export default handler
+
 
 
 /*let handler = async (m, { conn }) => {
