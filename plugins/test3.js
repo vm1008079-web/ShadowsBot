@@ -2,7 +2,7 @@ import axios from 'axios'
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
 
 let handler = async (m, { conn }) => {
-  const proses = '⚘️ Obteniendo información de los creadores...'
+  const proses = '😺 Obteniendo información de los creadores...'
   await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
 
   async function createImage(url) {
@@ -14,8 +14,8 @@ let handler = async (m, { conn }) => {
 
   const owners = [
     {
-      name: 'Jose XrL',
-      desc: 'Creador Principal de Nino Nakano Ai',
+      name: 'Ado-Rgb',
+      desc: 'Creador Principal de ${namebot}',
       image: 'https://iili.io/F0FyRXR.jpg',
       buttons: [
         { name: 'WhatsApp', url: 'https://wa.me/595972314588' },
@@ -27,8 +27,8 @@ let handler = async (m, { conn }) => {
       ]
     },
     {
-      name: 'David RyZe',
-      desc: 'Co-Creador de Nino Nakano Ai',
+      name: 'GianPoolS',
+      desc: 'Colaborador de ${namebot}',
       image: 'https://iili.io/F0FyTmJ.jpg',
       buttons: [
         { name: 'WhatsApp', url: 'https://wa.me/15614809253' },
@@ -78,7 +78,7 @@ let handler = async (m, { conn }) => {
         },
         interactiveMessage: proto.Message.InteractiveMessage.fromObject({
           body: proto.Message.InteractiveMessage.Body.create({
-            text: '⚘️ Creadores de Nino Nakano Ai ⚘️'
+            text: '🙀 Creadores de ${namebot} ⚘️'
           }),
           footer: proto.Message.InteractiveMessage.Footer.create({
             text: 'Conoce a los desarrolladores del bot'
