@@ -14,16 +14,14 @@ let handler = async (m, { conn }) => {
 
   const owners = [
     {
-      name: 'Ado-Rgb',
+      name: 'Ado',
       desc: 'Creador Principal de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
       image: 'https://iili.io/F0FyRXR.jpg',
       buttons: [
-        { name: 'WhatsApp', url: 'https://wa.me/595972314588' },
-        { name: 'Instagram', url: 'https://www.instagram.com/xrljose' },
-        { name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61556686993783' },
-        { name: 'Telegram', url: 'https://t.me/JoseXrl15k' },
-        { name: 'TikTok', url: 'https://www.tiktok.com/@jose.xrl15' },
-        { name: 'PayPal', url: 'https://paypal.me/xrljose' }
+        { name: '🌴 WhatsApp', url: 'https://wa.me/50493732693' },
+        { name: '🥞 Canal OFC', url: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O' },
+        { name: '🧃 Grupo', url: 'https://chat.whatsapp.com/HztBH5HP4kpBE86Nbuax4i?mode=ems_copy_c' },
+        { name: '🍂 API', url: 'https://myapiadonix.vercel.app' }
       ]
     },
     {
