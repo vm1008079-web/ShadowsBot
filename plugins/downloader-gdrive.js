@@ -1,3 +1,6 @@
+// >>⟩ Creador original GianPoolS < github.com/GianPoolS >
+// >>⟩ No quites los creditos
+
 import fetch from 'node-fetch'
 import { sizeFormatter } from 'human-readable'
 
