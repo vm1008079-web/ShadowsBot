@@ -8,11 +8,42 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
     let text = (m.text || '').trim()
 
-    // ✅ Caso: usuario responde con 1/2/3
-    if (twitterSessions[m.sender] && ['1','2','3'].includes(text)) {
-      let url = twitterSessions[m.sender]
+    // 1️⃣ Caso: comando con link
+    if (args[0]) {
       await m.react('⏳')
 
+      let { desc, thumb } = await fg.twitter(args[0])
+
+      // Guardamos URL en sesión con key del mensaje
+      twitterSessions[m.key.id] = args[0]
+
+      await conn.sendMessage(m.chat, {
+        image: { url: thumb },
+        caption: `
+彡 T W I T T E R - D L
+
+📌 Descripción: ${desc || 'Sin descripción'}
+🔗 Link: ${args[0]}
+
+👉 Responde a este mensaje con:
+1️⃣ SD
+2️⃣ HD
+3️⃣ MP3
+        `
+      }, { quoted: m })
+
+      await m.react('✅')
+      return
+    }
+
+    // 2️⃣ Caso: respuesta al mensaje del menú con 1/2/3
+    if (m.quoted && ['1','2','3'].includes(text)) {
+      let msgId = m.quoted.key.id
+      let url = twitterSessions[msgId]
+
+      if (!url) return m.reply('ⓘ Primero usa el comando con el link de Twitter.')
+
+      await m.react('⏳')
       let { SD, HD, desc, audio } = await fg.twitter(url)
 
       let caption = `
@@ -33,45 +64,14 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       }
 
       await m.react('✅')
-      delete twitterSessions[m.sender] // limpiar después de usar
+      delete twitterSessions[msgId] // limpiar después de usar
       return
-    }
-
-    // ✅ Caso: comando con link
-    if (args[0]) {
-      await m.react('⏳')
-      twitterSessions[m.sender] = args[0] // guardamos la url
-
-      let { desc, thumb } = await fg.twitter(args[0])
-
-      await conn.sendMessage(m.chat, {
-        image: { url: thumb },
-        caption: `
-彡 T W I T T E R - D L
-
-📌 Descripción: ${desc || 'Sin descripción'}
-🔗 Link: ${args[0]}
-
-👉 Responde con el número:
-1️⃣ SD (calidad normal)
-2️⃣ HD (alta calidad)
-3️⃣ MP3 (solo audio)
-        `
-      }, { quoted: m })
-
-      await m.react('✅')
-      return
-    }
-
-    // Si no manda nada válido
-    if (!args[0]) {
-      throw `💬 Ejemplo de uso:\n${usedPrefix + command} https://twitter.com/...`
     }
 
   } catch (e) {
     console.error(e)
     await m.react('❌')
-    m.reply('ⓘ Hubo un error al procesar tu solicitud.')
+    m.reply('ⓘ Error al procesar tu solicitud.')
   }
 }
 
