@@ -124,27 +124,25 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       : { image: fs.readFileSync(bannerFinal) }
 
     await conn.sendMessage(
-      m.chat,
-      { 
-        ...imageContent, 
-        caption: text.trim(),
-        footer: 'Menu de comandos',
-        headerType: 4,
-        contextInfo: {
-          externalAdReply: {
-            title: nombreBot,
-            body: "",
-            thumbnailUrl: bannerFinal,
-            sourceUrl: "https://myapiadonix.vercel.app",
-            mediaType: 1,
-            renderLargerThumbnail: true
-          },
-          mentionedJid: conn.parseMention(text)
-        }
+  m.chat,
+  { 
+    text: text.trim(),
+    footer: 'Menu de comandos',
+    headerType: 4,
+    contextInfo: {
+      externalAdReply: {
+        title: nombreBot,
+        body: "🌿 Menú Oficial",
+        thumbnailUrl: bannerFinal,
+        sourceUrl: "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O",
+        mediaType: 1,
+        renderLargerThumbnail: true
       },
-      { quoted: fkontak }
-    )
-
+      mentionedJid: conn.parseMention(text)
+    }
+  },
+  { quoted: fkontak }
+)
   } catch (e) {
     console.error('❌ Error en el menú:', e)
     conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
