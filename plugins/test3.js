@@ -2,6 +2,7 @@ import axios from 'axios'
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
 
 let handler = async (m, { conn }) => {
+let namebot = namebot
   const proses = '😺 Obteniendo información de los creadores...'
   await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
 
