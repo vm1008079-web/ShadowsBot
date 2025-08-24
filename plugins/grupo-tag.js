@@ -45,5 +45,5 @@ handler.tags = ['group']
 handler.help = ['invocar < mensaje opcional >']
 handler.command = ['tagall', 'invocar', 'todos']
 handler.group = true
-
+handler.admin = true
 export default handler
