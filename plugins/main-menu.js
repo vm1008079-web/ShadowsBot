@@ -116,11 +116,27 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     )
 
     const isURL = /^https?:\/\//i.test(bannerFinal)
-    const imageContent = isURL ? { image: { url: bannerFinal } } : { image: fs.readFileSync(bannerFinal) }
+    const imageContent = isURL ? { url: bannerFinal } : { file: fs.readFileSync(bannerFinal) }
 
     await conn.sendMessage(
       m.chat,
-      { ...imageContent, caption: text.trim(), footer: 'Menu de comandos', headerType: 4, mentionedJid: conn.parseMention(text) },
+      { 
+        image: imageContent, 
+        caption: text.trim(), 
+        footer: 'Menu de comandos', 
+        headerType: 4, 
+        contextInfo: {
+          externalAdReply: {
+            title: nombreBot,
+            body: "🌿 Menú Oficial",
+            thumbnailUrl: bannerFinal,
+            sourceUrl: "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O",
+            mediaType: 1,
+            renderLargerThumbnail: true
+          },
+          mentionedJid: conn.parseMention(text)
+        }
+      },
       { quoted: fkontak }
     )
 
