@@ -36,7 +36,7 @@ const defaultMenu = {
   header: '\n`> %category`',
   body: '🌴 *%cmd* %islimit %isPremium',
   footer: '',
-  after: '\n🌤️ Creado por Ado',
+  after: '\n🌤 Creador Ado\n🌿Colaborador GianPoolS',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -130,7 +130,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
   }
 }
 
-handler.command = ['menu', 'help', 'hélp', 'menú', 'ayuda']
+handler.command = ['m','menu', 'help', 'hélp', 'menú', 'ayuda']
 handler.register = false
 export default handler
 
