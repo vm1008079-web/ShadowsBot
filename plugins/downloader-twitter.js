@@ -82,7 +82,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   }
 }
 
-handler.help = ['twitter <url>', 'x <url>']
+handler.help = ['x']
 handler.tags = ['downloader']
 handler.command = ['twitter','tw','x']
 
