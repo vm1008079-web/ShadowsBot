@@ -2,7 +2,6 @@ import axios from 'axios'
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
 
 let handler = async (m, { conn }) => {
-let namebot = namebot
   const proses = '😺 Obteniendo información de los creadores...'
   await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
 
@@ -16,7 +15,7 @@ let namebot = namebot
   const owners = [
     {
       name: 'Ado-Rgb',
-      desc: 'Creador Principal de ${namebot}',
+      desc: 'Creador Principal de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
       image: 'https://iili.io/F0FyRXR.jpg',
       buttons: [
         { name: 'WhatsApp', url: 'https://wa.me/595972314588' },
@@ -29,7 +28,7 @@ let namebot = namebot
     },
     {
       name: 'GianPoolS',
-      desc: 'Colaborador de ${namebot}',
+      desc: 'Colaborador de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
       image: 'https://iili.io/F0FyTmJ.jpg',
       buttons: [
         { name: 'WhatsApp', url: 'https://wa.me/15614809253' },
