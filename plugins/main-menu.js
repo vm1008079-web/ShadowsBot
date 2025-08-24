@@ -36,7 +36,7 @@ const defaultMenu = {
   header: '\n`> %category`',
   body: '🌴 *%cmd* %islimit %isPremium',
   footer: '',
-  after: '\n🌤 Creador Ado\n🌿Colaborador GianPoolS',
+  after: '\n🌤 Creador Ado\n🌿 Colaborador GianPoolS',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -123,6 +123,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       ? { image: { url: bannerFinal } } 
       : { image: fs.readFileSync(bannerFinal) }
 
+    await m.react('🐱😵')
     await conn.sendMessage(
   m.chat,
   { 
