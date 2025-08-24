@@ -78,7 +78,7 @@ let handler = async (m, { conn }) => {
         },
         interactiveMessage: proto.Message.InteractiveMessage.fromObject({
           body: proto.Message.InteractiveMessage.Body.create({
-            text: '🙀 Creadores de ${namebot} ⚘️'
+            text: '🙀 Creadores de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃 ⚘️'
           }),
           footer: proto.Message.InteractiveMessage.Footer.create({
             text: 'Conoce a los desarrolladores del bot'
