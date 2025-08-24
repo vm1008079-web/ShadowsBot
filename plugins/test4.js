@@ -5,8 +5,7 @@ import fs from 'fs'
 
 const handler = async (m, { conn, usedPrefix }) => {
   try {
-    // reaccion inicial "cargando"
-    await m.react('🕓')
+    await m.react('🕓') // reaccion inicial "cargando"
 
     const doc = [
       'pdf',
@@ -19,7 +18,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     
     const text = `*—◉ 𝚃𝚄𝚃𝙾𝚁𝙸𝙰𝙻-𝚃𝙴𝚁𝙼𝚄𝚇*
 > https://youtu.be/Sn6nGxKA4YI
- 
+
 ------------------------------------
 
 *—◉ 𝙲𝙾𝙼𝙰𝙽𝙳𝙾𝚂 𝚃𝙴𝚁𝙼𝚄𝚇*
@@ -59,13 +58,14 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
         forwardingScore: 200,
         isForwarded: true,
         externalAdReply: {
-          mediaUrl: 'https://github.com/Ado-Rgb',
-          mediaType: 2,
-          previewType: 'pdf',
+          showAdAttribution: true,
           title: 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
           body: namebot,
           thumbnail: fs.readFileSync('./storage/img/menu.jpg'),
-          sourceUrl: 'https://www.youtube.com/'
+          sourceUrl: 'https://www.youtube.com/',
+          mediaUrl: 'https://youtu.be/Sn6nGxKA4YI',
+          mediaType: 1, // <= con esto se activa la preview tipo video/enlace
+          renderLargerThumbnail: true // <= hace la miniatura más grande
         }
       },
       caption: text,
@@ -74,15 +74,11 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
     }
 
     await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
-
-    // reaccion si salió bien
-    await m.react('✅')
+    await m.react('✅') // reaccion si salió bien
 
   } catch (e) {
     console.error(e)
-    // reaccion si hubo error
-    await m.react('❌')
-    // mensaje con detalle del error
+    await m.react('❌') // reaccion si hubo error
     await conn.reply(m.chat, `⚠️ Error al ejecutar el comando:\n\n${e.message}`, m)
   }
 }
