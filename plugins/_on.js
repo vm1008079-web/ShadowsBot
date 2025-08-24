@@ -87,8 +87,11 @@ handler.before = async (m, { conn }) => {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const isUserAdmin = groupMetadata.participants.find(p => p.id === m.sender)?.admin
     const text = m?.text || ''
+    const allowedLink = 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O'
 
-    if (!isUserAdmin && (linkRegex.test(text) || linkRegex1.test(text))) {
+    if (isUserAdmin || text.includes(allowedLink)) return
+
+    if (linkRegex.test(text) || linkRegex1.test(text)) {
       const userTag = `@${m.sender.split('@')[0]}`
       const delet = m.key.participant
       const msgID = m.key.id
