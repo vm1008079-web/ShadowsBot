@@ -8,11 +8,11 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
     let text = (m.text || '').trim()
 
-    // 📌 Caso 1: usuario responde con 1/2/3
-    if (['1', '2', '3'].includes(text) && twitterSessions[m.sender]) {
+    // ✅ Caso: usuario responde con 1/2/3
+    if (twitterSessions[m.sender] && ['1','2','3'].includes(text)) {
       let url = twitterSessions[m.sender]
-
       await m.react('⏳')
+
       let { SD, HD, desc, audio } = await fg.twitter(url)
 
       let caption = `
@@ -24,24 +24,23 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
       if (text === '1') {
         await conn.sendMessage(m.chat, { video: { url: SD }, caption }, { quoted: m })
-      } else if (text === '2') {
+      }
+      if (text === '2') {
         await conn.sendMessage(m.chat, { video: { url: HD }, caption }, { quoted: m })
-      } else if (text === '3') {
+      }
+      if (text === '3') {
         await conn.sendMessage(m.chat, { audio: { url: audio }, mimetype: 'audio/mp4' }, { quoted: m })
       }
 
       await m.react('✅')
-      delete twitterSessions[m.sender] // limpiar sesión
+      delete twitterSessions[m.sender] // limpiar después de usar
       return
     }
 
-    // 📌 Caso 2: usuario manda link con el comando
-    if (command) {
-      if (!args[0]) throw `💬 Ejemplo:\n${usedPrefix + command} https://twitter.com/...`
-
+    // ✅ Caso: comando con link
+    if (args[0]) {
       await m.react('⏳')
-
-      twitterSessions[m.sender] = args[0] // guardar url
+      twitterSessions[m.sender] = args[0] // guardamos la url
 
       let { desc, thumb } = await fg.twitter(args[0])
 
@@ -53,7 +52,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 📌 Descripción: ${desc || 'Sin descripción'}
 🔗 Link: ${args[0]}
 
-👉 Responde con un número:
+👉 Responde con el número:
 1️⃣ SD (calidad normal)
 2️⃣ HD (alta calidad)
 3️⃣ MP3 (solo audio)
@@ -61,7 +60,14 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       }, { quoted: m })
 
       await m.react('✅')
+      return
     }
+
+    // Si no manda nada válido
+    if (!args[0]) {
+      throw `💬 Ejemplo de uso:\n${usedPrefix + command} https://twitter.com/...`
+    }
+
   } catch (e) {
     console.error(e)
     await m.react('❌')
@@ -71,8 +77,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.help = ['twitter <url>', 'x <url>']
 handler.tags = ['downloader']
-handler.command = ['twitter', 'tw', 'x']  // para el comando
-handler.customPrefix = /^(1|2|3)$/i       // también acepta 1, 2, 3
-handler.exp = 0
+handler.command = ['twitter', 'tw', 'x']
 
 export default handler
