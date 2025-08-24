@@ -20,11 +20,17 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       return await conn.sendMessage(m.chat, {
         image: { url: thumb },
         caption: `
-彡 T W I T T E R - D L
+```彡 T W I T T E R - D L```
 
 📌 Descripción: ${desc || 'Sin descripción'}
-🔗 Link: ${args[0]}`,
-        footer: "👉 Elige una opción de descarga\nrespondiendo con el número:\n1️⃣ SD (calidad normal)\n2️⃣ HD (alta calidad)\n3️⃣ MP3 (solo audio)",
+🔗 Link: ${args[0]}
+------------------------------
+👉 Elige una opción de descarga
+respondiendo con el número:
+1️⃣ SD (calidad normal)
+2️⃣ HD (alta calidad)
+3️⃣ MP3 (solo audio`,
+        footer: "",
       }, { quoted: m })
     }
 
