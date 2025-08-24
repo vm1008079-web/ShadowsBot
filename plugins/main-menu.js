@@ -59,8 +59,8 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       }))
 
     let fkontak = { 
-      "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },
-      "message":{ "imageMessage":{ "caption":"Menu De Comandos 🥦","jpegThumbnail":Buffer.alloc(0) }}
+      key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net" },
+      message: { imageMessage: { caption: "Menu De Comandos 🥦", jpegThumbnail: Buffer.alloc(0) }}
     }
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = 'https://iili.io/KJXN7yB.jpg'
@@ -75,7 +75,6 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       } catch {}
     }
 
-    // 🔥 fix
     const tipo = conn.user?.jid === global.conn?.user?.jid ? '𝖯𝗋𝗂𝗇𝖼𝗂𝗉𝖺𝗅' : '𝖲𝗈𝖼𝗄𝖾𝗍'
     const menuConfig = conn.menu || defaultMenu
 
@@ -128,15 +127,15 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       m.chat,
       { 
         ...imageContent, 
-        caption: text.trim(), 
-        footer: 'Menu de comandos', 
-        headerType: 4, 
+        caption: text.trim(),
+        footer: 'Menu de comandos',
+        headerType: 4,
         contextInfo: {
           externalAdReply: {
             title: nombreBot,
-            body: "🌿 Menú",
+            body: "",
             thumbnailUrl: bannerFinal,
-            sourceUrl: "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O",
+            sourceUrl: "https://myapiadonix.vercel.app",
             mediaType: 1,
             renderLargerThumbnail: true
           },
