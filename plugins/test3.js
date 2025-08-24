@@ -50,10 +50,10 @@ let handler = async (m, { conn }) => {
 
     cards.push({
       body: proto.Message.InteractiveMessage.Body.fromObject({
-        text: `🪴 *${owner.name}*\n${owner.desc}`
+        text: `🦞 *${owner.name}*\n${owner.desc}`
       }),
       footer: proto.Message.InteractiveMessage.Footer.fromObject({
-        text: '> Conoce más sobre nuestros creadores siguiendo sus redes sociales. Haz clic en cualquier botón para acceder a sus perfiles y descubrir su trabajo. Si te gustaría apoyarlos, también puedes realizar una donación a través de nuestro PayPal.'
+        text: '> 🍿 Conoce más sobre nuestros creadores siguiendo sus redes sociales. Haz clic en cualquier botón para acceder a sus perfiles y descubrir su trabajo. Si te gustaría apoyarlos, puedes dejar tu estrellita en el repo : https://github.com/Ado-rgb/Michi-WaBot'
       }),
       header: proto.Message.InteractiveMessage.Header.fromObject({
         hasMediaAttachment: true,
