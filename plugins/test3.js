@@ -3,7 +3,7 @@ const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await
 
 let handler = async (m, { conn }) => {
   const proses = '> *_😺 Obteniendo información de los creadores..._*'
-  await conn.sendMessage(m.chat, { text: proses }, { quoted: global.rcanal })
+  await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
 
   async function createImage(url) {
     const { imageMessage } = await generateWAMessageContent({ image: { url } }, {
