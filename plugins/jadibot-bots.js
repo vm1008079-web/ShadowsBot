@@ -17,24 +17,24 @@ let handler = async (m, { conn }) => {
           nombre = `Usuario ${numero}`
         }
       }
-      uniqueUsers.set(jid, nombre || `Usuario ${numero}`)
+
+      // Obtenemos uptime del subbot si existe, si no, usamos 0
+      const subUptime = connSub.startTime ? Date.now() - connSub.startTime : 0
+      uniqueUsers.set(jid, { nombre: nombre || `Usuario ${numero}`, uptime: subUptime })
     }
   }
 
-  const uptime = process.uptime() * 1000
-  const formatUptime = clockString(uptime)
   const totalUsers = uniqueUsers.size
-
   let txt = `🌟 *SUBS ACTIVOS* 🌟\n\n`
-  txt += `⏳ *Tiempo Activo:* ${formatUptime}\n`
   txt += `👥 *Total Conectados:* ${totalUsers}\n`
 
   if (totalUsers > 0) {
     txt += `\n📋 *LISTA DE SUBS*\n\n`
     let i = 1
-    for (const [jid, nombre] of uniqueUsers) {
+    for (const [jid, { nombre, uptime }] of uniqueUsers) {
       const numero = jid.split('@')[0]
       txt += `💎 *${i++}.* ${nombre}\n`
+      txt += `⏳ *Tiempo Activo:* ${clockString(uptime)}\n`
       txt += `🔗 https://wa.me/${numero}\n\n`
     }
   } else {
