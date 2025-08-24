@@ -2,8 +2,8 @@ import axios from 'axios'
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
 
 let handler = async (m, { conn }) => {
-  const proses = '😺 Obteniendo información de los creadores...'
-  await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
+  const proses = '> *_😺 Obteniendo información de los creadores..._*'
+  await conn.sendMessage(m.chat, { text: proses }, { quoted: global.rcanal })
 
   async function createImage(url) {
     const { imageMessage } = await generateWAMessageContent({ image: { url } }, {
