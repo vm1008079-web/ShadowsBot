@@ -3,7 +3,7 @@
 
 import fs from 'fs'
 
-const handler = async (m, { conn, usedPrefix }) => {
+const handler = async (m, { conn }) => {
   try {
     await m.react('🕓') // reaccion inicial "cargando"
 
@@ -15,14 +15,13 @@ const handler = async (m, { conn, usedPrefix }) => {
       'vnd.openxmlformats-officedocument.wordprocessingml.document'
     ]
     const document = doc[Math.floor(Math.random() * doc.length)]
-    
+
     const text = `*—◉ 𝚃𝚄𝚃𝙾𝚁𝙸𝙰𝙻-𝚃𝙴𝚁𝙼𝚄𝚇*
 > https://youtu.be/Sn6nGxKA4YI
 
 ------------------------------------
 
 *—◉ 𝙲𝙾𝙼𝙰𝙽𝙳𝙾𝚂 𝚃𝙴𝚁𝙼𝚄𝚇*
-> Comandos:
 1- termux-setup-storage
 2- apt update && apt upgrade -y
    pkg install -y git nodejs ffmpeg imagemagick
@@ -34,26 +33,34 @@ const handler = async (m, { conn, usedPrefix }) => {
 ------------------------------------
 
 —◉ ✔️ ACTIVAR EN CASO DE DETENERSE EN TERMUX ✔️
-ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 > cd Michi-WaBot
 > npm start
 
 ------------------------------------
 
 —◉ 👽 OBTENER OTRO CODIGO QR EN TERMUX 👽
-ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 > cd Michi-WaBot
 > rm -rf Sessions
 > npm start`.trim()
 
-    const namebot = 'MichiBot-MD' // fijo para evitar errores
+    const namebot = 'MichiBot-MD'
 
-    const buttonMessage = {
+    const message = {
+      // 📌 1. Imagen visible en el chat
+      image: fs.readFileSync('./storage/img/menu.jpg'),
+
+      // 📌 2. Documento adjunto
       document: { url: `https://github.com/Ado-Rgb` },
       mimetype: `application/${document}`,
       fileName: `「  𝑯𝒆𝒍𝒍𝒐 𝑾𝒐𝒓𝒍𝒅 」`,
       fileLength: 99999999999999,
       pageCount: 200,
+
+      // 📌 3. Texto
+      caption: text,
+      footer: namebot,
+
+      // 📌 4. Previsualización grande
       contextInfo: {
         forwardingScore: 200,
         isForwarded: true,
@@ -64,26 +71,24 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
           thumbnail: fs.readFileSync('./storage/img/menu.jpg'),
           sourceUrl: 'https://www.youtube.com/',
           mediaUrl: 'https://youtu.be/Sn6nGxKA4YI',
-          mediaType: 1, // <= con esto se activa la preview tipo video/enlace
-          renderLargerThumbnail: true // <= hace la miniatura más grande
+          mediaType: 1,
+          renderLargerThumbnail: true
         }
       },
-      caption: text,
-      footer: namebot,
       headerType: 6
     }
 
-    await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
-    await m.react('✅') // reaccion si salió bien
+    await conn.sendMessage(m.chat, message, { quoted: m })
+    await m.react('✅')
 
   } catch (e) {
     console.error(e)
-    await m.react('❌') // reaccion si hubo error
-    await conn.reply(m.chat, `⚠️ Error al ejecutar el comando:\n\n${e.message}`, m)
+    await m.react('❌')
+    await conn.reply(m.chat, `⚠️ Error:\n\n${e.message}`, m)
   }
 }
 
-handler.command = ['instalarbot']
+handler.command = ['instalarbot',instalar bot']
 handler.help = ['instalarbot']
 handler.tags = ['info']
 export default handler
