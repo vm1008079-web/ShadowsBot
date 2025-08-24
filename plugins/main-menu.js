@@ -60,7 +60,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"Menu De Comandos 🥦","jpegThumbnail":Buffer.alloc(0) }}}
     let nombreBot = global.namebot || 'Bot'
-    let bannerFinal = './storage/img/menu.jpg'
+    let bannerFinal = 'https://iili.io/KJXN7yB.jpg'
 
     const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
     const configPath = join('./JadiBots', botActual, 'config.json')
