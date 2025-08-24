@@ -1,7 +1,69 @@
 // >>⟩ Creado por GianPoolS < github.com/GianPoolS >
 // >>⟩ no quites los creditos
 
+// >>⟩ Creado por GianPoolS < github.com/GianPoolS >
+// >>⟩ no quites los creditos
+
 let handler = async (m, { conn }) => {
+  try {
+    const carousel = {
+      carouselMessage: {
+        cards: [
+          {
+            header: {
+              title: "✨ Primera diapositiva",
+              subtitle: "Imagen 1 con botones",
+              hasMediaAttachment: true,
+              imageMessage: await conn.prepareMessageMedia(
+                { url: "https://telegra.ph/file/12a9f7b6f8bfb16c74f77.jpg" },
+                "imageMessage"
+              )
+            },
+            body: { text: "📌 Esta es la primera tarjeta del carrusel" },
+            nativeFlowMessage: {
+              buttons: [
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "🌐 GitHub", url: "https://github.com/GianPoolS" }) },
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "📺 YouTube", url: "https://youtube.com" }) },
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "💬 WhatsApp", url: "https://wa.me/51987654321" }) }
+              ]
+            }
+          },
+          {
+            header: {
+              title: "🚀 Segunda diapositiva",
+              subtitle: "Imagen 2 con botones",
+              hasMediaAttachment: true,
+              imageMessage: await conn.prepareMessageMedia(
+                { url: "https://telegra.ph/file/7f6c1f0d68f148cd07e4a.jpg" },
+                "imageMessage"
+              )
+            },
+            body: { text: "✅ Esta es la segunda tarjeta del carrusel" },
+            nativeFlowMessage: {
+              buttons: [
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "🌐 GitHub", url: "https://github.com/GianPoolS" }) },
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "📺 YouTube", url: "https://youtube.com" }) },
+                { name: "cta_url", buttonParamsJson: JSON.stringify({ display_text: "💬 WhatsApp", url: "https://wa.me/51987654321" }) }
+              ]
+            }
+          }
+        ]
+      }
+    }
+
+    await conn.sendMessage(m.chat, carousel, { quoted: m })
+
+  } catch (e) {
+    console.log(e)
+    m.reply("❌ Error al enviar el carrusel (story ads).")
+  }
+}
+
+handler.command = /^test3$/i
+export default handler
+
+
+/*let handler = async (m, { conn }) => {
   try {
     let img = 'https://raw.githubusercontent.com/AdonixServices/Files/main/1754310580366-xco6p1-1754310544013-6cc3a6.jpg'
 
@@ -76,4 +138,4 @@ let handler = async (m, { conn }) => {
 //handler.tags = ['main']
 handler.command = /^test4$/i
 
-export default handler
+export default handler*/
