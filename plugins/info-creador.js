@@ -16,7 +16,7 @@ let handler = async (m, { conn }) => {
     {
       name: 'Ado',
       desc: 'Creador Principal de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
-      image: 'https://iili.io/F0FyRXR.jpg',
+      image: 'https://iili.io/KJXfhmJ.jpg',
       buttons: [
         { name: '🌴 WhatsApp', url: 'https://wa.me/50493732693' },
         { name: '🥞 Canal OFC', url: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O' },
@@ -27,7 +27,7 @@ let handler = async (m, { conn }) => {
     {
       name: 'GianPoolS',
       desc: 'Colaborador de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
-      image: 'https://iili.io/F0FyTmJ.jpg',
+      image: 'https://iili.io/KJXfymb.jpg',
       buttons: [
         { name: '🦖 WhatsApp', url: 'https://wa.me/51956931649' },
         { name: '💎 Github', url: 'https://github.com/GianPoolS' }
