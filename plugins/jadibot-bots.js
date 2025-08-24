@@ -18,9 +18,11 @@ let handler = async (m, { conn }) => {
         }
       }
 
-      // Obtenemos uptime del subbot si existe, si no, usamos 0
-      const subUptime = connSub.startTime ? Date.now() - connSub.startTime : 0
-      uniqueUsers.set(jid, { nombre: nombre || `Usuario ${numero}`, uptime: subUptime })
+      // Si no tiene startTime, lo iniciamos ahora (tiempo de conexión)
+      if (!connSub.startTime) connSub.startTime = Date.now()
+      const uptime = Date.now() - connSub.startTime
+
+      uniqueUsers.set(jid, { nombre: nombre || `Usuario ${numero}`, uptime })
     }
   }
 
