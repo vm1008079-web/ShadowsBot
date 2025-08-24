@@ -1,3 +1,5 @@
+// » Creado por Ado
+// 🧃 No quites créditos.
 import axios from "axios";
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
