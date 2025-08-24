@@ -89,9 +89,9 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
 }
 
-handler.command = ['instalarbot']
-handler.help = ['instalarbot']
-handler.tags = ['info']
+handler.command = ['tes3']
+//handler.help = ['instalarbot']
+//handler.tags = ['info']
 export default handler
 
 
@@ -132,4 +132,5 @@ export default handler
 simpleHandler.command = /^(tes3)$/i;
 
 export default simpleHandler;*/
+
 
