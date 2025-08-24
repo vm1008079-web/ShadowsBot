@@ -123,7 +123,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       ? { image: { url: bannerFinal } } 
       : { image: fs.readFileSync(bannerFinal) }
 
-    await m.react('🐱😵')
+    await conn.sendMessage(m.chat, { react: { text: '🐱', key: m.key } })
     await conn.sendMessage(
   m.chat,
   { 
