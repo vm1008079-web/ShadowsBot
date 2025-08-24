@@ -4,6 +4,9 @@
 // >>⟩ Creado por GianPoolS < github.com/GianPoolS >
 // >>⟩ no quites los creditos
 
+// >>⟩ Creado por GianPoolS < github.com/GianPoolS >
+// >>⟩ no quites los creditos
+
 let handler = async (m, { conn }) => {
   try {
     const carousel = {
@@ -14,10 +17,7 @@ let handler = async (m, { conn }) => {
               title: "✨ Primera diapositiva",
               subtitle: "Imagen 1 con botones",
               hasMediaAttachment: true,
-              imageMessage: await conn.prepareMessageMedia(
-                { url: "https://telegra.ph/file/12a9f7b6f8bfb16c74f77.jpg" },
-                "imageMessage"
-              )
+              imageMessage: { url: "https://telegra.ph/file/12a9f7b6f8bfb16c74f77.jpg" }
             },
             body: { text: "📌 Esta es la primera tarjeta del carrusel" },
             nativeFlowMessage: {
@@ -33,10 +33,7 @@ let handler = async (m, { conn }) => {
               title: "🚀 Segunda diapositiva",
               subtitle: "Imagen 2 con botones",
               hasMediaAttachment: true,
-              imageMessage: await conn.prepareMessageMedia(
-                { url: "https://telegra.ph/file/7f6c1f0d68f148cd07e4a.jpg" },
-                "imageMessage"
-              )
+              imageMessage: { url: "https://telegra.ph/file/7f6c1f0d68f148cd07e4a.jpg" }
             },
             body: { text: "✅ Esta es la segunda tarjeta del carrusel" },
             nativeFlowMessage: {
@@ -54,7 +51,7 @@ let handler = async (m, { conn }) => {
     await conn.sendMessage(m.chat, carousel, { quoted: m })
 
   } catch (e) {
-    console.log(e)
+    console.error(e)
     m.reply("❌ Error al enviar el carrusel (story ads).")
   }
 }
