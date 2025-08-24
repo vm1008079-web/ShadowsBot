@@ -29,10 +29,8 @@ let handler = async (m, { conn }) => {
       desc: 'Colaborador de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃',
       image: 'https://iili.io/F0FyTmJ.jpg',
       buttons: [
-        { name: 'WhatsApp', url: 'https://wa.me/51956931649' },
-        { name: 'Instagram', url: 'https://www.instagram.com/' },
-        { name: 'TikTok', url: 'https://www.tiktok.com/' },
-        { name: 'PayPal', url: 'https://paypal.me/' }
+        { name: '🦖 WhatsApp', url: 'https://wa.me/51956931649' },
+        { name: '💎 Github', url: 'https://github.com/GianPoolS' }
       ]
     }
   ]
