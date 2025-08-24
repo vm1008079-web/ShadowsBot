@@ -3,13 +3,13 @@ const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await
 
 let handler = async (m, { conn }) => {
   const proses = '> *_😺 Obteniendo información de los creadores..._*'
-  await conn.sendMessage(m.chat, { text: proses }, { quoted: m })
+  await conn.sendMessage(m.chat, { text: proses }, { quoted: global.rcanal })
 
   async function createImage(url) {
-    const { imageMessage } = await generateWAMessageContent({ image: { url } }, {
+    const msg = await generateWAMessageContent({ image: { url } }, {
       upload: conn.waUploadToServer
     })
-    return imageMessage
+    return msg.imageMessage
   }
 
   const owners = [
@@ -53,8 +53,7 @@ let handler = async (m, { conn }) => {
         text: `🦞 *${owner.name}*\n${owner.desc}`
       }),
       footer: proto.Message.InteractiveMessage.Footer.fromObject({
-        text: '> 🍿 Conoce más sobre nuestros creadores siguiendo sus redes sociales. Haz clic en cualquier botón para acceder a sus perfiles y descubrir su trabajo. Si te gustaría apoyarlos, puedes dejar tu estrellita en el repo
-github.com/Ado-rgb/Michi-WaBot'
+        text: '> 🍿 Conoce más sobre nuestros creadores siguiendo sus redes sociales. Haz clic en cualquier botón para acceder a sus perfiles.\nSi te gustaría apoyarlos, puedes dejar tu estrellita en el repo: github.com/Ado-rgb/Michi-WaBot'
       }),
       header: proto.Message.InteractiveMessage.Header.fromObject({
         hasMediaAttachment: true,
