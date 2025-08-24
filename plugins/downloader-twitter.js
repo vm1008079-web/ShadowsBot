@@ -2,22 +2,22 @@
 
 import fg from 'api-dylux'
 
+// Guardar URLs por mensaje del bot
 const twitterSessions = {}
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
     let text = (m.text || '').trim()
 
-    // 1️⃣ Caso: comando con link
+    // 📌 Caso 1: comando con link
     if (args[0]) {
       await m.react('⏳')
 
       let { desc, thumb } = await fg.twitter(args[0])
 
-      // Guardamos URL en sesión con key del mensaje
-      twitterSessions[m.key.id] = args[0]
-
-      await conn.sendMessage(m.chat, {
+      // Guardamos la URL usando la key del mensaje futuro (temporal)
+      // Se usará key del mensaje que vamos a enviar
+      let sentMsg = await conn.sendMessage(m.chat, {
         image: { url: thumb },
         caption: `
 彡 T W I T T E R - D L
@@ -32,11 +32,14 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         `
       }, { quoted: m })
 
+      // Guardamos URL con el id del mensaje enviado
+      twitterSessions[sentMsg.key.id] = args[0]
+
       await m.react('✅')
       return
     }
 
-    // 2️⃣ Caso: respuesta al mensaje del menú con 1/2/3
+    // 📌 Caso 2: respuesta al menú con 1/2/3
     if (m.quoted && ['1','2','3'].includes(text)) {
       let msgId = m.quoted.key.id
       let url = twitterSessions[msgId]
@@ -44,6 +47,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       if (!url) return m.reply('ⓘ Primero usa el comando con el link de Twitter.')
 
       await m.react('⏳')
+
       let { SD, HD, desc, audio } = await fg.twitter(url)
 
       let caption = `
@@ -55,17 +59,20 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
       if (text === '1') {
         await conn.sendMessage(m.chat, { video: { url: SD }, caption }, { quoted: m })
-      }
-      if (text === '2') {
+      } else if (text === '2') {
         await conn.sendMessage(m.chat, { video: { url: HD }, caption }, { quoted: m })
-      }
-      if (text === '3') {
+      } else if (text === '3') {
         await conn.sendMessage(m.chat, { audio: { url: audio }, mimetype: 'audio/mp4' }, { quoted: m })
       }
 
       await m.react('✅')
-      delete twitterSessions[msgId] // limpiar después de usar
+      delete twitterSessions[msgId] // limpiar sesión después de usar
       return
+    }
+
+    // Si no manda nada válido
+    if (!args[0]) {
+      throw `💬 Ejemplo:\n${usedPrefix + command} https://twitter.com/...`
     }
 
   } catch (e) {
@@ -77,6 +84,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.help = ['twitter <url>', 'x <url>']
 handler.tags = ['downloader']
-handler.command = ['twitter', 'tw', 'x']
+handler.command = ['twitter','tw','x']
 
 export default handler
