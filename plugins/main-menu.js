@@ -58,13 +58,16 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         premium: p.premium,
       }))
 
-    let fkontak = { "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },"message":{ "imageMessage":{ "caption":"Menu De Comandos 🥦","jpegThumbnail":Buffer.alloc(0) }}}
+    let fkontak = { 
+      "key":{ "remoteJid":"status@broadcast","participant":"0@s.whatsapp.net" },
+      "message":{ "imageMessage":{ "caption":"Menu De Comandos 🥦","jpegThumbnail":Buffer.alloc(0) }}
+    }
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = 'https://iili.io/KJXN7yB.jpg'
 
-    const botActual = conn.user?.jid?.split('@')[0].replace(/\D/g, '')
-    const configPath = join('./JadiBots', botActual, 'config.json')
-    if (fs.existsSync(configPath)) {
+    const botActual = conn.user?.jid?.split('@')[0]?.replace(/\D/g, '')
+    const configPath = join('./JadiBots', botActual || '', 'config.json')
+    if (botActual && fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath))
         if (config.name) nombreBot = config.name
@@ -72,7 +75,8 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       } catch {}
     }
 
-    const tipo = conn.user.jid === global.conn.user.jid ? '𝖯𝗋𝗂𝗇𝖼𝗂𝗉𝖺𝗅' : '𝖲𝗈𝖼𝗄𝖾𝗍'
+    // 🔥 fix
+    const tipo = conn.user?.jid === global.conn?.user?.jid ? '𝖯𝗋𝗂𝗇𝖼𝗂𝗉𝖺𝗅' : '𝖲𝗈𝖼𝗄𝖾𝗍'
     const menuConfig = conn.menu || defaultMenu
 
     const _text = [
@@ -116,19 +120,21 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     )
 
     const isURL = /^https?:\/\//i.test(bannerFinal)
-    const imageContent = isURL ? { url: bannerFinal } : { file: fs.readFileSync(bannerFinal) }
+    const imageContent = isURL 
+      ? { image: { url: bannerFinal } } 
+      : { image: fs.readFileSync(bannerFinal) }
 
     await conn.sendMessage(
       m.chat,
       { 
-        image: imageContent, 
+        ...imageContent, 
         caption: text.trim(), 
         footer: 'Menu de comandos', 
         headerType: 4, 
         contextInfo: {
           externalAdReply: {
             title: nombreBot,
-            body: "🌿 Menú Oficial",
+            body: "🌿 Menú",
             thumbnailUrl: bannerFinal,
             sourceUrl: "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O",
             mediaType: 1,
