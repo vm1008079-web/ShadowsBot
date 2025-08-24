@@ -77,7 +77,7 @@ let handler = async (m, { conn }) => {
             text: '🙀 Creadores de 𝖠𝖨 | 𝖬𝗂𝖼𝗁𝗂 🧃 ⚘️'
           }),
           footer: proto.Message.InteractiveMessage.Footer.create({
-            text: 'Conoce a los desarrolladores del bot'
+            text: '🎋 Conoce a los desarrolladores de Michi'
           }),
           carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
             cards
