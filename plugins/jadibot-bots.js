@@ -63,7 +63,7 @@ case isCommandList: {
         return `${dias ? dias + " días, " : ""}${horas ? horas + " horas, " : ""}${minutos ? minutos + " minutos, " : ""}${segundos ? segundos + " segundos" : ""}`;
     }
 
-    const message = users.map((v, i) => `• 「 ${i + 1} 」\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n📎 [Wa.me](https://wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado)\n🕑 Online: ${v.uptime ? msToTime(Date.now() - v.uptime) : 'Desconocido'}`).join('\n\n\n\n');
+    const message = users.map((v, i) => `• 「 ${i + 1} 」\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n📎 https://wa.me/${v.user.jid.replace(/[^0-9]/g, ''}?text=${usedPrefix}estado)\n🕑 Tiempo activo: ${v.uptime ? msToTime(Date.now() - v.uptime) : 'Desconocido'}`).join('\n\n\n\n');
 
     const replyMessage = message.length ? message : `❌ No hay Sub-Bots disponibles en este momento.`;
 
