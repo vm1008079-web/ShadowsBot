@@ -65,11 +65,11 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   )
 }
 
-handler.tags = ['eco']
-handler.help = ['bal2','bal']
+//handler.tags = ['eco']
+//handler.help = ['bal2','bal']
 handler.command = ['coin', 'diamante', 'exp', 'bal2', 'balance2']
 handler.group = false
 handler.register = false
-handler.owner = true
+//handler.owner = true
 
 export default handler
