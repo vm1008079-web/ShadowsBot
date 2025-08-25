@@ -53,6 +53,8 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 }
 
+handler.tags = ['eco']
+handler.help = ['bal2']
 handler.command = ['coin', 'diamante', 'exp', 'bal2', 'balance2']
 handler.group = false
 handler.register = false
