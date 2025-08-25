@@ -48,9 +48,15 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 
   if (command === 'exp') {
-    user.exp = (user.exp || 0) + value
-    return conn.reply(m.chat, `⚡ *RAYO DEL OWNER* ⚡\n\n⭐ Experiencia modificada: *${value > 0 ? '+'+value : value}*\n📊 Total actual de @${who.split`@`[0]}: *${user.exp}*`, m, { mentions: [who], ...global.rcanal })
-  }
+  let current = parseInt(user.exp) || 0   // 🔒 asegurar número real siempre
+  let newVal = current + value
+
+  if (newVal < 0) newVal = 0 // evita negativos (opcional)
+
+  user.exp = newVal
+  return conn.reply(m.chat, 
+    `⚡ *RAYO DEL OWNER* ⚡\n\n⭐ Experiencia modificada: *${value > 0 ? '+'+value : value}*\n📊 Total actual de @${who.split`@`[0]}: *${user.exp}*`, 
+    m, { mentions: [who], ...global.rcanal })
 }
 
 handler.command = ['coin', 'diamante', 'exp', 'bal2', 'balance2']
