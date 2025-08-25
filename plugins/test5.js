@@ -143,7 +143,8 @@ let handler = async (m, { conn, usedPrefix }) => {
   }
 };
 
-handler.command = ['tes5'];
+handler.command = /^tes5$/i 
+
 export default handler;
 
 function ucapan() {
