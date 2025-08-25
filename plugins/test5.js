@@ -31,25 +31,6 @@ let handler = async (m, { conn, usedPrefix }) => {
   let totalCommands = Object.values(global.plugins).filter((v) => v.help && v.tags).length;
   
   let txt = `╭┈ ↷
-│ ✐ ꒷ꕤ💎ദ ᴅᴀᴛᴏs ᴅᴇʟ ᴜsᴜᴀʀɪᴏ
-│ 📊 ɴɪᴠᴇʟ: ${level} (${exp}/${max})
-│ ⚡ xᴘ ᴛᴏᴛᴀʟ: ${totalexp}
-│ 👑 ʀᴏʟ: ${role}
-│ 💎 ᴘʀᴇᴍɪᴜᴍ: ${prem}
-│ ✦ Info » User 🅘
-╰─────────────────
-
-╭┈ ↷
-│ ✐ ꒷ꕤ💎ദ ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇʟ ʙᴏᴛ
-│ 🔖 ᴠᴇʀsɪóɴ: ${version}
-│ 👥 ᴜsᴜᴀʀɪᴏs: ${totalreg}
-│ 📚 ʟɪʙʀᴇʀɪᴀ: Baileys-MD
-│ 🛡️ ᴍᴏᴅᴏ: ${global.opts['self'] ? 'Privado' : 'Público'}
-│ ⏱️ ᴛɪᴇᴍᴘᴏ ᴀᴄᴛɪᴠᴏ: ${uptime}
-│ ✦ Info » System 🅢
-╰─────────────────
-
-╭┈ ↷
 │ ✐ ꒷ꕤ💎ദ ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇ ғᴇᴄʜᴀ
 │ 🕒 ʜᴏʀᴀ: ${time}
 │ 📅 ғᴇᴄʜᴀ: ${date}
