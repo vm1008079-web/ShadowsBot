@@ -99,7 +99,7 @@ let handler = async (m, { conn, command, usedPrefix, args, text, isOwner }) => {
 };
 
 handler.tags = ['serbot'];
-handler.help = ['sockets', 'deletesesion', 'pausarai'];
+handler.help = ['bots' 'sockets', 'deletesesion', 'pausarai'];
 handler.command = ['deletesesion', 'deletebot', 'deletesession', 'stop', 'pausarai', 'pausarbot', 'bots', 'sockets', 'socket'];
 
 export default handler;
