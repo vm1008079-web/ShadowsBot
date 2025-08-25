@@ -8,13 +8,16 @@ let handler = async (m, { conn, participants }) => {
   
   let sorted = users.sort((a, b) => (b.coin + b.bank) - (a.coin + a.bank))
 
-  let text = `❄ Ranking completo de *${moneda}*:\n\n`
+  let count = 10
+  if (count > sorted.length) count = sorted.length
+
+  let text = `❄ Top 10 usuarios con más *${moneda}* acumulados:\n\n`
   let mentions = []
 
-  for (let i = 0; i < sorted.length; i++) {
+  for (let i = 0; i < count; i++) {
     let user = sorted[i]
     let total = user.coin + user.bank
-    let displayName = await conn.getName(user.jid) 
+    let displayName = await conn.getName(user.jid) // Nombre de WhatsApp
 
     mentions.push(user.jid)
 
