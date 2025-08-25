@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
 import moment from 'moment-timezone';
 import pkg from '@whiskeysockets/baileys';
-const { generateWAMessageFromContent, proto } = pkg;
+const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg;
 
 let handler = async (m, { conn }) => {
-  m.react('🐢');
+  await m.react('🐢');
   if (!global.menutext) await global.menu();
 
   let time = moment.tz('America/Lima').format('HH:mm:ss');
@@ -20,6 +20,12 @@ let handler = async (m, { conn }) => {
 
   try {
     const imageUrl = 'https://iili.io/FpAsm5N.jpg';
+
+    // preparamos la imagen para el header
+    const media = await prepareWAMessageMedia(
+      { image: { url: imageUrl } },
+      { upload: conn.waUploadToServer }
+    );
 
     // lista preview
     const listSections = [
@@ -52,11 +58,7 @@ let handler = async (m, { conn }) => {
             footer: { text: "Pulsa aquí 👇" },
             header: {
               hasMediaAttachment: true,
-              imageMessage: (await conn.sendMessage(
-                m.chat,
-                { image: { url: imageUrl } },
-                { quoted: m }
-              )).message.imageMessage
+              imageMessage: media.imageMessage
             },
             nativeFlowMessage: {
               buttons: [],
