@@ -1,115 +1,29 @@
-import { proto } from '@whiskeysockets/baileys'
-
-let handler = async (m, { conn, command }) => {
-  await m.react('🕓') // reacción de carga
-
-  const listMessage = {
-    text: 'Selecciona una opción del menú:',
-    footer: 'Creador: GianPool',
-    title: '📜 MENÚ PRINCIPAL',
-    buttonText: 'Abrir menú',
-    sections: [
-      {
-        title: `ᴍᴇɴᴜ ᴘʀɪɴᴄɪᴘᴀʟ`,
-        highlight_label: `.ᴍᴇɴᴜ`,
-        rows: [
-          {
-            header: "🌐 ᴛᴏᴅᴏ ᴇʟ ᴍᴇɴᴜ",
-            title: "ᴠᴇʀ ᴛᴏᴅᴏs ʟᴏs ᴄᴏᴍᴀɴᴅᴏs",
-            rowId: `.allmenu`
-          }
-        ]
-      },
-      {
-        title: `ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇʟ ʙᴏᴛ`,
-        highlight_label: ``,
-        rows: [
-          {
-            header: "🤖 ɪɴғᴏ ʙᴏᴛ",
-            title: "ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇʟ ʙᴏᴛ",
-            rowId: `.infobot`
-          },
-          {
-            header: "📶 ᴇsᴛᴀᴅᴏ",
-            title: "ᴠᴇʀ ᴇsᴛᴀᴅᴏ ᴅᴇʟ ʙᴏᴛ",
-            rowId: `.estado`
-          }
-        ]
-      },
-      {
-        title: `ᴄᴏɴᴛᴀᴄᴛᴏs`,
-        highlight_label: `ᴄᴏɴᴛᴀᴄᴛᴏs`,
-        rows: [
-          {
-            header: "👤 ᴄʀᴇᴀᴅᴏʀ",
-            title: "ᴄᴏɴᴛᴀᴄᴛᴀʀ ᴀʟ ᴄʀᴇᴀᴅᴏʀ",
-            rowId: `.owner`
-          },
-          {
-            header: "📢 ᴄᴜᴇɴᴛᴀs",
-            title: "ᴄᴜᴇɴᴛᴀs oғɪᴄɪᴀʟᴇs",
-            rowId: `.cuentasoficiales`
-          },
-          {
-            header: "👥 ɢʀᴜᴘᴏs",
-            title: "ɢʀᴜᴘᴏs oғɪᴄɪᴀʟᴇs",
-            rowId: `.grupos`
-          }
-        ]
+let handler = async (m, { conn }) => {
+  // fkontak fake
+  const fkontak = {
+    key: {
+      fromMe: false,
+      participant: '0@s.whatsapp.net',
+      remoteJid: m.chat
+    },
+    message: {
+      contactMessage: {
+        displayName: '~MichiWaBot',
+        vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:~MichiWaBot
+TEL;type=CELL;type=VOICE;waid=1234567890:+51 123 456 789
+END:VCARD`,
+        jpegThumbnail: null // si quieres, aquí puedes poner imagen en base64
       }
-    ],
-    viewOnce: true
+    }
   }
 
-  await conn.sendMessage(m.chat, listMessage)
+  // enviar mensaje con texto y citado del fkontak
+  await conn.sendMessage(m.chat, { text: 'Hola', mentions: [m.sender] }, { quoted: fkontak })
 }
 
-// comandos válidos
-handler.command = /^(tes5|test5)$/i  
+// comando para ejecutarlo
+handler.command = /^tes5$/i
 
 export default handler
-
-
-
-
-/*sections: [{
-            title: `ᴍᴇɴᴜ ᴘʀɪɴᴄɪᴘᴀʟ`,
-            highlight_label: `.ᴍᴇɴᴜ`,
-            rows: [{
-              header: "🌐 ᴛᴏᴅᴏ ᴇʟ ᴍᴇɴᴜ",
-              title: "ᴠᴇʀ ᴛᴏᴅᴏs ʟᴏs ᴄᴏᴍᴀɴᴅᴏs",
-              id: `.allmenu`
-            }]
-          }, {
-            title: `ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇʟ ʙᴏᴛ`,
-            highlight_label: ``,
-            rows: [{
-              header: "🤖 ɪɴғᴏ ʙᴏᴛ",
-              title: "ɪɴғᴏʀᴍᴀᴄɪóɴ ᴅᴇʟ ʙᴏᴛ",
-              id: `.infobot`
-            }, {
-              header: "📶 ᴇsᴛᴀᴅᴏ",
-              title: "ᴠᴇʀ ᴇsᴛᴀᴅᴏ ᴅᴇʟ ʙᴏᴛ",
-              id: `.estado`
-            }]
-          }, {
-            title: `ᴄᴏɴᴛᴀᴄᴛᴏs`,
-            highlight_label: `ᴄᴏɴᴛᴀᴄᴛᴏs`,
-            rows: [{
-              header: "👤 ᴄʀᴇᴀᴅᴏʀ",
-              title: "ᴄᴏɴᴛᴀᴄᴛᴀʀ ᴀʟ ᴄʀᴇᴀᴅᴏʀ",
-              id: `.owner`
-            }, {
-              header: "📢 ᴄᴜᴇɴᴛᴀs",
-              title: "ᴄᴜᴇɴᴛᴀs oғɪᴄɪᴀʟᴇs",
-              id: `.cuentasoficiales`
-            }, {
-              header: "👥 ɢʀᴜᴘᴏs",
-              title: "ɢʀᴜᴘᴏs oғɪᴄɪᴀʟᴇs",
-              id: `.grupos`
-            }]
-          }]
-        })
-      },
-      viewOnce: true
-    }*/
