@@ -135,7 +135,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     }];
 
     buttonMessage.buttons.push(...flowActions);
-    await conn.sendMessage(m.chat, buttonMessage, { quoted: menulist });
+    await conn.sendMessage(m.chat, buttonMessage, { quoted: m });
     await global.menu();
   } catch (error) {
     console.error(error);
