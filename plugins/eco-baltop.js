@@ -1,27 +1,20 @@
-let handler = async (m, { conn, args, participants }) => {
+let handler = async (m, { conn, participants }) => {
   let users = Object.entries(global.db.data.users).map(([jid, data]) => ({
     jid,
     coin: data.coin || 0,
     bank: data.bank || 0
   }))
 
+  
   let sorted = users.sort((a, b) => (b.coin + b.bank) - (a.coin + a.bank))
 
-  let count = 10
-  if (args[0]) {
-    let n = parseInt(args[0])
-    if (!isNaN(n)) count = Math.min(Math.max(n, 1), 10)
-  }
-  if (count > sorted.length) count = sorted.length
-
-  let text = `❄ Top usuarios con más *${moneda}* acumulados:\n\n`
-
+  let text = `❄ Ranking completo de *${moneda}*:\n\n`
   let mentions = []
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < sorted.length; i++) {
     let user = sorted[i]
     let total = user.coin + user.bank
-    let displayName = await conn.getName(user.jid) // Aquí usamos su nombre real de WhatsApp
+    let displayName = await conn.getName(user.jid) 
 
     mentions.push(user.jid)
 
