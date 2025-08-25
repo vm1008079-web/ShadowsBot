@@ -48,17 +48,24 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 
   if (command === 'exp') {
-  let current = Number(user.exp) || 0    // 🔒 convertir siempre a número
-  let newVal = current + Number(value)   // 🔒 suma/resta exacta
+  // forzar que exp siempre sea entero
+  user.exp = Math.trunc(Number(user.exp) || 0)
 
-  newVal = Math.floor(newVal)            // 🔒 sin decimales
-  if (newVal < 0) newVal = 0             // opcional, no permitir negativos
+  const prev = user.exp
+  const value = Math.trunc(Number(args[0])) // el número que pongas
+  if (isNaN(value)) return conn.reply(m.chat, `❌ Ingresa un número válido.`, m)
 
-  user.exp = newVal
+  user.exp = prev + value
 
-  return conn.reply(m.chat, 
-    `⚡ *RAYO DEL OWNER* ⚡\n\n⭐ Experiencia modificada: *${value > 0 ? '+'+value : value}*\n📊 Total actual de @${who.split`@`[0]}: *${user.exp}*`, 
-    m, { mentions: [who], ...global.rcanal })
+  const sign = value >= 0 ? '+' : ''
+  return conn.reply(
+    m.chat,
+    `⚡ *RAYO DEL OWNER* ⚡\n\n` +
+    `⭐ Experiencia: *${sign}${value}*\n` +
+    `🧮 (${prev} → ${user.exp})\n` +
+    `📊 Total de @${who.split`@`[0]}: *${user.exp}*`,
+    m, { mentions: [who], ...global.rcanal }
+  )
 }
 
 handler.command = ['coin', 'diamante', 'exp', 'bal2', 'balance2']
