@@ -48,28 +48,14 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 
   if (command === 'exp') {
-  user.exp = Math.trunc(Number(user.exp) || 0)
-
-  const prev = user.exp
-  // usar el value que ya definiste arriba
-  user.exp = prev + value
-
-  const sign = value >= 0 ? '+' : ''
-  return conn.reply(
-    m.chat,
-    `⚡ *RAYO DEL OWNER* ⚡\n\n` +
-    `⭐ Experiencia: *${sign}${value}*\n` +
-    `🧮 (${prev} → ${user.exp})\n` +
-    `📊 Total de @${who.split`@`[0]}: *${user.exp}*`,
-    m, { mentions: [who], ...global.rcanal }
-  )
+    user.exp = (user.exp || 0) + value
+    return conn.reply(m.chat, `⚡ *RAYO DEL OWNER* ⚡\n\n⭐ Experiencia modificada: *${value > 0 ? '+'+value : value}*\n📊 Total actual de @${who.split`@`[0]}: *${user.exp}*`, m, { mentions: [who], ...global.rcanal })
+  }
 }
 
-//handler.tags = ['eco']
-//handler.help = ['bal2','bal']
 handler.command = ['coin', 'diamante', 'exp', 'bal2', 'balance2']
 handler.group = false
 handler.register = false
-//handler.owner = true
+handler.owner = true
 
 export default handler
