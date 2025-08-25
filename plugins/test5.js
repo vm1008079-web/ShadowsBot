@@ -7,7 +7,7 @@ let handler = async (m, { conn }) => {
       remoteJid: m.chat
     },
     message: {
-      conversation: '@ Se Mencióno este grupo.'
+      conversation: '@ Se mencióno este grupo.'
     }
   }
 
