@@ -1,85 +1,53 @@
-import fetch from 'node-fetch';
-import moment from 'moment-timezone';
-import pkg from '@whiskeysockets/baileys';
-const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg;
+import pkg from '@whiskeysockets/baileys'
+const { generateWAMessageFromContent, proto } = pkg
 
 let handler = async (m, { conn }) => {
-  await m.react('🐢');
-  if (!global.menutext) await global.menu();
-
-  let time = moment.tz('America/Lima').format('HH:mm:ss');
-  let date = moment.tz('America/Lima').format('DD/MM/YYYY');
-  let week = moment.tz('America/Lima').format('dddd');
-
-  // solo info de fecha
-  let txt = `╭┈ ↷
-│ 🕒 Hora: ${time}
-│ 📅 Fecha: ${date}
-│ 🗓️ Día: ${week}
-╰──────────────`;
+  await m.react('📋')
 
   try {
-    const imageUrl = 'https://iili.io/FpAsm5N.jpg';
-
-    // preparamos la imagen para el header
-    const media = await prepareWAMessageMedia(
-      { image: { url: imageUrl } },
-      { upload: conn.waUploadToServer }
-    );
-
-    // lista preview
     const listSections = [
       {
-        title: "ᴍᴇɴᴜ ᴘʀɪɴᴄɪᴘᴀʟ",
-        rows: [{ title: "🌐 Ver todos los comandos", id: ".allmenu" }]
-      },
-      {
-        title: "ɪɴғᴏʀᴍᴀᴄɪóɴ",
+        title: "🌐 Opciones Generales",
         rows: [
-          { title: "🤖 Info Bot", id: ".infobot" },
-          { title: "📶 Estado", id: ".estado" }
+          { title: "📜 Todos los comandos", id: ".allmenu" },
+          { title: "🤖 Info Bot", id: ".infobot" }
         ]
       },
       {
-        title: "ᴄᴏɴᴛᴀᴄᴛᴏs",
+        title: "👥 Comunidad",
         rows: [
-          { title: "👤 Creador", id: ".owner" },
-          { title: "📢 Cuentas oficiales", id: ".cuentasoficiales" },
-          { title: "👥 Grupos oficiales", id: ".grupos" }
+          { title: "📢 Grupos Oficiales", id: ".grupos" },
+          { title: "👤 Creador", id: ".owner" }
         ]
       }
-    ];
+    ]
 
-    const listMessage = generateWAMessageFromContent(m.chat, {
+    const msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
           interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: { text: txt },
-            footer: { text: "Pulsa aquí 👇" },
-            header: {
-              hasMediaAttachment: true,
-              imageMessage: media.imageMessage
-            },
+            body: { text: "📋 Menú de Opciones\nSelecciona una sección:" },
+            footer: { text: "byGP" },
+            header: { hasMediaAttachment: false },
             nativeFlowMessage: {
               buttons: [],
               messageParamsJson: JSON.stringify({
-                title: "🫧 𝙎𝙀𝙇𝙀𝘾𝙏 𝙈𝙀𝙉𝙐",
+                title: "✨ Menú Principal",
                 sections: listSections
               })
             }
           })
         }
       }
-    }, { quoted: m });
+    }, { quoted: m })
 
-    await conn.relayMessage(m.chat, listMessage.message, { messageId: listMessage.key.id });
+    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
 
-  } catch (error) {
-    console.error(error);
-    m.reply('❌ Error al procesar el menú.');
+  } catch (e) {
+    console.error(e)
+    m.reply("❌ Error al enviar la lista")
   }
-};
+}
 
-// comandos que lo activan
-handler.command = ['test5', 'tes5'];
-export default handler;
+handler.command = ['test5', 'tes5']
+export default handler
