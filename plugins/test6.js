@@ -48,13 +48,10 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 
   if (command === 'exp') {
-  // forzar que exp siempre sea entero
   user.exp = Math.trunc(Number(user.exp) || 0)
 
   const prev = user.exp
-  const value = Math.trunc(Number(args[0])) // el número que pongas
-  if (isNaN(value)) return conn.reply(m.chat, `❌ Ingresa un número válido.`, m)
-
+  // usar el value que ya definiste arriba
   user.exp = prev + value
 
   const sign = value >= 0 ? '+' : ''
