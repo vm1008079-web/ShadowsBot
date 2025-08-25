@@ -48,12 +48,14 @@ var handler = async (m, { conn, args, command, usedPrefix, isOwner }) => {
   }
 
   if (command === 'exp') {
-  let current = parseInt(user.exp) || 0   // 🔒 asegurar número real siempre
-  let newVal = current + value
+  let current = Number(user.exp) || 0    // 🔒 convertir siempre a número
+  let newVal = current + Number(value)   // 🔒 suma/resta exacta
 
-  if (newVal < 0) newVal = 0 // evita negativos (opcional)
+  newVal = Math.floor(newVal)            // 🔒 sin decimales
+  if (newVal < 0) newVal = 0             // opcional, no permitir negativos
 
   user.exp = newVal
+
   return conn.reply(m.chat, 
     `⚡ *RAYO DEL OWNER* ⚡\n\n⭐ Experiencia modificada: *${value > 0 ? '+'+value : value}*\n📊 Total actual de @${who.split`@`[0]}: *${user.exp}*`, 
     m, { mentions: [who], ...global.rcanal })
