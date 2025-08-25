@@ -21,12 +21,11 @@ let handler = async (m, { conn, args, participants }) => {
   for (let i = 0; i < count; i++) {
     let user = sorted[i]
     let total = user.coin + user.bank
-    let inGroup = participants.some(p => p.jid === user.jid)
-    let displayName = inGroup ? await conn.getName(user.jid) : user.jid.split('@')[0]
+    let displayName = await conn.getName(user.jid) // Aquí usamos su nombre real de WhatsApp
 
     mentions.push(user.jid)
 
-    text += `🐦‍🔥 ${i + 1} › @${user.jid.split('@')[0]}\n    Total: *${total} ${moneda}*\n\n`
+    text += `🐦‍🔥 ${i + 1} › ${displayName}\n    Total: *${total} ${moneda}*\n\n`
   }
 
   await conn.reply(m.chat, text.trim(), m, { mentions })
