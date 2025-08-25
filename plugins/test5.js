@@ -1,26 +1,18 @@
 let handler = async (m, { conn }) => {
-  // fkontak fake
-  const fkontak = {
+  // fake mensaje citado de texto
+  const ftext = {
     key: {
       fromMe: false,
       participant: '0@s.whatsapp.net',
       remoteJid: m.chat
     },
     message: {
-      contactMessage: {
-        displayName: '~MichiWaBot',
-        vcard: `BEGIN:VCARD
-VERSION:3.0
-FN:~MichiWaBot
-TEL;type=CELL;type=VOICE;waid=1234567890:+51 123 456 789
-END:VCARD`,
-        jpegThumbnail: null // si quieres, aquí puedes poner imagen en base64
-      }
+      conversation: '~MichiBot'
     }
   }
 
-  // enviar mensaje con texto y citado del fkontak
-  await conn.sendMessage(m.chat, { text: 'Hola', mentions: [m.sender] }, { quoted: fkontak })
+  // enviar mensaje con texto y citado del fake texto
+  await conn.sendMessage(m.chat, { text: 'Hola', mentions: [m.sender] }, { quoted: ftext })
 }
 
 // comando para ejecutarlo
