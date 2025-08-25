@@ -86,7 +86,7 @@ let handler = async (m, { conn, command, usedPrefix, args, text, isOwner }) => {
       }
 
       const message = users
-        .map((v, i) => `• 「 ${i + 1} 」\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n📎 https://wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado\n🕑 Tiempo activo: ${v.uptime ? msToTime(Date.now() - v.uptime) : 'Desconocido'}`)
+        .map((v, i) => `• 「 ${i + 1} 」\n🧃 Usuario: ${v.user.name || 'Sub-Bot'}\n💎 https://wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado\n🕑 Tiempo activo: ${v.uptime ? msToTime(Date.now() - v.uptime) : 'Desconocido'}`)
         .join('\n\n\n\n');
 
       const replyMessage = message.length ? message : `❌ No hay Sub-Bots disponibles en este momento.`;
@@ -99,7 +99,7 @@ let handler = async (m, { conn, command, usedPrefix, args, text, isOwner }) => {
 };
 
 handler.tags = ['serbot'];
-handler.help = ['bots' 'sockets', 'deletesesion', 'pausarai'];
+handler.help = ['sockets', 'deletesesion', 'pausarai'];
 handler.command = ['deletesesion', 'deletebot', 'deletesession', 'stop', 'pausarai', 'pausarbot', 'bots', 'sockets', 'socket'];
 
 export default handler;
