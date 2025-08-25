@@ -7,17 +7,10 @@ let handler = async (m, { conn }) => {
   try {
     const listSections = [
       {
-        title: "🌐 Opciones Generales",
+        title: "Menú rápido",
         rows: [
-          { title: "📜 Todos los comandos", id: ".allmenu" },
-          { title: "🤖 Info Bot", id: ".infobot" }
-        ]
-      },
-      {
-        title: "👥 Comunidad",
-        rows: [
-          { title: "📢 Grupos Oficiales", id: ".grupos" },
-          { title: "👤 Creador", id: ".owner" }
+          { header: "💠 Opción 1", title: "📜 Ver todos los comandos", id: ".allmenu" },
+          { header: "💠 Opción 2", title: "🤖 Info Bot", id: ".infobot" }
         ]
       }
     ]
@@ -26,13 +19,13 @@ let handler = async (m, { conn }) => {
       viewOnceMessage: {
         message: {
           interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: { text: "📋 Menú de Opciones\nSelecciona una sección:" },
+            body: { text: "📋 Selecciona una de las opciones:" },
             footer: { text: "byGP" },
             header: { hasMediaAttachment: false },
             nativeFlowMessage: {
               buttons: [],
               messageParamsJson: JSON.stringify({
-                title: "✨ Menú Principal",
+                title: "✨ Lista de Opciones",
                 sections: listSections
               })
             }
