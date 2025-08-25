@@ -31,6 +31,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = ['spotify *<link spotify>*'];
 handler.tags = ['downloader'];
 handler.command = ['spotify', 'spotifydl', 'spdl'];
-handler.register = true;
+//handler.register = true;
 
 export default handler;
