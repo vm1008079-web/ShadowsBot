@@ -7,15 +7,10 @@ let handler = async (m, { conn }) => {
 
     await conn.sendMessage(destinatario, {
       image: imagenBuffer,
-      caption: 'hola',
-      buttons: [
-        { buttonId: 'tes5_si', buttonText: { displayText: 'Si' }, type: 1 },
-        { buttonId: 'tes5_no', buttonText: { displayText: 'No' }, type: 1 }
-      ],
-      headerType: 1 // 1 = texto, 4 = imagen
+      caption: 'hola test sin botones'
     })
 
-    await m.reply('mensaje enviado ✅')
+    await m.reply('mensaje enviado ✅ (test sin botones)')
   } catch (e) {
     await m.reply(`❌ error: ${e?.message || e}`)
   }
