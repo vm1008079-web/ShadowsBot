@@ -2,33 +2,19 @@ import fetch from 'node-fetch'
 
 async function mediaFire(url) {
   try {
-    const res = await fetch(url)
-    const html = await res.text()
+    const res = await fetch(`https://api.mediafireapi.workers.dev/?url=${encodeURIComponent(url)}`)
+    const data = await res.json()
 
-    // Título del archivo
-    const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1]?.replace('MediaFire', '').trim() || ''
-
-    // Buscar enlaces <a href="...">
-    const allLinks = [...html.matchAll(/href="(https?:\/\/[^"]+)"/gi)].map(m => m[1])
-
-    // Intentar encontrar el botón de descarga real
-    const directUrl = allLinks.find(link => link.includes('download') || link.includes('mediafire.com/file')) || ''
-
-    // Nombre de archivo
-    const fileMatch = directUrl.match(/\/([^\/]+)$/)
-    const filename = fileMatch ? fileMatch[1] : (title || 'file')
-
-    // Tamaño
-    const sizeMatch = html.match(/<li>File size: <strong>(.*?)<\/strong>/i)
-    const size = sizeMatch ? sizeMatch[1] : 'Unknown'
+    if (!data.success) {
+      return { error: 'No se pudo obtener el enlace' }
+    }
 
     return {
-      title,
-      filename,
-      url: directUrl,
-      size,
-      link: url,
-      debugLinks: allLinks.slice(0, 10) // devolvemos los primeros 10 enlaces para inspección
+      title: data.filename || 'Unknown',
+      filename: data.filename || 'file',
+      url: data.link || '',
+      size: data.filesize || 'Unknown',
+      link: url
     }
   } catch (e) {
     return { error: e.message }
@@ -43,14 +29,12 @@ let handler = async (m, { conn, args }) => {
 
   const result = await mediaFire(args[0])
   if (result.error) return m.reply(`Error: ${result.error}`)
-  if (!result.url) {
-    return m.reply(`🚩 No se pudo extraer el enlace de descarga.\n\n🔎 Enlaces encontrados:\n${result.debugLinks.join('\n')}`)
-  }
+  if (!result.url) return m.reply('🚩 No se pudo extraer el enlace de descarga')
 
   let info = `
 乂  *M E D I A F I R E  -  D O W N L O A D*
 
-✩ *💜 File Name:* ${result.title || result.filename}
+✩ *💜 File Name:* ${result.title}
 ✩ *🚩 File Size:* ${result.size}
 ✩ *🔗 Source:* ${result.link}
 `
