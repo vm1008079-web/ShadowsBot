@@ -3,7 +3,7 @@ import pkg from '@whiskeysockets/baileys'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 let handler = async (m, { conn }) => {
-  const destinatario = '50493732693@s.whatsapp.net'
+  const destinatario = '51956931649@s.whatsapp.net'
   try {
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
