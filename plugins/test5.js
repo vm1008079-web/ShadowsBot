@@ -2,20 +2,21 @@ import fs from 'fs'
 
 let handler = async (m, { conn }) => {
   try {
-    const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
+    // Carga la imagen desde la ruta
+    let img = fs.readFileSync('./storage/img/menu.jpg')
 
     await conn.sendMessage(
-      m.chat, // chat actual (tu privado con el bot)
+      m.chat, // se envía al chat donde ejecutas el comando
       {
-        image: imagenBuffer,
+        image: img,
         caption: 'hola',
         buttons: [
-          { buttonId: 'tes5_si', buttonText: { displayText: 'Si' }, type: 1 },
-          { buttonId: 'tes5_no', buttonText: { displayText: 'No' }, type: 1 },
+          { buttonId: 'si', buttonText: { displayText: 'Si' }, type: 1 },
+          { buttonId: 'no', buttonText: { displayText: 'No' }, type: 1 },
         ],
-        headerType: 4,
+        headerType: 4
       },
-      { quoted: null }
+      { quoted: null } // sin quoted
     )
 
     await m.reply('mensaje enviado')
