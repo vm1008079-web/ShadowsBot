@@ -3,7 +3,8 @@ import pkg from '@whiskeysockets/baileys'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 let handler = async (m, { conn }) => {
-  const destinatario = '51956931649@s.whatsapp.net'
+  // Escribe el numero antes del @
+  const destinatario = '50@s.whatsapp.net'
   try {
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
@@ -13,7 +14,7 @@ let handler = async (m, { conn }) => {
       { upload: conn.waUploadToServer }
     )
 
-    // Crea el mensaje interactivo con botones
+    // Crea el mensaje con botones
     const interactiveMessage = proto.Message.InteractiveMessage.create({
       body: proto.Message.InteractiveMessage.Body.create({
         text: 'hola'
