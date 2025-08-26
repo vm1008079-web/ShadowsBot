@@ -16,7 +16,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         message: {
           interactiveMessage: proto.Message.InteractiveMessage.create({
             body: proto.Message.InteractiveMessage.Body.create({
-              text: `${ssd}\n乂  *Speed* : ${latensi.toFixed(4)} _ms_`
+              text: `${ssd}乂  *Speed* : ${latensi.toFixed(4)} _ms_`
             }),
             footer: proto.Message.InteractiveMessage.Footer.create({
               text: '📊 Información del sistema'
