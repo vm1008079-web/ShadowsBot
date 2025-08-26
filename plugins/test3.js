@@ -8,17 +8,17 @@ async function mediaFire(url) {
     // Título del archivo
     const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1]?.replace('MediaFire', '').trim() || ''
 
-    // Buscar enlace de descarga (2 posibles formatos)
-    const urlMatch = html.match(/href="(https?:\/\/download[^"]+)"/i) 
-                  || html.match(/href="(https?:\/\/www\.mediafire\.com\/file\/[^"]+)"/i)
+    // Buscar enlaces <a href="...">
+    const allLinks = [...html.matchAll(/href="(https?:\/\/[^"]+)"/gi)].map(m => m[1])
 
-    const directUrl = urlMatch ? urlMatch[1] : ''
+    // Intentar encontrar el botón de descarga real
+    const directUrl = allLinks.find(link => link.includes('download') || link.includes('mediafire.com/file')) || ''
 
-    // Nombre del archivo
-    const fileMatch = html.match(/\/([^\/]+)$/)
+    // Nombre de archivo
+    const fileMatch = directUrl.match(/\/([^\/]+)$/)
     const filename = fileMatch ? fileMatch[1] : (title || 'file')
 
-    // Tamaño del archivo
+    // Tamaño
     const sizeMatch = html.match(/<li>File size: <strong>(.*?)<\/strong>/i)
     const size = sizeMatch ? sizeMatch[1] : 'Unknown'
 
@@ -27,7 +27,8 @@ async function mediaFire(url) {
       filename,
       url: directUrl,
       size,
-      link: url
+      link: url,
+      debugLinks: allLinks.slice(0, 10) // devolvemos los primeros 10 enlaces para inspección
     }
   } catch (e) {
     return { error: e.message }
@@ -42,7 +43,9 @@ let handler = async (m, { conn, args }) => {
 
   const result = await mediaFire(args[0])
   if (result.error) return m.reply(`Error: ${result.error}`)
-  if (!result.url) return m.reply('🚩 No se pudo extraer el enlace de descarga')
+  if (!result.url) {
+    return m.reply(`🚩 No se pudo extraer el enlace de descarga.\n\n🔎 Enlaces encontrados:\n${result.debugLinks.join('\n')}`)
+  }
 
   let info = `
 乂  *M E D I A F I R E  -  D O W N L O A D*
