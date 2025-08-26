@@ -5,28 +5,22 @@ let handler = async (m, { conn }) => {
   try {
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
-    await conn.sendMessage(
-      destinatario,
-      {
-        image: imagenBuffer,
-        caption: 'hola',
-        buttons: [
-          { buttonId: 'tes5_si', buttonText: { displayText: 'Si' }, type: 1 },
-          { buttonId: 'tes5_no', buttonText: { displayText: 'No' }, type: 1 },
-        ],
-        headerType: 4,
-      },
-      { quoted: null }
-    )
+    await conn.sendMessage(destinatario, {
+      image: imagenBuffer,
+      caption: 'hola',
+      buttons: [
+        { buttonId: 'tes5_si', buttonText: { displayText: 'Si' }, type: 1 },
+        { buttonId: 'tes5_no', buttonText: { displayText: 'No' }, type: 1 }
+      ],
+      headerType: 1 // 1 = texto, 4 = imagen
+    })
 
-    await m.reply('mensaje enviado')
+    await m.reply('mensaje enviado ✅')
   } catch (e) {
-    await m.reply(`error: ${e?.message || e}`)
+    await m.reply(`❌ error: ${e?.message || e}`)
   }
 }
 
-handler.help = ['tes5']
-handler.tags = ['tools']
-handler.command = /^tes5$/i
+handler.command = ['tes5']
 
 export default handler
