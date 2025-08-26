@@ -22,7 +22,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
               text: '📊 Información del sistema'
             }),
             header: proto.Message.InteractiveMessage.Header.create({
-              title: 'PING TEST',
+              title: '⚡ Ver velocidad',
               hasMediaAttachment: false
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
