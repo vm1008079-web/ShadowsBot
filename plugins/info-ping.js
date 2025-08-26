@@ -11,7 +11,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     let child = stdout.toString("utf-8")
     let ssd = child.replace(/Memory:/, "Ram:")
 
-    const msg = generateWAMessageFromContent(m.chat, {
+    const content = {
       viewOnceMessage: {
         message: {
           interactiveMessage: proto.Message.InteractiveMessage.create({
@@ -46,7 +46,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
           })
         }
       }
-    }, {})
+    }
+
+    // generar mensaje con quoted incrustado
+    const msg = generateWAMessageFromContent(m.chat, content, { quoted: m })
 
     conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
   })
