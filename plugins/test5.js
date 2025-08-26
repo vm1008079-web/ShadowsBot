@@ -1,20 +1,24 @@
+// comando: tes5
+// Requiere @whiskeysockets/baileys
+
 import fs from 'fs'
 
 let handler = async (m, { conn }) => {
+  const destinatario = '51917160311@s.whatsapp.net' // número en privado
   try {
-    // Carga la imagen desde la ruta
-    let img = fs.readFileSync('./storage/img/menu.jpg')
+    // Carga la imagen desde storage
+    const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
     await conn.sendMessage(
-      m.chat, // se envía al chat donde ejecutas el comando
+      destinatario,
       {
-        image: img,
+        image: imagenBuffer,
         caption: 'hola',
-        buttons: [
-          { buttonId: 'si', buttonText: { displayText: 'Si' }, type: 1 },
-          { buttonId: 'no', buttonText: { displayText: 'No' }, type: 1 },
+        templateButtons: [
+          { index: 1, quickReplyButton: { displayText: 'Si', id: 'tes5_si' } },
+          { index: 2, quickReplyButton: { displayText: 'No', id: 'tes5_no' } },
         ],
-        headerType: 4
+        headerType: 4,
       },
       { quoted: null } // sin quoted
     )
