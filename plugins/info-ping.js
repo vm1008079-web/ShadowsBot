@@ -22,11 +22,18 @@ let handler = async (m, { conn, usedPrefix, command }) => {
               text: '📊 Información del sistema'
             }),
             header: proto.Message.InteractiveMessage.Header.create({
-              title: '⚡ Ver velocidad',
+              title: 'PING TEST',
               hasMediaAttachment: false
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
               buttons: [
+                {
+                  name: 'quick_reply',
+                  buttonParamsJson: JSON.stringify({
+                    display_text: '⚡ Ver velocidad',
+                    id: `${usedPrefix}speed`
+                  })
+                },
                 {
                   name: 'quick_reply',
                   buttonParamsJson: JSON.stringify({
