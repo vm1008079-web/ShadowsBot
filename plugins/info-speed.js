@@ -11,6 +11,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     let child = stdout.toString("utf-8")
     let ssd = child.replace(/Memory:/, "Ram:")
 
+    // Generar el mensaje interactivo
     const msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
@@ -46,9 +47,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
           })
         }
       }
-    }, { userJid: m.sender, quoted: m }) // 👈 aquí añadimos el quoted
+    }, {})
 
-    conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
+    // 👇 enviar con sendMessage, ahora sí con quoted
+    conn.sendMessage(m.chat, msg.message, { quoted: m })
   })
 }
 
