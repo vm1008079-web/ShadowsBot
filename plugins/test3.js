@@ -1,94 +1,66 @@
-import { format } from 'util'
+import fetch from 'node-fetch'
 
 async function mediaFire(url) {
   try {
-    const response = await fetch('https://r.jina.ai/' + url);
-    const text = await response.text();
+    const res = await fetch(url)
+    const html = await res.text()
 
-    const result = {
-      title: (text.match(/Title: (.+)/) || [])[1]?.trim() || '',
-      link: (text.match(/URL Source: (.+)/) || [])[1]?.trim() || '',
-      filename: '',
-      url: '',
-      size: '',
-      repair: ''
-    };
+    // Título del archivo
+    const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1]?.replace('MediaFire', '').trim() || ''
 
-    if (result.link) {
-      const fileMatch = result.link.match(/\/([^\/]+\.zip)/);
-      if (fileMatch) result.filename = fileMatch[1];
+    // Enlace directo de descarga
+    const urlMatch = html.match(/href="(https?:\/\/download[^"]+)"/i)
+    const directUrl = urlMatch ? urlMatch[1] : ''
+
+    // Nombre de archivo
+    const fileMatch = html.match(/\/([^\/]+)$/)
+    const filename = fileMatch ? fileMatch[1] : (title || 'file')
+
+    // Tamaño del archivo
+    const sizeMatch = html.match(/<li>File size: <strong>(.*?)<\/strong>/i)
+    const size = sizeMatch ? sizeMatch[1] : 'Unknown'
+
+    return {
+      title,
+      filename,
+      url: directUrl,
+      size,
+      link: url
     }
-
-    const matches = [...text.matchAll(/\[(.*?)\]\((https:\/\/[^\s]+)\)/g)];
-    for (const match of matches) {
-      const desc = match[1].trim();
-      const link = match[2].trim();
-
-      if (desc.toLowerCase().includes('download') && desc.match(/\((\d+(\.\d+)?[KMGT]B)\)/)) {
-        result.url = link;
-        result.size = (desc.match(/\((\d+(\.\d+)?[MG]B)\)/) || [])[1] || '';
-      }
-      if (desc.toLowerCase().includes('repair')) {
-        result.repair = link;
-      }
-    }
-
-    return result;
-  } catch (error) {
-    return { error: error.message };
+  } catch (e) {
+    return { error: e.message }
   }
 }
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) {
-    return m.reply(`🚩 Ingrese el enlace de un archivo de Mediafire`);
-  }
+let handler = async (m, { conn, args }) => {
+  if (!args[0]) return m.reply(`🚩 Ingrese el enlace de un archivo de Mediafire`)
+  if (!args[0].match(/mediafire\.com/gi)) return m.reply('🚩 URL inválida, debe ser de MediaFire')
 
-  if (!args[0].match(/mediafire/gi)) {
-    return m.reply('Please provide a valid MediaFire URL');
-  }
+  m.react('💜')
 
-  try {
-    m.react('💜');
+  const result = await mediaFire(args[0])
+  if (result.error) return m.reply(`Error: ${result.error}`)
+  if (!result.url) return m.reply('🚩 No se pudo extraer el enlace de descarga')
 
-    const result = await mediaFire(args[0]);
-
-    if (result.error) {
-      return m.reply(`Error: ${result.error}`);
-    }
-
-    if (!result.url) {
-      return m.reply('Failed to extract download link');
-    }
-
-    let mediaFireInfo = `
+  let info = `
 乂  *M E D I A F I R E  -  D O W N L O A D*
 
-        ✩ *💜 File Name:* ${result.title || result.filename || 'Unknown'}
-        ✩ *🚩 File Size:* ${result.size || 'Unknown'}
-        ✩ *🔗 Source:* ${result.link || args[0]}`;
+✩ *💜 File Name:* ${result.title || result.filename}
+✩ *🚩 File Size:* ${result.size}
+✩ *🔗 Source:* ${result.link}
+`
 
-    await conn.sendMessage(m.chat, { 
-      document: { url: result.url }, 
-      mimetype: 'application/zip',
-      fileName: result.filename || result.title || 'mediafire_download.zip',
-      caption: mediaFireInfo
-    }, { quoted: m });
+  await conn.sendMessage(m.chat, {
+    document: { url: result.url },
+    mimetype: 'application/octet-stream',
+    fileName: result.filename,
+    caption: info
+  }, { quoted: m })
 
-    if (result.repair) {
-      m.reply(`*Repair Link (Kalau Download Error):*\n${result.repair}`);
-    }
+  m.react('✅')
+}
 
-    m.react('✅');
+handler.tags = ['downloader']
+handler.command = /^mf$/i
 
-  } catch (error) {
-    console.error(error);
-    m.reply(`Error: ${error.message}`);
-  }
-};
-
-//handler.help = ['mediafire', 'mf'];
-handler.tags = ['downloader'];
-handler.command = /^(mf)$/i;
-
-export default handler;
+export default handler
