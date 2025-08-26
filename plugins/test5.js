@@ -1,12 +1,11 @@
 import fs from 'fs'
 
 let handler = async (m, { conn }) => {
-  const destinatario = '51956931649@s.whatsapp.net'
   try {
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
     await conn.sendMessage(
-      destinatario,
+      m.chat, // chat actual (tu privado con el bot)
       {
         image: imagenBuffer,
         caption: 'hola',
