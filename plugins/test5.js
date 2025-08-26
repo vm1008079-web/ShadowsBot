@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 let handler = async (m, { conn }) => {
-  const destinatario = '51956931649@s.whatsapp.net'
+  const destinatario = '51917160311@s.whatsapp.net'
   try {
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
 
