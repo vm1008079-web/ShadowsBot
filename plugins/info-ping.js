@@ -1,29 +1,28 @@
-import speed from "performance-now";
-import { exec } from "child_process";
-import pkg from '@whiskeysockets/baileys'
+import speed from "performance-now"
+import { exec } from "child_process"
+import pkg from "@whiskeysockets/baileys"
 const { proto, generateWAMessageFromContent } = pkg
 
 let handler = async (m, { conn, usedPrefix, command }) => {
-  let timestamp = speed();
+  let timestamp = speed()
 
-  exec(`neofetch --stdout`, async (error, stdout, stderr) => {
-    let latensi = speed() - timestamp;
-    let child = stdout.toString("utf-8");
-    let ssd = child.replace(/Memory:/, "Ram:");
+  exec(`neofetch --stdout`, (error, stdout, stderr) => {
+    let latensi = speed() - timestamp
+    let child = stdout.toString("utf-8")
+    let ssd = child.replace(/Memory:/, "Ram:")
 
-    const textMsg = `${ssd}\n乂  *Speed* : ${latensi.toFixed(4)} _ms_`
-
-    const buttonsMessage = generateWAMessageFromContent(m.chat, {
+    const msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
           interactiveMessage: proto.Message.InteractiveMessage.create({
             body: proto.Message.InteractiveMessage.Body.create({
-              text: textMsg
+              text: `${ssd}\n乂  *Speed* : ${latensi.toFixed(4)} _ms_`
             }),
             footer: proto.Message.InteractiveMessage.Footer.create({
               text: '📊 Información del sistema'
             }),
             header: proto.Message.InteractiveMessage.Header.create({
+              title: 'PING TEST',
               hasMediaAttachment: false
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
@@ -31,15 +30,8 @@ let handler = async (m, { conn, usedPrefix, command }) => {
                 {
                   name: 'quick_reply',
                   buttonParamsJson: JSON.stringify({
-                    display_text: '⚡ Ver velocidad',
-                    id: '.speed'
-                  })
-                },
-                {
-                  name: 'quick_reply',
-                  buttonParamsJson: JSON.stringify({
-                    display_text: `🔄 Nuevo Speed: ${usedPrefix + command}`,
-                    id: usedPrefix + command
+                    display_text: '🔄 Nuevo Speed',
+                    id: `${usedPrefix + command}`
                   })
                 }
               ]
@@ -49,12 +41,12 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       }
     }, {})
 
-    await conn.relayMessage(m.chat, buttonsMessage.message, { messageId: buttonsMessage.key.id })
-  });
-};
+    conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
+  })
+}
 
-handler.help = ["ping"];
-handler.tags = ["info"];
-handler.command = ["ping", "p"];
+handler.help = ["ping"]
+handler.tags = ["info"]
+handler.command = ["ping", "p"]
 
-export default handler;
+export default handler
