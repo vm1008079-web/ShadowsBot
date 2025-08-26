@@ -37,6 +37,7 @@ const handler = async (m, { conn, command, args, isAdmin }) => {
 
 handler.command = ['mute', 'unmute']
 handler.group = true
+handler.admin = true
 handler.register = false
 handler.tags = ['group']
 handler.help = ['mute @usuario', 'unmute @usuario']
