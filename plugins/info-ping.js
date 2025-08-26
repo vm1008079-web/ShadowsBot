@@ -3,7 +3,7 @@ import { exec } from "child_process";
 import pkg from '@whiskeysockets/baileys'
 const { proto, generateWAMessageFromContent } = pkg
 
-let handler = async (m, { conn }) => {
+let handler = async (m, { conn, usedPrefix, command }) => {
   let timestamp = speed();
 
   exec(`neofetch --stdout`, async (error, stdout, stderr) => {
@@ -24,7 +24,6 @@ let handler = async (m, { conn }) => {
               text: '📊 Información del sistema'
             }),
             header: proto.Message.InteractiveMessage.Header.create({
-              title: 'SPEED TEST',
               hasMediaAttachment: false
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
@@ -39,8 +38,8 @@ let handler = async (m, { conn }) => {
                 {
                   name: 'quick_reply',
                   buttonParamsJson: JSON.stringify({
-                    display_text: '📊 Info',
-                    id: '.ping'
+                    display_text: `🔄 Nuevo Speed: ${usedPrefix + command}`,
+                    id: usedPrefix + command
                   })
                 }
               ]
