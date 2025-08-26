@@ -8,11 +8,13 @@ async function mediaFire(url) {
     // Título del archivo
     const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1]?.replace('MediaFire', '').trim() || ''
 
-    // Enlace directo de descarga
-    const urlMatch = html.match(/href="(https?:\/\/download[^"]+)"/i)
+    // Buscar enlace de descarga (2 posibles formatos)
+    const urlMatch = html.match(/href="(https?:\/\/download[^"]+)"/i) 
+                  || html.match(/href="(https?:\/\/www\.mediafire\.com\/file\/[^"]+)"/i)
+
     const directUrl = urlMatch ? urlMatch[1] : ''
 
-    // Nombre de archivo
+    // Nombre del archivo
     const fileMatch = html.match(/\/([^\/]+)$/)
     const filename = fileMatch ? fileMatch[1] : (title || 'file')
 
