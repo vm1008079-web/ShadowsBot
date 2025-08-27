@@ -10,7 +10,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         const taguser = '@' + m.sender.split('@')[0]
 
         let nombreBot = global.namebot || 'BLACK-BOT'
-        let bannerFinal = 'https://files.catbox.moe/47zwng.jpg' // Imagen de Goku Black
+        let bannerFinal = 'https://iili.io/KJXN7yB.jpg' // Imagen de Goku Black
 
         const botActual = conn.user?.jid?.split('@')[0]?.replace(/\D/g, '')
         const configPath = join('./JadiBots', botActual || '', 'config.json')
