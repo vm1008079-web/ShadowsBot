@@ -16,7 +16,12 @@ const handler = async (m, { conn }) => {
     ]
     const document = docTypes[Math.floor(Math.random() * docTypes.length)]
 
-    const text = `*—◉ INSTALACION EN TERMUX*
+    const text = `*—◉ 📥 DESCARGAR TERMUX AQUI 📥*
+> 1- termux.uptodown.com/android
+    
+------------------------------------
+
+*—◉ 🧿 INSTALACION EN TERMUX 🧿*
 ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
 > 1- termux-setup-storage
 > 2- apt update && apt upgrade -y
