@@ -58,7 +58,7 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
         forwardingScore: 200,
         isForwarded: true,
         externalAdReply: {
-          mediaUrl: 'https://youtu.be/nUSEEmlZw2g,
+          mediaUrl: 'https://youtu.be/nUSEEmlZw2g',
           mediaType: 2,
           previewType: 'pdf',
           title: 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
