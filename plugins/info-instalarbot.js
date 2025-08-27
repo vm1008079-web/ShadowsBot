@@ -58,13 +58,13 @@ ESCRIBE LOS SIGUIENTES COMANDOS UNO POR UNO:
         forwardingScore: 200,
         isForwarded: true,
         externalAdReply: {
-          mediaUrl: 'https://github.com/Ado-Rgb',
+          mediaUrl: 'https://youtu.be/nUSEEmlZw2g,
           mediaType: 2,
           previewType: 'pdf',
           title: 'ᴇʟ ᴍᴇᴊᴏʀ ʙᴏᴛ ᴅᴇ ᴡʜᴀᴛsᴀᴘᴘ⁩',
           body: namebot,
           thumbnail: fs.readFileSync('./storage/img/menu.jpg'), // 👈 preview como JPG
-          sourceUrl: 'https://www.youtube.com/'
+          sourceUrl: 'https://youtu.be/nUSEEmlZw2g/'
         }
       },
       caption: text,
