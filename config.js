@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url'
 
 // Propietarios
 global.owner = [
-  ['5214427727370', 'un random (Propietario)', true],
-  ['5353448202','OmegaPhantom(Copropietario)'],
+  ['5356795360', 'un random (Propietario)', true],
+  ['5214427727370','OmegaPhantom(Copropietario)'],
   ['584160592710', 'Kaede Zuzu',],
   ['5214428809790', 'Persona que no conozco',],
   ['103419121512549', 'lid1'],
