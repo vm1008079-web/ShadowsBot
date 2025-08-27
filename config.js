@@ -2,11 +2,18 @@ import { watchFile, unwatchFile } from 'fs'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
 
+// Propietarios
 global.owner = [
-  ['5356795360', 'OMEGA', true],
+  ['5214427727370', 'un random (Propietario)', true],
+  ['5353448202','OmegaPhantom(Copropietario)'],
+  ['584160592710', 'Kaede Zuzu',],
+  ['5214428809790', 'Persona que no conozco',],
+  ['103419121512549', 'lid1'],
 ]
 
+// Otros ajustes de permisos
 global.mods = []
+global.suittag = ['5214428809790']
 global.prems = []
 
 global.namebot = '𝖠𝖨 | SHADOWS'
