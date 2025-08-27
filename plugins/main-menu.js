@@ -30,6 +30,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const taguser = '@' + m.sender.split('@')[0]
 
     let nombreBot = global.namebot || 'BLACK-BOT'
+    // IMAGEN ACTUALIZADA - https://iili.io/KJXN7yB.jpg
     let bannerFinal = 'https://iili.io/KJXN7yB.jpg'
 
     const botActual = conn.user?.jid?.split('@')[0]?.replace(/\D/g, '')
@@ -76,10 +77,12 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '🐉', key: m.key } })
     
+    // Enviar mensaje con imagen
     await conn.sendMessage(
       m.chat,
       { 
-        text: menuText,
+        image: { url: bannerFinal },
+        caption: menuText,
         contextInfo: {
           externalAdReply: {
             title: '𝐁𝐋𝐀𝐂𝐊-𝐁𝐎𝐓 𝐌𝐃',
@@ -87,7 +90,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
             thumbnailUrl: bannerFinal,
             sourceUrl: "https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O",
             mediaType: 1,
-            renderLargerThumbnail: false
+            renderLargerThumbnail: true
           },
           mentionedJid: [m.sender]
         }
