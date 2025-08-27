@@ -2,18 +2,33 @@ import fetch from 'node-fetch'
 
 async function mediaFire(url) {
   try {
-    const res = await fetch(`https://api.mediafireapi.workers.dev/?url=${encodeURIComponent(url)}`)
-    const data = await res.json()
+    // 1. Traer HTML de MediaFire
+    const res = await fetch(url)
+    const html = await res.text()
 
-    if (!data.success) {
-      return { error: 'No se pudo obtener el enlace' }
+    // 2. Buscar enlace directo en el HTML
+    let directUrl = ''
+    const match = html.match(/https?:\/\/download[^"]+/i)
+    if (match) {
+      directUrl = match[0]
+    } else {
+      // 3. Si no aparece, probamos siguiendo redirecciones manualmente
+      const head = await fetch(url, { redirect: 'manual' })
+      const loc = head.headers.get('location')
+      if (loc && loc.includes('download')) {
+        directUrl = loc
+      }
     }
 
+    // 4. Extraer título (nombre) y tamaño si existe
+    const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1]?.replace('MediaFire', '').trim() || 'file'
+    const size = (html.match(/File size:\s*<strong>(.*?)<\/strong>/i) || [])[1] || 'Unknown'
+
     return {
-      title: data.filename || 'Unknown',
-      filename: data.filename || 'file',
-      url: data.link || '',
-      size: data.filesize || 'Unknown',
+      title,
+      filename: title.replace(/[/\\?%*:|"<>]/g, '') + '.bin',
+      url: directUrl,
+      size,
       link: url
     }
   } catch (e) {
@@ -21,6 +36,7 @@ async function mediaFire(url) {
   }
 }
 
+// ejemplo handler
 let handler = async (m, { conn, args }) => {
   if (!args[0]) return m.reply(`🚩 Ingrese el enlace de un archivo de Mediafire`)
   if (!args[0].match(/mediafire\.com/gi)) return m.reply('🚩 URL inválida, debe ser de MediaFire')
