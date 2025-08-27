@@ -1,6 +1,6 @@
 {
   "name": "Michi-WaBot-MD",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "description": "Michi Multi Device",
   "main": "index.js",
   "type": "module",
@@ -27,6 +27,7 @@
   "dependencies": {
     "@bochilteam/scraper": "^4.2.4",
     "@hapi/boom": "^10.0.1",
+    "@google/generative-ai": "*",
     "@StarlightsTeam/Scraper": "github:Ado926/Starlights-Scraper",
     "@whiskeysockets/baileys":  "github:Ado-rgb/AdonixBaileys",
     "api-dylux": "^1.8.5",
